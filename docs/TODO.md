@@ -1,6 +1,8 @@
 ### Todo
 
-- [ ] Login UI + auth guard + accounts page in Angular (setup, login, logout, account list) #feat  
+- [ ] Admin Users page in Angular (create/deactivate/reset password; backend exists) #feat  
+- [ ] Replace window.confirm in account delete with an in-app dialog #chore  
+- [ ] Rebuild/verify Docker image with auth + UI; add frontend tests to CI #chore  
 - [ ] Login rate limiting / lockout #sec  
 - [ ] Self-service password change; optional TOTP 2FA #feat  
 - [ ] Make /auth/setup atomic (race on simultaneous first requests) #sec  
@@ -19,7 +21,7 @@
 
 ### In Progress
 
-- [ ] Phase 1 scaffold (skeletons + Docker + auth backend done; frontend auth UI pending)  
+- [ ] Phase 1 scaffold (skeletons, Docker, auth backend and login/accounts UI done; ready for import phase)  
 
 ### Done ✓
 
@@ -31,3 +33,4 @@
 - [x] Dockerfile (multi-stage) + docker-compose.yml, verified running  
 - [x] Push to origin/main  
 - [x] Auth backend: users, sessions, accounts CRUD, first migration, 19 tests (ADR 0004)  
+- [x] Angular setup/login/accounts screens, guards, 401 interceptor, 19 tests, verified in a real browser  

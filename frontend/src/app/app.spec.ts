@@ -1,22 +1,36 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { App } from './app';
+import { AuthService } from './core/auth.service';
 
-describe('App', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
+describe('App shell', () => {
+  beforeEach(() =>
+    TestBed.configureTestingModule({
       imports: [App],
-      providers: [provideHttpClient(), provideHttpClientTesting()],
-    }).compileComponents();
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+    })
+  );
+
+  it('shows only the title when signed out', async () => {
+    const f = TestBed.createComponent(App);
+    await f.whenStable();
+    const el = f.nativeElement as HTMLElement;
+    expect(el.querySelector('h1')?.textContent).toContain('Cinnamon');
+    expect(el.querySelector('button')).toBeNull();
   });
 
-  it('should render title and API status from /api/health', async () => {
-    const fixture = TestBed.createComponent(App);
-    TestBed.inject(HttpTestingController).expectOne('/api/health').flush({ status: 'ok' });
-    await fixture.whenStable();
-    const el = fixture.nativeElement as HTMLElement;
-    expect(el.querySelector('h1')?.textContent).toContain('Cinnamon');
-    expect(el.querySelector('.status')?.textContent).toContain('API: ok');
+  it('shows the user and Sign out when signed in', async () => {
+    const auth = TestBed.inject(AuthService);
+    (auth as unknown as { _user: { set(u: unknown): void } })._user.set({
+      id: 1, username: 'poojan', is_admin: true, is_active: true,
+    });
+    const f = TestBed.createComponent(App);
+    await f.whenStable();
+    const el = f.nativeElement as HTMLElement;
+    expect(el.querySelector('.who')?.textContent).toContain('poojan');
+    expect(el.querySelector('.who')?.textContent).toContain('admin');
+    expect(el.querySelector('button')?.textContent).toContain('Sign out');
   });
 });

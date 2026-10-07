@@ -1,6 +1,11 @@
 <header>
   <h1>Cinnamon</h1>
-  <span class="status" [attr.data-status]="apiStatus()">API: {{ apiStatus() }}</span>
+  @if (auth.user(); as user) {
+    <span class="spacer"></span>
+    <span class="who">{{ user.username }}
+      @if (user.is_admin) { <small>(admin)</small> }</span>
+    <button type="button" (click)="logout()">Sign out</button>
+  }
 </header>
 <main>
   <router-outlet />

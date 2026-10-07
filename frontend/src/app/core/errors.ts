@@ -1,0 +1,12 @@
+import { HttpErrorResponse } from '@angular/common/http';
+
+/** Turn an API error into a short message for the UI. FastAPI sends {detail: string | [{msg}]}. */
+export function apiError(err: unknown, fallback = 'Something went wrong'): string {
+  if (err instanceof HttpErrorResponse) {
+    if (err.status === 0) return 'Cannot reach the server';
+    const d = err.error?.detail;
+    if (typeof d === 'string') return d;
+    if (Array.isArray(d) && d[0]?.msg) return String(d[0].msg).replace(/^Value error, /, '');
+  }
+  return fallback;
+}

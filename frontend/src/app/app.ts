@@ -1,8 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { RouterOutlet } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
+import { Router, RouterOutlet } from '@angular/router';
+import { AuthService } from './core/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -11,13 +9,11 @@ import { catchError, map, of } from 'rxjs';
   styleUrl: './app.scss'
 })
 export class App {
-  private readonly http = inject(HttpClient);
+  protected readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
-  protected readonly apiStatus = toSignal(
-    this.http.get<{ status: string }>('/api/health').pipe(
-      map((r) => r.status),
-      catchError(() => of('unreachable'))
-    ),
-    { initialValue: 'checking' }
-  );
+  protected async logout(): Promise<void> {
+    await this.auth.logout();
+    await this.router.navigateByUrl('/login');
+  }
 }

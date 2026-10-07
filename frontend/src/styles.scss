@@ -1,1 +1,16 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --border: #d0d7de;
+  --muted: #667085;
+  --danger: #b42318;
+  color-scheme: light dark;
+}
+body { margin: 0; font-family: system-ui, sans-serif; }
+.card { display: grid; gap: 0.75rem; max-width: 22rem; padding: 1rem; border: 1px solid var(--border); border-radius: 8px; margin-top: 1.5rem; }
+label { display: grid; gap: 0.25rem; }
+input { padding: 0.4rem; font: inherit; }
+button { padding: 0.4rem 0.8rem; font: inherit; cursor: pointer; }
+.error { color: var(--danger); margin: 0; }
+.hint, .platform { color: var(--muted); }
+ul.accounts { list-style: none; padding: 0; display: grid; gap: 0.5rem; }
+ul.accounts li { display: flex; gap: 0.5rem; align-items: center; padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; }
+ul.accounts li .platform { flex: 1; }

@@ -1,4 +1,4 @@
-header { display: flex; align-items: baseline; gap: 1rem; padding: 1rem; }
-h1 { margin: 0; }
-.status[data-status='ok'] { color: green; }
-.status[data-status='unreachable'] { color: crimson; }
+header { display: flex; align-items: baseline; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--border); }
+h1 { margin: 0; font-size: 1.4rem; }
+.spacer { flex: 1; }
+main { max-width: 42rem; margin: 0 auto; padding: 1rem; }
