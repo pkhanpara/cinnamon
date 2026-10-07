@@ -1,5 +1,20 @@
 ### Todo
 
+- [ ] Seed data: make a few holdings overlap across accounts so merged rows show in the UI #chore  
+  - [ ] Extend `scripts/make_seed.py` (today ETFs go to `m1`, everything else to `robinhood`, so nothing overlaps); output stays in git-ignored `seed/private/`  
+  - [ ] Split 3-4 symbols (e.g. NVDA, MSFT, VOO) across two or three accounts, keeping the combined totals equal to the PDF's so the cross-check still holds  
+  - [ ] Look at the merged-row expand control on Home and the per-account lines on the ticker page with that data, and note any UI problems  
+- [ ] News: cache for 30 minutes and add a Refresh button that shows how stale the news is #feat  
+  - [ ] Backend: `NEWS_TTL` is 10 min in `api/symbols.py`; make it 30. `NewsListOut` has `stale` but no fetch time, so return the cache's `fetched_at`  
+  - [ ] Refresh must bypass the cache but stay inside Finnhub's 60 calls/min (rate-limit it per user, e.g. at most once a minute per symbol) and keep serving the old items if the refresh fails  
+  - [ ] Frontend: show "Updated 12 min ago" next to a Refresh button on the ticker page; update the label as time passes; tests and mutation checks as usual  
+- [ ] LLM news summary + chat side panel for the ticker page (OpenAI-compatible endpoint) #feat  
+  - [ ] Design questions to ask first (ADR 0008): which endpoint (OpenAI, a local llama-swap/Ollama server), where the base URL, model and key live (env, never committed), streaming or not, per-user rate/cost limits  
+  - [ ] Privacy: send only public news text and the symbol by default; sending the user's position or holdings should be an explicit opt-in per request, and the UI should say what is sent  
+  - [ ] Treat article text as untrusted input (prompt injection): fixed system prompt, news delimited as data, render the answer as plain text or sanitized markdown, no tool use or link-following  
+  - [ ] Backend: provider interface (`LlmProvider`, OpenAI-compatible chat completions) like `QuoteProvider`; works with no LLM configured (feature hidden, clear message); timeouts and errors become warnings; tests with a fake provider, never the real endpoint  
+  - [ ] Summarize: one-click summary of the cached headlines/summaries for the symbol  
+  - [ ] Chat box in a side panel on the ticker page with preloaded prompts, starting with "Why is the stock up/down today?" (feed it the day's change, previous close and the news of the last day); more presets later  
 - [ ] Per-user rate limit on symbol search/lookups (Finnhub allows 60 calls/min for everyone) #sec  
 - [ ] Rebuild Docker image and check size/build with yfinance (pandas) #chore  
 - [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges #feat  
