@@ -7,6 +7,8 @@ export function apiError(err: unknown, fallback = 'Something went wrong'): strin
     const d = err.error?.detail;
     if (typeof d === 'string') return d;
     if (Array.isArray(d) && d[0]?.msg) return String(d[0].msg).replace(/^Value error, /, '');
+    // Unhandled server crash: FastAPI answers with a plain-text "Internal Server Error", no {detail}.
+    if (err.status >= 500) return `Server error (HTTP ${err.status}). Check the backend logs.`;
   }
   return fallback;
 }

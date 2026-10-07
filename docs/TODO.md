@@ -12,6 +12,7 @@
 - [ ] Rebuild/verify Docker image with auth + UI; add frontend tests to CI #chore  
 - [ ] Login rate limiting / lockout #sec  
 - [ ] Self-service password change; optional TOTP 2FA #feat  
+- [ ] Friendlier username-pattern 422 message on the setup/users forms #ux  
 - [ ] Make /auth/setup atomic (race on simultaneous first requests) #sec  
 - [ ] Serialize timestamps as UTC (SQLite drops tzinfo; API shows naive created_at) #bug  
 - [ ] Pin the uv image tag in Dockerfile (currently :latest) #chore  
@@ -42,5 +43,6 @@
 - [x] Angular setup/login/accounts screens, guards, 401 interceptor, 19 tests, verified in a real browser  
 - [x] Admin Users page (create, make/remove admin, deactivate, reset password) + adminGuard + nav, 28 frontend tests, verified with two browser sessions  
 - [x] CSV import: connector interface + snapshot connector, preview/confirm API, positions + imports tables, import page, 61 backend + 38 frontend tests, verified in browser with real-derived seed (totals match the PDF)  
+- [x] Fix first-admin setup 500: run Alembic on startup + readable 5xx errors  
 - [x] ADR 0002 (connector plugins and CSV-first import)  
 - [x] Holdings view: Finnhub provider + quote cache, aggregation API, account checkboxes, tiles, donut, sortable/expandable table, 111 backend + 67 frontend tests, verified live in browser (ADR 0003)  

@@ -1,3 +1,7 @@
+import os
+
+os.environ["AUTO_MIGRATE"] = "false"  # tests build their own in-memory schema; set before import
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, event

@@ -1,14 +1,34 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from app import db as app_db
 from app.api import accounts, auth, health, holdings, imports, users
+from app.bootstrap import ensure_default_admin
+from app.config import get_settings
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
-app = FastAPI(title="Cinnamon", version="0.1.0")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
+    settings = get_settings()
+    if settings.auto_migrate:
+        app_db.upgrade_schema(settings.database_url)
+        # Only here: the schema is known to exist, and test fixtures that build their own
+        # in-memory schema run with auto_migrate off and must not touch a real database.
+        with app_db.SessionLocal() as db:
+            ensure_default_admin(
+                db, settings.default_admin_username, settings.default_admin_password
+            )
+    yield
+
+
+app = FastAPI(title="Cinnamon", version="0.1.0", lifespan=lifespan)
 for r in (
     health.router,
     auth.router,

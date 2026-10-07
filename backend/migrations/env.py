@@ -9,7 +9,9 @@ config = context.config
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
-if config.config_file_name is not None:
+# Skipped when the app runs migrations in-process (app.db.upgrade_schema): fileConfig would
+# disable uvicorn's already-configured loggers.
+if config.config_file_name is not None and not config.attributes.get("in_process"):
     fileConfig(config.config_file_name)
 
 # add your model's MetaData object here
@@ -21,7 +23,9 @@ from app.config import get_settings
 from app.db import Base
 from app.db_types import DecimalText
 
-config.set_main_option("sqlalchemy.url", get_settings().database_url)
+config.set_main_option(
+    "sqlalchemy.url", config.attributes.get("url") or get_settings().database_url
+)
 target_metadata = Base.metadata
 
 
