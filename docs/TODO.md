@@ -1,6 +1,10 @@
 ### Todo
 
-- [ ] Holdings view: aggregate positions across selected accounts (checkboxes) + live Finnhub value overlay #feat  
+- [ ] Click a holdings row to open the ticker detail page #feat  
+- [ ] Cash balances (the PDF had $14,177.37 cash; totals currently exclude cash) #feat  
+- [ ] Quote fetching beyond 60 distinct symbols/min: batch or queue #chore  
+- [ ] Persist holdings account selection per user on the server (currently per browser) #feat  
+- [ ] Holdings: CSV export of the current view #feat  
 - [ ] Show positions of one account (read-only table) on the accounts page #feat  
 - [ ] Import: undo/restore previous snapshot if replace-and-discard proves too risky #feat  
 - [ ] Users page: allow deleting a user and show created_at / last login #feat  
@@ -15,7 +19,7 @@
 - [ ] Upgrade Angular 21 -> 22 (needs Node >= 24.15; machine has 24.4.1) #chore  
 - [ ] Real Robinhood / M1 CSV parsers (need real sample exports from user) #feat  
 - [ ] Holdings aggregation API + account-checkbox UI #feat  
-- [ ] Finnhub quotes/news + yfinance history providers #feat  
+- [ ] yfinance history provider + Finnhub news/profile + ticker detail page (quote, chart, news) #feat  
 - [ ] Transactions, cost basis (avg-cost; ADR 0005), watchlists #feat  
 - [ ] Daily snapshots, performance + allocation charts #feat  
 - [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  
@@ -39,3 +43,4 @@
 - [x] Admin Users page (create, make/remove admin, deactivate, reset password) + adminGuard + nav, 28 frontend tests, verified with two browser sessions  
 - [x] CSV import: connector interface + snapshot connector, preview/confirm API, positions + imports tables, import page, 61 backend + 38 frontend tests, verified in browser with real-derived seed (totals match the PDF)  
 - [x] ADR 0002 (connector plugins and CSV-first import)  
+- [x] Holdings view: Finnhub provider + quote cache, aggregation API, account checkboxes, tiles, donut, sortable/expandable table, 111 backend + 67 frontend tests, verified live in browser (ADR 0003)  

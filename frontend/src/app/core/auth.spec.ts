@@ -69,11 +69,11 @@ describe('guards', () => {
     expect(String(await p)).toBe('/login');
   });
 
-  it('guestGuard redirects signed-in users to /accounts', async () => {
+  it('guestGuard redirects signed-in users to /holdings', async () => {
     const { http } = setup();
     const p = TestBed.runInInjectionContext(() => guestGuard({} as never, {} as never)) as Promise<unknown>;
     http.expectOne('/api/auth/me').flush(USER);
-    expect(String(await p)).toBe('/accounts');
+    expect(String(await p)).toBe('/holdings');
   });
 });
 
@@ -87,7 +87,7 @@ describe('adminGuard', () => {
   };
 
   it('allows admins', async () => expect(await run({ ...USER, is_admin: true })).toBe(true));
-  it('sends non-admins to /accounts', async () => expect(String(await run(USER))).toBe('/accounts'));
+  it('sends non-admins to /holdings', async () => expect(String(await run(USER))).toBe('/holdings'));
   it('sends signed-out users to /login', async () => expect(String(await run(null))).toBe('/login'));
 });
 

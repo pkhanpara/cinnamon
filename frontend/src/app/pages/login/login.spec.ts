@@ -23,14 +23,14 @@ describe('Login page', () => {
     expect(btn.disabled).toBe(false);
   });
 
-  it('navigates to /accounts on success', async () => {
+  it('navigates to /holdings on success', async () => {
     const { f, http } = mount();
     const nav = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     f.componentInstance['form'].setValue({ username: 'a', password: 'b' });
     const p = f.componentInstance['submit']();
     http.expectOne('/api/auth/login').flush({ id: 1, username: 'a', is_admin: false, is_active: true });
     await p;
-    expect(nav).toHaveBeenCalledWith('/accounts');
+    expect(nav).toHaveBeenCalledWith('/holdings');
   });
 
   it('shows an error on bad credentials and stays put', async () => {

@@ -26,3 +26,16 @@ th, td { padding: 0.35rem 0.6rem; border-bottom: 1px solid var(--border); text-a
 th { position: sticky; top: 0; background: Canvas; }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
 a.button { padding: 0.4rem 0.8rem; border: 1px solid ButtonBorder; border-radius: 4px; color: inherit; text-decoration: none; background: ButtonFace; }
+.accounts-filter { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; border: 1px solid var(--border); border-radius: 8px; margin: 0 0 1rem; padding: 0.5rem 1rem; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; margin: 1rem 0; }
+.tile { border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; display: grid; gap: 0.25rem; }
+.tile .k { color: var(--muted); font-size: 0.85rem; }
+.tile strong { font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+.tile small, td .sub, .sub { font-size: 0.8rem; font-weight: normal; color: var(--muted); }
+.gain, .gain .sub { color: #067647; }
+.loss, .loss .sub { color: var(--danger); }
+.muted { color: var(--muted); }
+.scroll.tall { max-height: 36rem; margin-top: 1rem; }
+button.link { background: none; border: none; padding: 0; color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
+.foot { margin-top: 0.75rem; }
+tr.subrow td { background: color-mix(in srgb, CanvasText 4%, Canvas); }

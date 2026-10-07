@@ -15,7 +15,7 @@ export const guestGuard: CanActivateFn = async () => {
   const auth = inject(AuthService);
   const router = inject(Router); // inject() must run before the first await
   await auth.ensureLoaded();
-  return auth.isAuthenticated() ? router.parseUrl('/accounts') : true;
+  return auth.isAuthenticated() ? router.parseUrl('/holdings') : true;
 };
 
 /** Admin-only routes. Non-admins are sent to /accounts (the API enforces this too). */
@@ -24,5 +24,5 @@ export const adminGuard: CanActivateFn = async () => {
   const router = inject(Router);
   await auth.ensureLoaded();
   if (!auth.isAuthenticated()) return router.parseUrl('/login');
-  return auth.user()?.is_admin ? true : router.parseUrl('/accounts');
+  return auth.user()?.is_admin ? true : router.parseUrl('/holdings');
 };

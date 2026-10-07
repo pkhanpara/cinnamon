@@ -37,7 +37,7 @@ export class Setup {
     try {
       const { username, password } = this.form.getRawValue();
       await this.auth.setup(username, password);
-      await this.router.navigateByUrl('/accounts');
+      await this.router.navigateByUrl('/holdings');
     } catch (e) {
       this.error.set(apiError(e, 'Setup failed'));
     } finally {

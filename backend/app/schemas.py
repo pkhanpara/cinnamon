@@ -111,3 +111,50 @@ class ImportOut(BaseModel):
     filename: str
     row_count: int
     created_at: datetime
+
+
+class HoldingLine(BaseModel):
+    account_id: int
+    account_nickname: str
+    platform: str
+    quantity: Decimal
+    cost_basis: Decimal
+    value: Decimal | None
+    source: str
+
+
+class HoldingOut(BaseModel):
+    symbol: str
+    name: str | None
+    quantity: Decimal
+    cost_basis: Decimal
+    price: Decimal | None
+    source: str  # live | stale | file | none
+    value: Decimal | None
+    gain: Decimal | None
+    gain_pct: Decimal | None
+    weight_pct: Decimal | None
+    day_change: Decimal | None
+    day_change_pct: Decimal | None
+    lines: list[HoldingLine]
+
+
+class HoldingsSummary(BaseModel):
+    total_value: Decimal
+    total_cost_basis: Decimal
+    gain: Decimal
+    gain_pct: Decimal | None
+    day_change: Decimal | None
+    day_change_pct: Decimal | None
+    live_count: int
+    stale_count: int
+    file_count: int
+    unpriced_count: int
+
+
+class HoldingsOut(BaseModel):
+    account_ids: list[int]
+    summary: HoldingsSummary
+    holdings: list[HoldingOut]
+    warnings: list[str]
+    prices_as_of: datetime | None

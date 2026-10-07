@@ -49,3 +49,52 @@ export interface ImportResult {
   row_count: number;
   created_at: string;
 }
+
+export type PriceSource = 'live' | 'stale' | 'file' | 'none';
+
+export interface HoldingLine {
+  account_id: number;
+  account_nickname: string;
+  platform: string;
+  quantity: string;
+  cost_basis: string;
+  value: string | null;
+  source: PriceSource;
+}
+
+export interface Holding {
+  symbol: string;
+  name: string | null;
+  quantity: string;
+  cost_basis: string;
+  price: string | null;
+  source: PriceSource;
+  value: string | null;
+  gain: string | null;
+  gain_pct: string | null;
+  weight_pct: string | null;
+  day_change: string | null;
+  day_change_pct: string | null;
+  lines: HoldingLine[];
+}
+
+export interface HoldingsSummary {
+  total_value: string;
+  total_cost_basis: string;
+  gain: string;
+  gain_pct: string | null;
+  day_change: string | null;
+  day_change_pct: string | null;
+  live_count: number;
+  stale_count: number;
+  file_count: number;
+  unpriced_count: number;
+}
+
+export interface HoldingsResponse {
+  account_ids: number[];
+  summary: HoldingsSummary;
+  holdings: Holding[];
+  warnings: string[];
+  prices_as_of: string | null;
+}

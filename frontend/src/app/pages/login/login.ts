@@ -35,7 +35,7 @@ export class Login {
     try {
       const { username, password } = this.form.getRawValue();
       await this.auth.login(username, password);
-      await this.router.navigateByUrl('/accounts');
+      await this.router.navigateByUrl('/holdings');
     } catch (e) {
       this.error.set(apiError(e, 'Sign in failed'));
     } finally {

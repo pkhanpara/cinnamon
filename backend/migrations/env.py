@@ -19,9 +19,18 @@ if config.config_file_name is not None:
 from app import models  # noqa: F401  (register tables)
 from app.config import get_settings
 from app.db import Base
+from app.db_types import DecimalText
 
 config.set_main_option("sqlalchemy.url", get_settings().database_url)
 target_metadata = Base.metadata
+
+
+def render_item(type_, obj, autogen_context):
+    """Keep app code out of migrations: DecimalText is plain TEXT in the schema."""
+    if type_ == "type" and isinstance(obj, DecimalText):
+        return "sa.Text()"
+    return False
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -45,6 +54,7 @@ def run_migrations_offline() -> None:
     context.configure(
         url=url,
         target_metadata=target_metadata,
+        render_item=render_item,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -67,7 +77,9 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(
+            connection=connection, target_metadata=target_metadata, render_item=render_item
+        )
 
         with context.begin_transaction():
             context.run_migrations()

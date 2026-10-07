@@ -6,6 +6,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.db import Base, get_db
 from app.main import app
+from app.providers import get_quote_provider
 
 ADMIN = {"username": "admin", "password": "correct-horse-battery"}
 ALICE = {"username": "alice", "password": "alice-password-123"}
@@ -29,6 +30,8 @@ def client():
             yield s
 
     app.dependency_overrides[get_db] = override
+    # Never reach the real Finnhub (the dev .env has a key). Tests that need prices override this.
+    app.dependency_overrides[get_quote_provider] = lambda: None
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()

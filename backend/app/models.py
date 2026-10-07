@@ -86,3 +86,15 @@ class Position(Base):
         DecimalText
     )  # price the file's value was based on
     as_of: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class QuoteCache(Base):
+    """Latest known quote per symbol. Market data is public, so this is shared across users."""
+
+    __tablename__ = "quote_cache"
+
+    symbol: Mapped[str] = mapped_column(String(16), primary_key=True)
+    price: Mapped[Decimal] = mapped_column(DecimalText)
+    prev_close: Mapped[Decimal | None] = mapped_column(DecimalText)
+    quote_time: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # last trade time
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
