@@ -13,6 +13,7 @@ from app.db import Base, get_db
 from app.main import app
 from app.models import User
 from app.providers import get_company_provider, get_history_provider, get_quote_provider
+from app.providers.llm import get_llm_provider
 from app.security import hash_password
 
 
@@ -51,6 +52,7 @@ def client():
     app.dependency_overrides[get_quote_provider] = lambda: None
     app.dependency_overrides[get_company_provider] = lambda: None
     app.dependency_overrides[get_history_provider] = _no_network_history
+    app.dependency_overrides[get_llm_provider] = lambda: None  # the dev .env may name a real model
     clear_all_caches()
     with TestClient(app) as c:
         yield c
