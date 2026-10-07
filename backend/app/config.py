@@ -8,6 +8,10 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite:///./data/cinnamon.db"
     finnhub_api_key: str = ""
+    session_cookie_name: str = "cinnamon_session"
+    session_days: int = 30
+    # Set true when served over HTTPS; false allows plain-HTTP LAN use.
+    cookie_secure: bool = False
 
 
 @lru_cache

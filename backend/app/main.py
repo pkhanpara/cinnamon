@@ -4,12 +4,13 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api import health
+from app.api import accounts, auth, health, users
 
 STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
 
 app = FastAPI(title="Cinnamon", version="0.1.0")
-app.include_router(health.router, prefix="/api")
+for r in (health.router, auth.router, users.router, accounts.router):
+    app.include_router(r, prefix="/api")
 
 if STATIC_DIR.is_dir():
     app.mount("/assets", StaticFiles(directory=STATIC_DIR), name="static-files")
