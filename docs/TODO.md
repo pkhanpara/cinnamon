@@ -10,13 +10,12 @@
   - [ ] Look at the news header row (Updated label + Refresh button) in a real browser, incl. narrow screens  
   - [ ] Reuse `app/ratelimit.py` for the per-user search/lookup limit; limiter and caches are per process  
   - [ ] Decide whether a refresh returning an empty list should keep the old items  
-- [ ] LLM news summary + chat side panel for the ticker page (OpenAI-compatible endpoint) #feat  
-  - [ ] Design questions to ask first (ADR 0008): which endpoint (OpenAI, a local llama-swap/Ollama server), where the base URL, model and key live (env, never committed), streaming or not, per-user rate/cost limits  
-  - [ ] Privacy: send only public news text and the symbol by default; sending the user's position or holdings should be an explicit opt-in per request, and the UI should say what is sent  
-  - [ ] Treat article text as untrusted input (prompt injection): fixed system prompt, news delimited as data, render the answer as plain text or sanitized markdown, no tool use or link-following  
-  - [ ] Backend: provider interface (`LlmProvider`, OpenAI-compatible chat completions) like `QuoteProvider`; works with no LLM configured (feature hidden, clear message); timeouts and errors become warnings; tests with a fake provider, never the real endpoint  
-  - [ ] Summarize: one-click summary of the cached headlines/summaries for the symbol  
-  - [ ] Chat box in a side panel on the ticker page with preloaded prompts, starting with "Why is the stock up/down today?" (feed it the day's change, previous close and the news of the last day); more presets later  
+- [ ] LLM news chat follow-ups (ADR 0008) #feat  
+  - [ ] Browser check of the panel (Stop mid-answer, position box, endpoint down) and SSE through `ng serve`/Docker; the API itself was checked live against `dt-default` (backend only, no browser yet)  
+  - [ ] Per-user rate limit and/or daily token budget for LLM calls (none yet: any signed-in user can trigger unlimited model calls; `LLM_MAX_TOKENS` defaults to 96000)  
+  - [ ] Render answers as sanitized markdown (plain text today)  
+  - [ ] More presets (earnings, risks, compare with sector); Playwright happy path with a fake OpenAI server in `e2e/support.ts` (current e2e only proves the app is unaffected with no LLM)  
+  - [ ] Persist or export chats if wanted (today they live in the tab); move `LlmProvider` from `providers/llm.py` into `providers/base.py`  
 - [ ] Per-user rate limit on symbol search/lookups (Finnhub allows 60 calls/min for everyone) #sec  
 - [ ] Rebuild Docker image and check size/build with yfinance (pandas) #chore  
 - [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges #feat  
@@ -53,6 +52,7 @@
 
 ### Done ✓
 
+- [x] LLM news summary + chat side panel: OpenAI-compatible `LlmProvider`, SSE streaming, `Ask AI` panel with two presets, position sent only on opt-in, env-only config (ADR 0008); thinking disabled by default; API verified live against llama-swap dt-default (see docs/log/20261007-163432-llm-news-chat.md)  
 - [x] Seed data: NVDA, MSFT, VOO, AAPL split across robinhood/m1/schwab by `SPLITS` in `scripts/make_seed.py`; totals still 685,600.54; 16 tests, 7 mutation checks  
 - [x] News: 30-minute cache, Refresh button (POST /news/refresh, rate-limited) and "Updated N min ago" label; 222 backend + 139 frontend tests (see docs/log/20261007-163500-news-cache-and-refresh.md)  
 - [x] Playwright e2e workflow tests: first-time login + returning user (15 tests)  
