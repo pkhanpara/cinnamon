@@ -10,7 +10,7 @@ import { UserPatch, UsersService } from '../../core/users.service';
   selector: 'app-users',
   imports: [ReactiveFormsModule],
   template: `
-    <h2>Users</h2>
+    <h3>User setup</h3>
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
     @if (notice()) { <p class="notice" role="status">{{ notice() }}</p> }
 

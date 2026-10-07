@@ -34,7 +34,7 @@ describe('Accounts page', () => {
     const [imported, empty] = Array.from(el.querySelectorAll('li'));
     expect(imported.textContent).toContain('17 position(s), imported');
     expect(empty.textContent).toContain('no holdings yet');
-    expect(imported.querySelector('a')?.getAttribute('href')).toBe('/accounts/1/import');
+    expect(imported.querySelector('a')?.getAttribute('href')).toBe('/settings/accounts/1/import');
   });
 
   it('adds an account and resets the form', async () => {

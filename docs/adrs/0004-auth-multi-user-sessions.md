@@ -1,6 +1,6 @@
 # 0004 - Multi-user auth with server-side sessions
 
-Status: Accepted (2026-10-07)
+Status: Accepted (2026-10-07). First-run setup (`/auth/setup`) superseded by ADR 0005.
 
 ## Context
 Cinnamon holds financial data for several users on one self-hosted instance. The user chose

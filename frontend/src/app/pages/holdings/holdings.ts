@@ -31,13 +31,13 @@ const qty = new Intl.NumberFormat('en-US', { maximumFractionDigits: 6 });
   selector: 'app-holdings',
   imports: [DatePipe, RouterLink, Donut],
   template: `
-    <h2>Holdings</h2>
+    <h2>Home</h2>
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
 
     @if (loadingAccounts()) {
       <p>Loading…</p>
     } @else if (accounts().length === 0) {
-      <p class="hint">No accounts yet. <a routerLink="/accounts">Add an account</a> and import its holdings.</p>
+      <p class="hint">No accounts yet. <a routerLink="/settings/accounts">Add an account</a> and import its holdings.</p>
     } @else {
       <fieldset class="accounts-filter">
         <legend>Accounts</legend>
@@ -60,7 +60,7 @@ const qty = new Intl.NumberFormat('en-US', { maximumFractionDigits: 6 });
         @for (w of d.warnings; track w) { <p class="warn" role="note">{{ w }}</p> }
 
         @if (d.holdings.length === 0) {
-          <p class="hint">The selected accounts have no holdings yet. <a routerLink="/accounts">Import a file</a>.</p>
+          <p class="hint">The selected accounts have no holdings yet. <a routerLink="/settings/accounts">Import a file</a>.</p>
         } @else {
           <div class="tiles">
             <div class="tile"><span class="k">Total value</span><strong>{{ fmt(d.summary.total_value) }}</strong></div>

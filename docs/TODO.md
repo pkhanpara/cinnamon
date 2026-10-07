@@ -1,5 +1,10 @@
 ### Todo
 
+- [ ] Admin password reset command (no recovery path if the admin password is lost) #sec  
+- [ ] Force a password change for users an admin creates or resets #sec  
+- [ ] Optional TOTP 2FA #feat  
+- [ ] Friendlier username-pattern 422 message on the Users form #ux  
+- [ ] Guard the startup migration/seed against two processes starting at once #chore  
 - [ ] Click a holdings row to open the ticker detail page #feat  
 - [ ] Cash balances (the PDF had $14,177.37 cash; totals currently exclude cash) #feat  
 - [ ] Quote fetching beyond 60 distinct symbols/min: batch or queue #chore  
@@ -11,24 +16,19 @@
 - [ ] Replace window.confirm in account delete with an in-app dialog #chore  
 - [ ] Rebuild/verify Docker image with auth + UI; add frontend tests to CI #chore  
 - [ ] Login rate limiting / lockout #sec  
-- [ ] Self-service password change; optional TOTP 2FA #feat  
-- [ ] Friendlier username-pattern 422 message on the setup/users forms #ux  
-- [ ] Make /auth/setup atomic (race on simultaneous first requests) #sec  
 - [ ] Serialize timestamps as UTC (SQLite drops tzinfo; API shows naive created_at) #bug  
 - [ ] Pin the uv image tag in Dockerfile (currently :latest) #chore  
-- [ ] Add a docs/ README with run instructions #docs  
 - [ ] Upgrade Angular 21 -> 22 (needs Node >= 24.15; machine has 24.4.1) #chore  
 - [ ] Real Robinhood / M1 CSV parsers (need real sample exports from user) #feat  
-- [ ] Holdings aggregation API + account-checkbox UI #feat  
 - [ ] yfinance history provider + Finnhub news/profile + ticker detail page (quote, chart, news) #feat  
 - [ ] Transactions, cost basis (avg-cost; ADR 0005), watchlists #feat  
 - [ ] Daily snapshots, performance + allocation charts #feat  
 - [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  
-- [ ] Remaining ADRs 0002-0005 #docs  
+- [ ] ADR 0006 cost-basis method (when transactions are built) #docs  
 
 ### In Progress
 
-- [ ] Phase 1 scaffold (skeletons, Docker, auth, users, accounts and CSV import done; Docker image still needs rebuild + verify)  
+- [ ] Phase 1 scaffold (app features done through holdings; Docker image still needs rebuild + verify; browser E2E suite in progress in a parallel session)  
 
 ### Done ✓
 
@@ -46,3 +46,6 @@
 - [x] Fix first-admin setup 500: run Alembic on startup + readable 5xx errors  
 - [x] ADR 0002 (connector plugins and CSV-first import)  
 - [x] Holdings view: Finnhub provider + quote cache, aggregation API, account checkboxes, tiles, donut, sortable/expandable table, 111 backend + 67 frontend tests, verified live in browser (ADR 0003)  
+- [x] Default admin seeded on an empty DB with forced password change; change-password page and API; first-run setup removed (ADR 0005)  
+- [x] /home landing page and Settings (Accounts, User setup, Change password) with redirects from old URLs  
+- [x] README with run instructions, first sign-in, CSV format, configuration (ADR 0005)  

@@ -11,7 +11,7 @@ import { Account } from '../../core/models';
   selector: 'app-accounts',
   imports: [ReactiveFormsModule, DatePipe, RouterLink],
   template: `
-    <h2>Accounts</h2>
+    <h3>Accounts</h3>
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
 
     @if (loading()) {
@@ -33,7 +33,7 @@ import { Account } from '../../core/models';
                   {{ a.position_count }} position(s), imported {{ a.last_import_at | date: 'medium' }}
                 } @else { no holdings yet }
               </span>
-              <a class="button" [routerLink]="['/accounts', a.id, 'import']">Import</a>
+              <a class="button" [routerLink]="['/settings/accounts', a.id, 'import']">Import</a>
               <button type="button" (click)="editingId.set(a.id)">Rename</button>
               <button type="button" (click)="remove(a)">Delete</button>
             }

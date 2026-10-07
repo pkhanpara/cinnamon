@@ -2,6 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { CHANGE_PASSWORD, HOME } from '../../core/auth.guard';
 import { apiError } from '../../core/errors';
 
 @Component({
@@ -34,8 +35,8 @@ export class Login {
     this.error.set('');
     try {
       const { username, password } = this.form.getRawValue();
-      await this.auth.login(username, password);
-      await this.router.navigateByUrl('/holdings');
+      const user = await this.auth.login(username, password);
+      await this.router.navigateByUrl(user.must_change_password ? CHANGE_PASSWORD : HOME);
     } catch (e) {
       this.error.set(apiError(e, 'Sign in failed'));
     } finally {

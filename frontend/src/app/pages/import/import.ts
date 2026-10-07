@@ -11,14 +11,14 @@ import { Account, Connector, ImportPreview, ImportResult } from '../../core/mode
   selector: 'app-import',
   imports: [DecimalPipe, RouterLink],
   template: `
-    <p><a routerLink="/accounts">← Accounts</a></p>
-    <h2>Import into {{ account()?.nickname ?? '…' }}</h2>
+    <p><a routerLink="/settings/accounts">← Accounts</a></p>
+    <h3>Import into {{ account()?.nickname ?? '…' }}</h3>
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
 
     @if (result(); as r) {
       <p class="notice" role="status">
         Imported {{ r.row_count }} position(s) from {{ r.filename }}.
-        <a routerLink="/accounts">Back to accounts</a>
+        <a routerLink="/settings/accounts">Back to accounts</a>
       </p>
     } @else if (account()) {
       <div class="card wide">
@@ -110,7 +110,7 @@ export class Import {
       const list = await firstValueFrom(this.accounts.list());
       const account = list.find((a) => a.id === this.accountId) ?? null;
       if (!account) {
-        await this.router.navigateByUrl('/accounts');
+        await this.router.navigateByUrl('/settings/accounts');
         return;
       }
       const connectors = await firstValueFrom(this.api.connectors(this.accountId));

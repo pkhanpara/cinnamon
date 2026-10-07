@@ -45,7 +45,7 @@ async function previewWith(m: Awaited<ReturnType<typeof mount>>, body: object, f
 describe('Import page', () => {
   it('loads the account and connectors, preview disabled without a file', async () => {
     const { el, btn } = await mount();
-    expect(el.querySelector('h2')?.textContent).toContain('Main');
+    expect(el.querySelector('h3')?.textContent).toContain('Main');
     expect(el.querySelector('select')?.textContent).toContain('Positions snapshot');
     expect(btn('Preview')?.disabled).toBe(true);
   });

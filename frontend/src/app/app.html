@@ -2,9 +2,8 @@
   <h1>Cinnamon</h1>
   @if (auth.user(); as user) {
     <nav>
-      <a routerLink="/holdings" routerLinkActive="active">Holdings</a>
-      <a routerLink="/accounts" routerLinkActive="active">Accounts</a>
-      @if (user.is_admin) { <a routerLink="/users" routerLinkActive="active">Users</a> }
+      <a routerLink="/home" routerLinkActive="active">Home</a>
+      <a routerLink="/settings" routerLinkActive="active">Settings</a>
     </nav>
     <span class="spacer"></span>
     <span class="who">{{ user.username }}

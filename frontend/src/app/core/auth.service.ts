@@ -11,6 +11,8 @@ export class AuthService {
 
   readonly user = this._user.asReadonly();
   readonly isAuthenticated = computed(() => this._user() !== null);
+  /** True while the account still has a default password that must be changed. */
+  readonly mustChangePassword = computed(() => this._user()?.must_change_password === true);
 
   /** Resolve the current session once per page load; later calls reuse the result. */
   async ensureLoaded(): Promise<void> {
@@ -23,17 +25,21 @@ export class AuthService {
     this.resolved = true;
   }
 
-  async setupRequired(): Promise<boolean> {
-    const s = await firstValueFrom(this.http.get<{ setup_required: boolean }>('/api/auth/status'));
-    return s.setup_required;
+  async login(username: string, password: string): Promise<User> {
+    const user = await firstValueFrom(this.http.post<User>('/api/auth/login', { username, password }));
+    this.set(user);
+    return user;
   }
 
-  async login(username: string, password: string): Promise<void> {
-    this.set(await firstValueFrom(this.http.post<User>('/api/auth/login', { username, password })));
-  }
-
-  async setup(username: string, password: string): Promise<void> {
-    this.set(await firstValueFrom(this.http.post<User>('/api/auth/setup', { username, password })));
+  async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    this.set(
+      await firstValueFrom(
+        this.http.post<User>('/api/auth/change-password', {
+          current_password: currentPassword,
+          new_password: newPassword,
+        }),
+      ),
+    );
   }
 
   async logout(): Promise<void> {
@@ -48,6 +54,11 @@ export class AuthService {
   clear(): void {
     this._user.set(null);
     this.resolved = true;
+  }
+
+  /** Called by the interceptor when the server blocks a call until the password is changed. */
+  markPasswordChangeRequired(): void {
+    this._user.update((u) => (u ? { ...u, must_change_password: true } : u));
   }
 
   private set(user: User): void {

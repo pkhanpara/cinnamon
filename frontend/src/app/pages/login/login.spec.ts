@@ -23,14 +23,24 @@ describe('Login page', () => {
     expect(btn.disabled).toBe(false);
   });
 
-  it('navigates to /holdings on success', async () => {
+  it('navigates home on success', async () => {
     const { f, http } = mount();
     const nav = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     f.componentInstance['form'].setValue({ username: 'a', password: 'b' });
     const p = f.componentInstance['submit']();
-    http.expectOne('/api/auth/login').flush({ id: 1, username: 'a', is_admin: false, is_active: true });
+    http.expectOne('/api/auth/login').flush({ id: 1, username: 'a', is_admin: false, is_active: true, must_change_password: false });
     await p;
-    expect(nav).toHaveBeenCalledWith('/holdings');
+    expect(nav).toHaveBeenCalledWith('/home');
+  });
+
+  it('goes straight to the forced password change for a default-password account', async () => {
+    const { f, http } = mount();
+    const nav = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
+    f.componentInstance['form'].setValue({ username: 'admin', password: '$admin123456' });
+    const p = f.componentInstance['submit']();
+    http.expectOne('/api/auth/login').flush({ id: 1, username: 'admin', is_admin: true, is_active: true, must_change_password: true });
+    await p;
+    expect(nav).toHaveBeenCalledWith('/settings/change-password');
   });
 
   it('shows an error on bad credentials and stays put', async () => {
