@@ -14,7 +14,8 @@
 - [ ] Import: undo/restore previous snapshot if replace-and-discard proves too risky #feat  
 - [ ] Users page: allow deleting a user and show created_at / last login #feat  
 - [ ] Replace window.confirm in account delete with an in-app dialog #chore  
-- [ ] Rebuild/verify Docker image with auth + UI; add frontend tests to CI #chore  
+- [ ] Rebuild/verify Docker image with auth + UI; add frontend tests and `npm run e2e` (needs `playwright install --with-deps chromium`, uv) to CI #chore  
+- [ ] E2E: more workflows (CSV error paths, account rename, M1 connector, live-quote holdings) #test  
 - [ ] Login rate limiting / lockout #sec  
 - [ ] Serialize timestamps as UTC (SQLite drops tzinfo; API shows naive created_at) #bug  
 - [ ] Pin the uv image tag in Dockerfile (currently :latest) #chore  
@@ -32,6 +33,7 @@
 
 ### Done ✓
 
+- [x] Playwright e2e workflow tests: first-time login + returning user (15 tests)  
 - [x] Create public repo pkhanpara/cinnamon and set origin  
 - [x] .gitignore, .env (git-ignored), .env.example  
 - [x] Seed generator + private/sample seed CSVs  

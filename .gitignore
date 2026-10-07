@@ -20,3 +20,8 @@ __pycache__/
 node_modules/
 frontend/dist/
 frontend/.angular/
+
+# claude code worktrees, playwright artifacts
+.claude/worktrees/
+frontend/test-results/
+frontend/playwright-report/
