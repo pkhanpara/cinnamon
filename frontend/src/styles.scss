@@ -14,3 +14,7 @@ button { padding: 0.4rem 0.8rem; font: inherit; cursor: pointer; }
 ul.accounts { list-style: none; padding: 0; display: grid; gap: 0.5rem; }
 ul.accounts li { display: flex; gap: 0.5rem; align-items: center; padding: 0.5rem; border: 1px solid var(--border); border-radius: 6px; }
 ul.accounts li .platform { flex: 1; }
+.notice { color: #067647; margin: 0; }
+.check { display: flex; gap: 0.5rem; align-items: center; }
+ul.accounts li { flex-wrap: wrap; }
+ul.accounts li.inactive { opacity: 0.6; }

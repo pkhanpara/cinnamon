@@ -1,6 +1,10 @@
 <header>
   <h1>Cinnamon</h1>
   @if (auth.user(); as user) {
+    <nav>
+      <a routerLink="/accounts" routerLinkActive="active">Accounts</a>
+      @if (user.is_admin) { <a routerLink="/users" routerLinkActive="active">Users</a> }
+    </nav>
     <span class="spacer"></span>
     <span class="who">{{ user.username }}
       @if (user.is_admin) { <small>(admin)</small> }</span>

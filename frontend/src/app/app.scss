@@ -2,3 +2,6 @@ header { display: flex; align-items: baseline; gap: 1rem; padding: 1rem; border-
 h1 { margin: 0; font-size: 1.4rem; }
 .spacer { flex: 1; }
 main { max-width: 42rem; margin: 0 auto; padding: 1rem; }
+nav { display: flex; gap: 1rem; }
+nav a { color: inherit; text-decoration: none; padding-bottom: 2px; }
+nav a.active { border-bottom: 2px solid currentColor; font-weight: 600; }

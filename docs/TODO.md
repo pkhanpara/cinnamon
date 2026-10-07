@@ -1,6 +1,6 @@
 ### Todo
 
-- [ ] Admin Users page in Angular (create/deactivate/reset password; backend exists) #feat  
+- [ ] Users page: allow deleting a user and show created_at / last login #feat  
 - [ ] Replace window.confirm in account delete with an in-app dialog #chore  
 - [ ] Rebuild/verify Docker image with auth + UI; add frontend tests to CI #chore  
 - [ ] Login rate limiting / lockout #sec  
@@ -34,3 +34,4 @@
 - [x] Push to origin/main  
 - [x] Auth backend: users, sessions, accounts CRUD, first migration, 19 tests (ADR 0004)  
 - [x] Angular setup/login/accounts screens, guards, 401 interceptor, 19 tests, verified in a real browser  
+- [x] Admin Users page (create, make/remove admin, deactivate, reset password) + adminGuard + nav, 28 frontend tests, verified with two browser sessions  

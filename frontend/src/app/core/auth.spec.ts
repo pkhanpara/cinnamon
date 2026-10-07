@@ -3,7 +3,7 @@ import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router, provideRouter } from '@angular/router';
 import { AuthService } from './auth.service';
-import { authGuard, guestGuard } from './auth.guard';
+import { adminGuard, authGuard, guestGuard } from './auth.guard';
 import { authInterceptor } from './auth.interceptor';
 
 const USER = { id: 1, username: 'a', is_admin: false, is_active: true };
@@ -75,6 +75,20 @@ describe('guards', () => {
     http.expectOne('/api/auth/me').flush(USER);
     expect(String(await p)).toBe('/accounts');
   });
+});
+
+describe('adminGuard', () => {
+  const run = (user: unknown) => {
+    const { http } = setup();
+    const p = TestBed.runInInjectionContext(() => adminGuard({} as never, {} as never)) as Promise<unknown>;
+    if (user) http.expectOne('/api/auth/me').flush(user);
+    else http.expectOne('/api/auth/me').flush({}, { status: 401, statusText: 'Unauthorized' });
+    return p;
+  };
+
+  it('allows admins', async () => expect(await run({ ...USER, is_admin: true })).toBe(true));
+  it('sends non-admins to /accounts', async () => expect(String(await run(USER))).toBe('/accounts'));
+  it('sends signed-out users to /login', async () => expect(String(await run(null))).toBe('/login'));
 });
 
 describe('authInterceptor', () => {
