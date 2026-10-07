@@ -3,6 +3,7 @@ import { Component, DestroyRef, computed, effect, inject, signal, untracked } fr
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
+import { NewsChat } from '../../components/news-chat/news-chat';
 import { PriceChart } from '../../components/price-chart/price-chart';
 import { RANGES } from '../../core/chart-data';
 import { apiError } from '../../core/errors';
@@ -14,7 +15,7 @@ import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-symbol',
-  imports: [DatePipe, RouterLink, PriceChart],
+  imports: [DatePipe, RouterLink, PriceChart, NewsChat],
   template: `
     @if (overviewLoading()) {
       <p>Loading {{ ticker() }}…</p>
@@ -139,6 +140,8 @@ import { firstValueFrom } from 'rxjs';
           <p class="hint">Loading news…</p>
         }
       </section>
+
+      <app-news-chat [symbol]="o.symbol" />
     }
   `,
 })

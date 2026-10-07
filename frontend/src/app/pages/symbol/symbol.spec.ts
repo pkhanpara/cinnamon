@@ -70,6 +70,24 @@ describe('Symbol page', () => {
     expect(change?.textContent).toContain('+0.52%');
   });
 
+  it('offers Ask AI for the shown symbol when the server has a model', async () => {
+    const m = await mount();
+    m.one(OV).flush(overview()); m.one(HI).flush(history()); m.one(NE).flush(news());
+    await m.settle();
+    m.one(/\/api\/llm\/status$/).flush({ enabled: true, model: 'qwen-test' });
+    await m.settle();
+    expect(m.el.querySelector('app-news-chat button')?.textContent).toContain('Ask AI');
+  });
+
+  it('shows no AI controls when the server has no model', async () => {
+    const m = await mount();
+    m.one(OV).flush(overview()); m.one(HI).flush(history()); m.one(NE).flush(news());
+    await m.settle();
+    m.one(/\/api\/llm\/status$/).flush({ enabled: false, model: null });
+    await m.settle();
+    expect(m.el.querySelector('app-news-chat button')).toBeNull();
+  });
+
   it('shows key stats formatted compactly, and the website as a safe external link', async () => {
     const m = await mount();
     m.one(OV).flush(overview()); m.one(HI).flush(history()); m.one(NE).flush(news());

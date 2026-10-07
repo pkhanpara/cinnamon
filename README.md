@@ -83,6 +83,11 @@ Environment variables or `.env` (never commit it; it is git-ignored).
 | `DATABASE_URL` | `sqlite:///./data/cinnamon.db` | SQLite file; its folder is created if missing. |
 | `AUTO_MIGRATE` | `true` | Run Alembic and seed the default admin on start. |
 | `QUOTE_TTL_SECONDS` | `60` | How long a quote is cached (Finnhub free tier: 60 calls/min). |
+| `LLM_BASE_URL`, `LLM_MODEL` | empty | OpenAI-compatible chat endpoint (e.g. `http://<host>:<port>/v1`) and model name for the ticker page's "Ask AI" panel. Both must be set, else the panel is hidden. |
+| `LLM_DISABLE_THINKING` | `true` | Asks llama.cpp/llama-swap thinking models (e.g. `dt-default`) to skip their reasoning, which otherwise eats the token budget. Set `false` for OpenAI, which rejects the extra field. |
+| `LLM_API_KEY` | empty | Sent as a Bearer token if set (not needed for most local servers). |
+| `LLM_MAX_TOKENS` | `96000` | Ceiling on the answer length, not a target. Lower it for hosted models with smaller limits. |
+| `LLM_TIMEOUT_SECONDS`, `LLM_MAX_NEWS_ITEMS` | `60`, `15` | Silence allowed between streamed chunks; headlines per prompt. |
 | `SESSION_DAYS` | `30` | Sign-in lifetime. |
 | `COOKIE_SECURE` | `false` | Set `true` when served over HTTPS (e.g. behind a reverse proxy). |
 | `DEFAULT_ADMIN_USERNAME`, `DEFAULT_ADMIN_PASSWORD` | `admin`, `$admin123456` | Used only to seed an empty database. |
@@ -98,6 +103,9 @@ cd frontend && CI=1 npx ng test --watch=false && npx ng build
 
 Everything stays on your machine. The only outbound calls are made by the server: Finnhub (symbols, plus the
 search text you type) and Yahoo Finance (symbols, for price history). Your holdings and quantities are never sent.
+If you configure an LLM (`LLM_BASE_URL`), the server also sends that endpoint the symbol, today's price change,
+public headlines and summaries, and your questions when you use "Ask AI"; your position in that symbol
+(quantity, cost basis, value) goes only when you tick the box for that conversation. Use a local server to keep it on your network.
 This is a public repository: keep real exports and database files out of git. `seed/private/` and
 `*.db` are ignored for that reason.
 
