@@ -1,12 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
 import { PriceChart } from '../../components/price-chart/price-chart';
 import { RANGES } from '../../core/chart-data';
 import { apiError } from '../../core/errors';
-import { fmtCompactMoney, fmtCompactNumber, fmtMoney, fmtPct, fmtQty, fmtSigned, tone } from '../../core/format';
+import { ageLabel, fmtCompactMoney, fmtCompactNumber, fmtMoney, fmtPct, fmtQty, fmtSigned, tone } from '../../core/format';
 import { HistoryRange, HistoryResponse, NewsResponse, SymbolOverview } from '../../core/models';
 import { SymbolsService } from '../../core/symbols.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -105,7 +105,22 @@ import { firstValueFrom } from 'rxjs';
       </div>
 
       <section aria-labelledby="news-h">
-        <h3 id="news-h">News</h3>
+        <div class="news-head">
+          <h3 id="news-h">News</h3>
+          @if (news(); as n) {
+            <span class="sub">Updated <time [attr.datetime]="n.as_of">{{ newsAge() }}</time></span>
+          }
+          @if (!newsNoKey()) {
+            <button type="button" (click)="refreshNews()" [disabled]="newsRefreshing() || retryIn() > 0 || (!news() && !newsError())">
+              {{ newsRefreshing() ? 'Refreshing…' : 'Refresh' }}
+            </button>
+          }
+        </div>
+        @if (retryIn() > 0) {
+          <p class="hint" role="status">Refreshed a moment ago. Try again in {{ retryIn() }} s.</p>
+        } @else if (newsNote()) {
+          <p class="warn" role="status">{{ newsNote() }}</p>
+        }
         @if (newsError()) {
           <p class="hint">{{ newsError() }}</p>
         } @else if (news(); as n) {
@@ -147,6 +162,17 @@ export class SymbolPage {
   });
   protected readonly news = signal<NewsResponse | null>(null);
   protected readonly newsError = signal('');
+  protected readonly newsNoKey = signal(false);
+  protected readonly newsRefreshing = signal(false);
+  protected readonly newsNote = signal('');
+  private readonly retryAt = signal(0);
+  // Ticks once a second so "Updated N min ago" and the retry countdown stay current.
+  private readonly now = signal(Date.now());
+  protected readonly newsAge = computed(() => {
+    const n = this.news();
+    return n ? ageLabel(n.as_of, this.now()) : '';
+  });
+  protected readonly retryIn = computed(() => Math.max(0, Math.ceil((this.retryAt() - this.now()) / 1000)));
 
   // Sequence numbers: a slow answer for a previous symbol/range must never overwrite a newer one.
   private symbolSeq = 0;
@@ -161,6 +187,8 @@ export class SymbolPage {
   protected readonly compactNumber = fmtCompactNumber;
 
   constructor() {
+    const tick = setInterval(() => this.now.set(Date.now()), 1000);
+    inject(DestroyRef).onDestroy(() => clearInterval(tick));
     effect(() => {
       const symbol = this.ticker();
       if (symbol) untracked(() => void this.loadSymbol(symbol));
@@ -177,6 +205,10 @@ export class SymbolPage {
     this.historyError.set('');
     this.news.set(null);
     this.newsError.set('');
+    this.newsNoKey.set(false);
+    this.newsRefreshing.set(false);
+    this.newsNote.set('');
+    this.retryAt.set(0);
 
     // Chart and news don't wait for the overview, and none of them can break the others.
     void this.loadHistory();
@@ -220,8 +252,37 @@ export class SymbolPage {
     } catch (e) {
       // 503 means no API key; keep it quiet, the overview already says so.
       if (seq === this.symbolSeq) {
-        this.newsError.set(e instanceof HttpErrorResponse && e.status === 503 ? 'News needs a Finnhub API key.' : apiError(e, 'News is unavailable'));
+        const noKey = e instanceof HttpErrorResponse && e.status === 503;
+        this.newsNoKey.set(noKey);
+        this.newsError.set(noKey ? 'News needs a Finnhub API key.' : apiError(e, 'News is unavailable'));
       }
+    }
+  }
+
+  /** Refetch now. The old headlines stay on screen unless the refresh succeeds. */
+  protected async refreshNews(): Promise<void> {
+    if (this.newsRefreshing() || this.retryIn() > 0) return;
+    const symbol = this.ticker();
+    const seq = this.symbolSeq;
+    this.newsRefreshing.set(true);
+    this.newsNote.set('');
+    try {
+      const n = await firstValueFrom(this.api.refreshNews(symbol));
+      if (seq !== this.symbolSeq) return;
+      this.news.set(n);
+      this.newsError.set('');
+      if (n.stale) this.newsNote.set('Could not reach the news source; showing earlier headlines.');
+    } catch (e) {
+      if (seq !== this.symbolSeq) return;
+      if (e instanceof HttpErrorResponse && e.status === 429) {
+        const secs = Number(e.headers.get('Retry-After'));
+        this.retryAt.set(Date.now() + (Number.isFinite(secs) && secs > 0 ? secs : 60) * 1000);
+        this.now.set(Date.now());
+      } else {
+        this.newsNote.set(`${apiError(e, 'Could not refresh the news')}${this.news() ? ' Showing earlier headlines.' : ''}`);
+      }
+    } finally {
+      if (seq === this.symbolSeq) this.newsRefreshing.set(false);
     }
   }
 }

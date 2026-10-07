@@ -25,7 +25,7 @@ const history = (range = '6m', over = {}) => ({
   symbol: 'NVDA', range, intraday: false, stale: false, as_of: '2026-10-07T10:00:00Z',
   bars: [{ t: 1, d: '2026-10-05', o: '1', h: '1', l: '1', c: '238', v: 1 }, { t: 2, d: '2026-10-06', o: '1', h: '1', l: '1', c: '239', v: 1 }], ...over,
 });
-const news = (over = {}) => ({ stale: false, items: [{ headline: 'Chip rally', summary: 'Details here', source: 'Reuters', url: 'https://x.test/a', published_at: '2026-10-07T07:37:00Z' }], ...over });
+const news = (over = {}) => ({ stale: false, as_of: '2026-10-07T07:40:00Z', items: [{ headline: 'Chip rally', summary: 'Details here', source: 'Reuters', url: 'https://x.test/a', published_at: '2026-10-07T07:37:00Z' }], ...over });
 
 async function mount(ticker = 'nvda') {
   const params = new BehaviorSubject(convertToParamMap({ ticker }));
@@ -47,7 +47,7 @@ async function mount(ticker = 'nvda') {
   const c = f.componentInstance as never as Record<string, any>;
   return { f, http, el, params, chart, settle, one, find, c };
 }
-const OV = /\/api\/symbols\/[A-Z.]+$/, HI = /\/history$/, NE = /\/news$/;
+const OV = /\/api\/symbols\/[A-Z.]+$/, HI = /\/history$/, NE = /\/news$/, RF = /\/news\/refresh$/;
 
 describe('Symbol page', () => {
   it('loads overview, chart (default 6M) and news in parallel for the upper-cased symbol', async () => {
@@ -190,7 +190,7 @@ describe('Symbol page', () => {
     m.one(OV).flush(overview()); m.one(HI).flush(history());
     m.one(NE).flush({ detail: 'News needs FINNHUB_API_KEY to be set.' }, { status: 503, statusText: 'Unavailable' });
     await m.settle();
-    expect(m.el.querySelector('#news-h')!.parentElement!.textContent).toContain('News needs a Finnhub API key.');
+    expect(m.el.querySelector('#news-h')!.closest('section')!.textContent).toContain('News needs a Finnhub API key.');
     expect(m.el.querySelector('h2')?.textContent).toContain('NVIDIA Corp');
   });
 
@@ -209,5 +209,111 @@ describe('Symbol page', () => {
     oldOv.flush(overview());                        // NVDA's overview arrives late
     await m.settle();
     expect(m.el.querySelector('h2')?.textContent).toContain('Vanguard S&P 500 ETF');
+  });
+
+  describe('news freshness and refresh', () => {
+    const T0 = Date.parse('2026-10-07T07:52:00Z'); // 12 minutes after the fixture's as_of
+    const loaded = async () => {
+      const m = await mount('nvda');
+      m.one(OV).flush(overview()); m.one(HI).flush(history()); m.one(NE).flush(news());
+      await m.settle();
+      return m;
+    };
+    const section = (m: Awaited<ReturnType<typeof loaded>>) => m.el.querySelector('#news-h')!.parentElement!.parentElement!;
+    const button = (m: Awaited<ReturnType<typeof loaded>>) => section(m).querySelector('button') as HTMLButtonElement;
+
+    beforeEach(() => { vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] }); vi.setSystemTime(T0); });
+    afterEach(() => vi.useRealTimers());
+
+    it('shows how old the news is and keeps the label current as time passes', async () => {
+      const m = await loaded();
+      expect(section(m).textContent).toContain('Updated 12 min ago');
+      expect(section(m).querySelector('time')!.getAttribute('datetime')).toBe('2026-10-07T07:40:00Z');
+      vi.advanceTimersByTime(3 * 60 * 1000);
+      await m.settle();
+      expect(section(m).textContent).toContain('Updated 15 min ago');
+    });
+
+    it('stops its timer when the page is destroyed', async () => {
+      const m = await loaded();
+      expect(vi.getTimerCount()).toBe(1);
+      m.f.destroy();
+      expect(vi.getTimerCount()).toBe(0);
+    });
+
+    it('Refresh posts to the refresh endpoint, swaps in the new headlines and resets the label', async () => {
+      const m = await loaded();
+      button(m).click(); await m.settle();
+      expect(button(m).disabled).toBe(true);                       // no double click while in flight
+      button(m).click();
+      const req = m.one(RF);                                        // still exactly one request
+      expect(req.request.method).toBe('POST');
+      req.flush(news({ as_of: '2026-10-07T07:52:00Z', items: [{ headline: 'Fresh item', summary: '', source: 'AP', url: 'https://x.test/b', published_at: '2026-10-07T07:50:00Z' }] }));
+      await m.settle();
+      expect(section(m).textContent).toContain('Fresh item');
+      expect(section(m).textContent).not.toContain('Chip rally');
+      expect(section(m).textContent).toContain('Updated just now');
+      expect(button(m).disabled).toBe(false);
+    });
+
+    it('a failed refresh keeps the old headlines and says so', async () => {
+      const m = await loaded();
+      button(m).click(); await m.settle();
+      m.one(RF).flush({ detail: 'News is unavailable right now (Finnhub rate limit reached).' }, { status: 502, statusText: 'Bad Gateway' });
+      await m.settle();
+      expect(section(m).textContent).toContain('Chip rally');
+      expect(section(m).textContent).toContain('Updated 12 min ago');
+      expect(section(m).textContent).toContain('Showing earlier headlines.');
+      expect(button(m).disabled).toBe(false);
+    });
+
+    it('a refresh answered from the stale cache keeps the old time and warns', async () => {
+      const m = await loaded();
+      button(m).click(); await m.settle();
+      m.one(RF).flush(news({ stale: true }));
+      await m.settle();
+      expect(section(m).textContent).toContain('Showing cached headlines.');
+      expect(section(m).textContent).toContain('Updated 12 min ago');
+    });
+
+    it('429 disables Refresh and counts down the Retry-After seconds', async () => {
+      const m = await loaded();
+      button(m).click(); await m.settle();
+      m.one(RF).flush({ detail: 'Too many news refreshes. Try again in 40 s.' }, { status: 429, statusText: 'Too Many Requests', headers: { 'Retry-After': '40' } });
+      await m.settle();
+      expect(section(m).textContent).toContain('Try again in 40 s');
+      expect(button(m).disabled).toBe(true);
+      vi.advanceTimersByTime(15 * 1000); await m.settle();
+      expect(section(m).textContent).toContain('Try again in 25 s');
+      vi.advanceTimersByTime(25 * 1000); await m.settle();
+      expect(section(m).textContent).not.toContain('Try again');
+      expect(button(m).disabled).toBe(false);
+      expect(section(m).textContent).toContain('Chip rally');
+    });
+
+    it('ignores a refresh answer that arrives after navigating to another symbol', async () => {
+      const m = await loaded();
+      button(m).click(); await m.settle();
+      const late = m.one(RF);
+      m.params.next(convertToParamMap({ ticker: 'voo' }));
+      m.f.detectChanges(); await m.f.whenStable();
+      m.one(OV).flush(overview({ symbol: 'VOO', name: 'Vanguard S&P 500 ETF' }));
+      m.find(HI).forEach((r) => r.flush(history()));
+      m.find(NE).forEach((r) => r.flush(news({ items: [{ headline: 'VOO news', summary: '', source: 'AP', url: 'https://x.test/v', published_at: '2026-10-07T07:00:00Z' }] })));
+      await m.settle();
+      late.flush(news({ items: [{ headline: 'NVDA late', summary: '', source: 'AP', url: 'https://x.test/n', published_at: '2026-10-07T07:00:00Z' }] }));
+      await m.settle();
+      expect(section(m).textContent).toContain('VOO news');
+      expect(section(m).textContent).not.toContain('NVDA late');
+      expect(button(m).disabled).toBe(false);                      // the new symbol's button is not stuck
+    });
+
+    it('without an API key there is no Refresh button', async () => {
+      const m = await mount('nvda');
+      m.one(OV).flush(overview()); m.one(HI).flush(history());
+      m.one(NE).flush({ detail: 'News needs FINNHUB_API_KEY to be set.' }, { status: 503, statusText: 'Unavailable' });
+      await m.settle();
+      expect(section(m).querySelector('button')).toBeNull();
+    });
   });
 });

@@ -1,4 +1,4 @@
-import { fmtCompactMoney, fmtCompactNumber, fmtMoney, fmtPct, fmtQty, fmtSigned, tone } from './format';
+import { ageLabel, fmtCompactMoney, fmtCompactNumber, fmtMoney, fmtPct, fmtQty, fmtSigned, tone } from './format';
 
 describe('format', () => {
   it('formats money with grouping and cents', () => {
@@ -27,5 +27,22 @@ describe('format', () => {
   });
   it('tone classes', () => {
     expect([tone('1'), tone('-1'), tone('0'), tone(null)]).toEqual(['gain', 'loss', '', 'muted']);
+  });
+  it('ageLabel: just now under a minute, then minutes, hours, days', () => {
+    const now = Date.parse('2026-10-07T12:00:00Z');
+    const ago = (sec: number) => ageLabel(new Date(now - sec * 1000).toISOString(), now);
+    expect(ago(0)).toBe('just now');
+    expect(ago(59)).toBe('just now');
+    expect(ago(60)).toBe('1 min ago');
+    expect(ago(12 * 60 + 30)).toBe('12 min ago');
+    expect(ago(59 * 60 + 59)).toBe('59 min ago');
+    expect(ago(3600)).toBe('1 h ago');
+    expect(ago(23 * 3600 + 3599)).toBe('23 h ago');
+    expect(ago(48 * 3600)).toBe('2 d ago');
+  });
+  it('ageLabel: a time ahead of the browser clock (skew) reads as just now; garbage does not print NaN', () => {
+    const now = Date.parse('2026-10-07T12:00:00Z');
+    expect(ageLabel('2026-10-07T12:05:00Z', now)).toBe('just now');
+    expect(ageLabel('not a date', now)).toBe('recently');
   });
 });
