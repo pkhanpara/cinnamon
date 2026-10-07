@@ -1,7 +1,8 @@
 ### Todo
 
+- [ ] Pin the uv image tag in Dockerfile (currently :latest) #chore  
+- [ ] Add a docs/ README with run instructions #docs  
 - [ ] Upgrade Angular 21 -> 22 (needs Node >= 24.15; machine has 24.4.1) #chore  
-- [ ] Dockerfile + docker-compose.yml #feat  
 - [ ] Auth: multi-user, Argon2, session cookie, first-run admin #feat  
 - [ ] Connector interface + positions-snapshot CSV importer #feat  
 - [ ] Real Robinhood / M1 CSV parsers (need real sample exports from user) #feat  
@@ -14,7 +15,7 @@
 
 ### In Progress
 
-- [ ] Phase 1 scaffold (skeletons done; Dockerfile/compose and first Alembic migration pending)  
+- [ ] Phase 1 scaffold (skeletons + Docker done; first Alembic migration pending)  
 
 ### Done ✓
 
@@ -23,3 +24,5 @@
 - [x] Seed generator + private/sample seed CSVs  
 - [x] FastAPI skeleton (config, db, Alembic, /api/health, pytest)  
 - [x] Angular 21 skeleton with dev proxy and health call  
+- [x] Dockerfile (multi-stage) + docker-compose.yml, verified running  
+- [x] Push to origin/main  

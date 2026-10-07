@@ -1,0 +1,14 @@
+services:
+  cinnamon:
+    build: .
+    image: cinnamon:dev
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - cinnamon-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  cinnamon-data:

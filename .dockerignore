@@ -1,0 +1,11 @@
+.git
+.env
+.env.*
+seed/
+**/node_modules
+**/.venv
+**/dist
+**/.angular
+**/data
+**/__pycache__
+docs/
