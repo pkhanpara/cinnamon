@@ -1,5 +1,8 @@
 ### Todo
 
+- [ ] Holdings view: aggregate positions across selected accounts (checkboxes) + live Finnhub value overlay #feat  
+- [ ] Show positions of one account (read-only table) on the accounts page #feat  
+- [ ] Import: undo/restore previous snapshot if replace-and-discard proves too risky #feat  
 - [ ] Users page: allow deleting a user and show created_at / last login #feat  
 - [ ] Replace window.confirm in account delete with an in-app dialog #chore  
 - [ ] Rebuild/verify Docker image with auth + UI; add frontend tests to CI #chore  
@@ -10,7 +13,6 @@
 - [ ] Pin the uv image tag in Dockerfile (currently :latest) #chore  
 - [ ] Add a docs/ README with run instructions #docs  
 - [ ] Upgrade Angular 21 -> 22 (needs Node >= 24.15; machine has 24.4.1) #chore  
-- [ ] Connector interface + positions-snapshot CSV importer #feat  
 - [ ] Real Robinhood / M1 CSV parsers (need real sample exports from user) #feat  
 - [ ] Holdings aggregation API + account-checkbox UI #feat  
 - [ ] Finnhub quotes/news + yfinance history providers #feat  
@@ -21,7 +23,7 @@
 
 ### In Progress
 
-- [ ] Phase 1 scaffold (skeletons, Docker, auth backend and login/accounts UI done; ready for import phase)  
+- [ ] Phase 1 scaffold (skeletons, Docker, auth, users, accounts and CSV import done; Docker image still needs rebuild + verify)  
 
 ### Done ✓
 
@@ -35,3 +37,5 @@
 - [x] Auth backend: users, sessions, accounts CRUD, first migration, 19 tests (ADR 0004)  
 - [x] Angular setup/login/accounts screens, guards, 401 interceptor, 19 tests, verified in a real browser  
 - [x] Admin Users page (create, make/remove admin, deactivate, reset password) + adminGuard + nav, 28 frontend tests, verified with two browser sessions  
+- [x] CSV import: connector interface + snapshot connector, preview/confirm API, positions + imports tables, import page, 61 backend + 38 frontend tests, verified in browser with real-derived seed (totals match the PDF)  
+- [x] ADR 0002 (connector plugins and CSV-first import)  

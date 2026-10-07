@@ -1,5 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AccountsService } from '../../core/accounts.service';
 import { apiError } from '../../core/errors';
@@ -7,7 +9,7 @@ import { Account } from '../../core/models';
 
 @Component({
   selector: 'app-accounts',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, DatePipe, RouterLink],
   template: `
     <h2>Accounts</h2>
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
@@ -26,7 +28,12 @@ import { Account } from '../../core/models';
               <button type="button" (click)="saveRename(a, nick.value)">Save</button>
               <button type="button" (click)="editingId.set(null)">Cancel</button>
             } @else {
-              <strong>{{ a.nickname }}</strong> <span class="platform">{{ a.platform }}</span>
+              <strong>{{ a.nickname }}</strong> <span class="platform">{{ a.platform }}
+                · @if (a.position_count) {
+                  {{ a.position_count }} position(s), imported {{ a.last_import_at | date: 'medium' }}
+                } @else { no holdings yet }
+              </span>
+              <a class="button" [routerLink]="['/accounts', a.id, 'import']">Import</a>
               <button type="button" (click)="editingId.set(a.id)">Rename</button>
               <button type="button" (click)="remove(a)">Delete</button>
             }

@@ -1,12 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideRouter } from '@angular/router';
 import { Accounts } from './accounts';
 
-const A = { id: 1, platform: 'robinhood', nickname: 'Main', created_at: '2026-01-01T00:00:00' };
+const A = { id: 1, platform: 'robinhood', nickname: 'Main', created_at: '2026-01-01T00:00:00', position_count: 0, last_import_at: null };
 
 async function mount(initial: unknown[]) {
-  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting()] });
+  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])] });
   const http = TestBed.inject(HttpTestingController);
   const f = TestBed.createComponent(Accounts);
   f.detectChanges();
@@ -26,6 +27,14 @@ describe('Accounts page', () => {
     const { el } = await mount([A]);
     expect(el.querySelector('li')?.textContent).toContain('Main');
     expect(el.querySelector('li')?.textContent).toContain('robinhood');
+  });
+
+  it('shows import status and links to the import page', async () => {
+    const { el } = await mount([{ ...A, position_count: 17, last_import_at: '2026-10-07T10:00:00Z' }, { ...A, id: 2, nickname: 'New' }]);
+    const [imported, empty] = Array.from(el.querySelectorAll('li'));
+    expect(imported.textContent).toContain('17 position(s), imported');
+    expect(empty.textContent).toContain('no holdings yet');
+    expect(imported.querySelector('a')?.getAttribute('href')).toBe('/accounts/1/import');
   });
 
   it('adds an account and resets the form', async () => {

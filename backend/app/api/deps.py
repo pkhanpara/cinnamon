@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.config import get_settings
 from app.db import get_db
-from app.models import AuthSession, User
+from app.models import Account, AuthSession, User
 from app.security import hash_token
 
 DbDep = Annotated[Session, Depends(get_db)]
@@ -39,3 +39,11 @@ def require_admin(user: Annotated[User, Depends(current_user)]) -> User:
 
 CurrentUser = Annotated[User, Depends(current_user)]
 AdminUser = Annotated[User, Depends(require_admin)]
+
+
+def get_owned_account(db: Session, user: User, account_id: int) -> Account:
+    """404 (not 403) for other users' accounts so ids can't be probed."""
+    acct = db.scalar(select(Account).where(Account.id == account_id, Account.user_id == user.id))
+    if not acct:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Account not found")
+    return acct

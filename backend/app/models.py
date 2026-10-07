@@ -1,9 +1,11 @@
 from datetime import UTC, datetime
+from decimal import Decimal
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
+from app.db_types import DecimalText
 
 
 def utcnow() -> datetime:
@@ -46,3 +48,41 @@ class Account(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
 
     user: Mapped[User] = relationship(back_populates="accounts")
+
+
+class Import(Base):
+    """Audit record of one confirmed import. Positions are replaced on each import (ADR 0002)."""
+
+    __tablename__ = "imports"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    account_id: Mapped[int] = mapped_column(
+        ForeignKey("accounts.id", ondelete="CASCADE"), index=True
+    )
+    connector: Mapped[str] = mapped_column(String(32))
+    filename: Mapped[str] = mapped_column(String(255))
+    file_sha256: Mapped[str] = mapped_column(String(64))
+    row_count: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Position(Base):
+    __tablename__ = "positions"
+    __table_args__ = (UniqueConstraint("account_id", "symbol"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    account_id: Mapped[int] = mapped_column(
+        ForeignKey("accounts.id", ondelete="CASCADE"), index=True
+    )
+    import_id: Mapped[int] = mapped_column(ForeignKey("imports.id"))
+    symbol: Mapped[str] = mapped_column(String(16))
+    name: Mapped[str | None] = mapped_column(String(200))
+    quantity: Mapped[Decimal] = mapped_column(DecimalText)
+    cost_basis: Mapped[Decimal] = mapped_column(DecimalText)
+    market_value: Mapped[Decimal | None] = mapped_column(
+        DecimalText
+    )  # as of `as_of`, from the file
+    price: Mapped[Decimal | None] = mapped_column(
+        DecimalText
+    )  # price the file's value was based on
+    as_of: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

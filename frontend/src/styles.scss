@@ -18,3 +18,11 @@ ul.accounts li .platform { flex: 1; }
 .check { display: flex; gap: 0.5rem; align-items: center; }
 ul.accounts li { flex-wrap: wrap; }
 ul.accounts li.inactive { opacity: 0.6; }
+.card.wide { max-width: 32rem; }
+.warn { color: #b54708; margin: 0.25rem 0; }
+.scroll { max-height: 22rem; overflow: auto; border: 1px solid var(--border); border-radius: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { padding: 0.35rem 0.6rem; border-bottom: 1px solid var(--border); text-align: left; }
+th { position: sticky; top: 0; background: Canvas; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+a.button { padding: 0.4rem 0.8rem; border: 1px solid ButtonBorder; border-radius: 4px; color: inherit; text-decoration: none; background: ButtonFace; }

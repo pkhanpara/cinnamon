@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from typing import Annotated
 
 from pydantic import BaseModel, BeforeValidator, ConfigDict, StringConstraints
@@ -65,4 +66,48 @@ class AccountOut(BaseModel):
     id: int
     platform: str
     nickname: str
+    created_at: datetime
+    position_count: int = 0
+    last_import_at: datetime | None = None
+
+
+class ConnectorOut(BaseModel):
+    slug: str
+    label: str
+    description: str
+
+
+class PositionOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    symbol: str
+    name: str | None
+    quantity: Decimal
+    cost_basis: Decimal
+    market_value: Decimal | None
+    price: Decimal | None
+    as_of: datetime | None
+
+
+class IssueOut(BaseModel):
+    row: int
+    message: str
+
+
+class ImportPreview(BaseModel):
+    connector: str
+    filename: str
+    rows: list[PositionOut]
+    errors: list[IssueOut]
+    warnings: list[str]
+    current_position_count: int
+    total_cost_basis: Decimal
+    total_market_value: Decimal | None  # None unless every row has a market_value
+
+
+class ImportOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    connector: str
+    filename: str
+    row_count: int
     created_at: datetime
