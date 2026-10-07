@@ -5,6 +5,7 @@
       <a routerLink="/home" routerLinkActive="active">Home</a>
       <a routerLink="/settings" routerLinkActive="active">Settings</a>
     </nav>
+    @if (!user.must_change_password) { <app-symbol-search /> }
     <span class="spacer"></span>
     <span class="who">{{ user.username }}
       @if (user.is_admin) { <small>(admin)</small> }</span>

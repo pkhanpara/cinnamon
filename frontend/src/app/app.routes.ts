@@ -4,6 +4,7 @@ import { adminGuard, authGuard, guestGuard, sessionGuard } from './core/auth.gua
 export const routes: Routes = [
   { path: 'login', canActivate: [guestGuard], loadComponent: () => import('./pages/login/login').then((m) => m.Login) },
   { path: 'home', canActivate: [authGuard], loadComponent: () => import('./pages/holdings/holdings').then((m) => m.Holdings) },
+  { path: 'symbol/:ticker', canActivate: [authGuard], loadComponent: () => import('./pages/symbol/symbol').then((m) => m.SymbolPage) },
   {
     path: 'settings',
     canActivate: [sessionGuard], // the shell is reachable during a forced password change; its children are not

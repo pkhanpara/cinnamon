@@ -111,6 +111,13 @@ describe('Holdings page', () => {
     expect(m.holdingsReqs()).toHaveLength(0);
   });
 
+  it('each symbol links to its detail page', async () => {
+    const m = await mount();
+    await m.reply(response([holding('ORCL'), holding('BRK.B')]));
+    const hrefs = Array.from(m.el.querySelectorAll('a.sym')).map((a) => a.getAttribute('href'));
+    expect(hrefs.sort()).toEqual(['/symbol/BRK.B', '/symbol/ORCL']); // table order is by value, not by this test
+  });
+
   it('shows warnings, badges for non-live prices, and dashes for missing values', async () => {
     const m = await mount();
     await m.reply(response([

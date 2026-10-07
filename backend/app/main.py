@@ -7,7 +7,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from app import db as app_db
-from app.api import accounts, auth, health, holdings, imports, users
+from app.api import accounts, auth, health, holdings, imports, symbols, users
 from app.bootstrap import ensure_default_admin
 from app.config import get_settings
 
@@ -36,6 +36,7 @@ for r in (
     accounts.router,
     imports.router,
     holdings.router,
+    symbols.router,
 ):
     app.include_router(r, prefix="/api")
 

@@ -99,3 +99,81 @@ export interface HoldingsResponse {
   warnings: string[];
   prices_as_of: string | null;
 }
+
+// ---- symbol detail ----
+
+export interface SymbolQuote {
+  price: string;
+  prev_close: string | null;
+  change: string | null;
+  change_pct: string | null;
+  as_of: string;
+  stale: boolean;
+}
+
+export interface SymbolProfile {
+  name: string | null;
+  exchange: string | null;
+  industry: string | null;
+  country: string | null;
+  currency: string | null;
+  web_url: string | null;
+  market_cap: string | null;
+}
+
+export interface SymbolStats {
+  week52_high: string | null;
+  week52_low: string | null;
+  avg_volume_10d: string | null;
+  avg_volume_3m: string | null;
+}
+
+export interface SymbolOverview {
+  symbol: string;
+  name: string | null;
+  quote: SymbolQuote | null;
+  profile: SymbolProfile | null;
+  stats: SymbolStats | null;
+  position: Holding | null;
+  warnings: string[];
+}
+
+export type HistoryRange = '1d' | '5d' | '1m' | '6m' | 'ytd' | '1y' | 'all';
+
+export interface Bar {
+  t: number; // UTC epoch seconds
+  d: string; // trading date (exchange time zone), YYYY-MM-DD
+  o: string;
+  h: string;
+  l: string;
+  c: string;
+  v: number;
+}
+
+export interface HistoryResponse {
+  symbol: string;
+  range: HistoryRange;
+  intraday: boolean;
+  bars: Bar[];
+  stale: boolean;
+  as_of: string;
+}
+
+export interface NewsItem {
+  headline: string;
+  summary: string;
+  source: string;
+  url: string;
+  published_at: string;
+}
+
+export interface NewsResponse {
+  items: NewsItem[];
+  stale: boolean;
+}
+
+export interface SearchHit {
+  symbol: string;
+  description: string;
+  type: string;
+}

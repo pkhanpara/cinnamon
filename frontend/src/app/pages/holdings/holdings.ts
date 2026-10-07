@@ -9,6 +9,7 @@ import { apiError } from '../../core/errors';
 import { HoldingsService } from '../../core/holdings.service';
 import { Account, Holding, HoldingsResponse } from '../../core/models';
 import { Donut } from '../../components/donut/donut';
+import { fmtMoney, fmtPct, fmtQty, fmtSigned, tone } from '../../core/format';
 
 type SortKey = 'symbol' | 'quantity' | 'price' | 'cost_basis' | 'value' | 'day_change' | 'gain' | 'weight_pct';
 
@@ -22,10 +23,6 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
   { key: 'gain', label: 'Gain / loss', numeric: true },
   { key: 'weight_pct', label: 'Weight', numeric: true },
 ];
-
-const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
-const signedMoney = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', signDisplay: 'exceptZero' });
-const qty = new Intl.NumberFormat('en-US', { maximumFractionDigits: 6 });
 
 @Component({
   selector: 'app-holdings',
@@ -104,7 +101,7 @@ const qty = new Intl.NumberFormat('en-US', { maximumFractionDigits: 6 });
                       }
                     </td>
                     <td>
-                      <strong>{{ h.symbol }}</strong> {{ badge(h) }}
+                      <a class="sym" [routerLink]="['/symbol', h.symbol]"><strong>{{ h.symbol }}</strong></a> {{ badge(h) }}
                       <div class="sub">{{ h.name }}@if (h.lines.length === 1) { · {{ h.lines[0].account_nickname }} }</div>
                     </td>
                     <td class="num">{{ qty(h.quantity) }}</td>
@@ -276,25 +273,11 @@ export class Holdings {
   }
 
   // --- formatting (display only: values arrive as exact decimal strings) ---
-  protected fmt(v: string): string {
-    return money.format(Number(v));
-  }
-  protected signed(v: string): string {
-    return signedMoney.format(Number(v));
-  }
-  protected qty(v: string): string {
-    return qty.format(Number(v));
-  }
-  protected pct(v: string | null, signedValue = true): string {
-    if (v === null) return '';
-    const n = Number(v);
-    return `${signedValue && n > 0 ? '+' : ''}${n.toFixed(2)}%`;
-  }
-  /** Sign is always printed too, so colour is never the only signal. */
-  protected tone(v: string | null): string {
-    if (v === null) return 'muted';
-    return Number(v) > 0 ? 'gain' : Number(v) < 0 ? 'loss' : '';
-  }
+  protected readonly fmt = fmtMoney;
+  protected readonly signed = fmtSigned;
+  protected readonly qty = fmtQty;
+  protected readonly pct = fmtPct;
+  protected readonly tone = tone;
   protected badge(h: Holding): string {
     return h.source === 'stale' ? '(stale price)' : h.source === 'file' ? '(imported value)' : h.source === 'none' ? '(no price)' : '';
   }
