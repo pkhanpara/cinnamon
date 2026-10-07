@@ -1,0 +1,49 @@
+import { defineConfig, devices } from '@playwright/test';
+
+/**
+ * End-to-end tests run against a throwaway stack on their own ports (so a running dev server is
+ * left alone): a backend started like a real first run (plain uvicorn, empty database, no manual
+ * migration) and the Angular dev server. No Finnhub key is configured, so runs are offline and
+ * deterministic (holdings fall back to imported values).
+ *
+ *   cd frontend && npm run e2e
+ */
+export const E2E_DIR = '/tmp/cinnamon-e2e';
+const BACKEND_PORT = 8310;
+const FRONTEND_PORT = 4310;
+
+export default defineConfig({
+  testDir: './e2e',
+  outputDir: `${E2E_DIR}/results`,
+  workers: 1, // the scenarios share one database and build on each other
+  fullyParallel: false,
+  retries: 0,
+  reporter: [['list']],
+  use: {
+    baseURL: `http://localhost:${FRONTEND_PORT}`,
+    trace: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+  },
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  webServer: [
+    {
+      // Fresh directory every run => brand-new database => first-time startup path.
+      command:
+        `rm -rf ${E2E_DIR} && mkdir -p ${E2E_DIR} && ` +
+        `exec uv run uvicorn app.main:app --port ${BACKEND_PORT} > ${E2E_DIR}/backend.log 2>&1`,
+      cwd: '../backend',
+      env: { DATABASE_URL: `sqlite:///${E2E_DIR}/e2e.db`, FINNHUB_API_KEY: '' },
+      url: `http://localhost:${BACKEND_PORT}/api/health`,
+      reuseExistingServer: false,
+      timeout: 60_000,
+    },
+    {
+      command:
+        `exec npx ng serve --port ${FRONTEND_PORT} --proxy-config e2e/proxy.e2e.json ` +
+        `> ${E2E_DIR}/frontend.log 2>&1`,
+      url: `http://localhost:${FRONTEND_PORT}`,
+      reuseExistingServer: false,
+      timeout: 120_000,
+    },
+  ],
+});

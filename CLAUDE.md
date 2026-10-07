@@ -22,6 +22,7 @@ npm ci
 npm start            # ng serve; proxies /api -> http://localhost:8000 (proxy.conf.json)
 npm test             # ng test (Vitest + jsdom); one file: npx ng test --include='src/app/core/auth.spec.ts'
 npm run build
+npm run e2e          # Playwright end-to-end workflows (see Testing notes)
 ```
 
 Docker: `docker compose up --build` (port 8000, data volume `cinnamon-data`, reads `.env`). Config comes from env / `.env` (`backend/app/config.py`): `FINNHUB_API_KEY`, `DATABASE_URL`, `DEFAULT_ADMIN_*`, `COOKIE_SECURE`, `AUTO_MIGRATE`, ...
@@ -42,6 +43,7 @@ Docker: `docker compose up --build` (port 8000, data volume `cinnamon-data`, rea
 ## Testing notes
 
 - `tests/conftest.py` sets `AUTO_MIGRATE=false` before importing the app and builds a fresh in-memory SQLite schema per test (`Base.metadata.create_all`, FKs on) via a `get_db` override, so tests don't exercise Alembic migrations (`test_startup.py` covers that path). The quote provider is overridden to `None` so tests never reach Finnhub even though the dev `.env` has a key; tests that need prices override `get_quote_provider`.
+- **End-to-end tests** (`frontend/e2e/`, Playwright, Chromium): `cd frontend && npm run e2e`. One-time browser install: `npx playwright install chromium` (add `--with-deps` on a fresh Linux/CI box). Needs `uv` and free ports 8310/4310. `playwright.config.ts` boots its own throwaway stack (plain `uvicorn` on an empty SQLite in `/tmp/cinnamon-e2e`, wiped every run, plus `ng serve`, no Finnhub key), so a running dev server is left alone and no manual setup is needed. Single spec: `npx playwright test returning-user`; one test: `npx playwright test -g "replaces the first"`; watch it: add `--headed` or `--ui`. Failure traces/screenshots land in `/tmp/cinnamon-e2e/results` (`npx playwright show-trace <trace.zip>`); backend/dev-server logs are `/tmp/cinnamon-e2e/{backend,frontend}.log`. Specs run serially in one shared database: `first-login.spec.ts` (fresh install, default admin, forced password change, first import) then `returning-user.spec.ts` (self-contained via `e2e/support.ts` `adminSession()`). The last test of `first-login` is an audit that fails on any browser error, unexpected 4xx/5xx or error line in the logs, so new expected error responses must be added to its allow-list.
 - Schema changes need both a model change and an Alembic migration in `backend/migrations/versions/`.
 
 ## Repo conventions
