@@ -170,6 +170,7 @@ export interface NewsItem {
 export interface NewsResponse {
   items: NewsItem[];
   stale: boolean;
+  as_of: string;
 }
 
 export interface SearchHit {

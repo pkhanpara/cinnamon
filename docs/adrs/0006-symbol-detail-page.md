@@ -22,7 +22,7 @@ Checked against the live APIs on 2026-10-07 instead of assuming:
   and `CompanyDataProvider` (extra methods on `FinnhubProvider`). One pooled Finnhub client for the process; the transport retries connect failures twice.
 - **Caches:** an in-process `TTLCache` (`app/cache.py`): one upstream call per key even under concurrency, failures are never
   cached, and an expired value is served flagged `stale` if the refresh fails. TTLs: history 1 min (1D), 5 min (5D), 15 min (daily), 1 h (All);
-  profile 6 h, metrics 1 h, news 10 min, search 5 min. Quotes keep using the DB-backed cache (ADR 0003). No new tables.
+  profile 6 h, metrics 1 h, news 30 min (was 10, see amendment), search 5 min. Quotes keep using the DB-backed cache (ADR 0003). No new tables.
 - **Untrusted text:** news and profiles are plain text; only absolute `http(s)` URLs survive; images and logos are not
   fetched or sent (no third-party requests from the browser); news links open with `rel="noopener noreferrer"`.
 - **Plausibility:** a 52-week range that cannot contain the current price (outside 0.8 x low .. 1.2 x high) is hidden with a warning.
@@ -38,5 +38,11 @@ Checked against the live APIs on 2026-10-07 instead of assuming:
 - yfinance is unofficial and heavy (pandas); the Docker image grows and has not been rebuilt with it yet.
 - Caches live in one process: a restart refetches, and several workers would not share them.
 - Finnhub budget is 60 calls/min: an overview costs 3 (quote, profile, metrics), news 1, each search 1.
-  Nothing rate-limits a single user yet (TODO).
+  Only news refresh is rate-limited per user so far (see amendment); search and lookups are not (TODO).
 - Intraday data is US-market oriented; extended hours, other exchanges and currencies are not handled.
+
+## Amendment 2026-10-07: news TTL and refresh
+- News TTL is 30 min. `NewsListOut.as_of` reports when the items were fetched, so the page shows "Updated N min ago".
+- `POST /api/symbols/{symbol}/news/refresh` refetches on demand: never within 60 s of the last fetch (any user's), at most one upstream call per
+  user and symbol per minute and ten per user per minute (429 + `Retry-After`), and on failure the previous items are returned flagged stale.
+  Limiter state is in-process like the caches. Details: `docs/log/20261007-163500-news-cache-and-refresh.md`.

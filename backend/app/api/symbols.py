@@ -27,6 +27,7 @@ from app.providers.base import (
 )
 from app.providers.yfinance_history import INTRADAY
 from app.quotes import get_quotes
+from app.ratelimit import SlidingWindowLimiter
 from app.schemas import (
     BarOut,
     HistoryOut,
@@ -47,7 +48,9 @@ _SYMBOL_RE = re.compile(SYMBOL_PATTERN)
 
 PROFILE_TTL = 6 * 3600
 METRICS_TTL = 3600
-NEWS_TTL = 600
+NEWS_TTL = 30 * 60
+# A refresh never refetches news younger than this many seconds (any user's fetch counts).
+NEWS_REFRESH_MIN_AGE = 60
 SEARCH_TTL = 300
 NEWS_DAYS = 14
 NEWS_LIMIT = 20
@@ -244,18 +247,7 @@ def history(
     )
 
 
-@router.get("/{symbol}/news")
-def news(symbol: SymbolDep, _: CurrentUser, company: CompanyDep) -> NewsListOut:
-    if company is None:
-        raise HTTPException(
-            status.HTTP_503_SERVICE_UNAVAILABLE, "News needs FINNHUB_API_KEY to be set."
-        )
-    try:
-        cached = company_cache.get_or_set(
-            ("news", symbol), NEWS_TTL, lambda: company.get_news(symbol, NEWS_DAYS, NEWS_LIMIT)
-        )
-    except ProviderError as e:
-        raise _unavailable("News", e) from e
+def _news_out(cached) -> NewsListOut:
     return NewsListOut(
         items=[
             NewsOut(
@@ -268,4 +260,67 @@ def news(symbol: SymbolDep, _: CurrentUser, company: CompanyDep) -> NewsListOut:
             for n in cached.value
         ],
         stale=cached.stale,
+        as_of=datetime.fromtimestamp(cached.fetched_at, UTC),
     )
+
+
+@router.get("/{symbol}/news")
+def news(symbol: SymbolDep, _: CurrentUser, company: CompanyDep) -> NewsListOut:
+    if company is None:
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE, "News needs FINNHUB_API_KEY to be set."
+        )
+    try:
+        cached = company_cache.get_or_set(
+            ("news", symbol), NEWS_TTL, lambda: company.get_news(symbol, NEWS_DAYS, NEWS_LIMIT)
+        )
+    except ProviderError as e:
+        raise _unavailable("News", e) from e
+    return _news_out(cached)
+
+
+# Refresh budget (Finnhub allows 60 calls/min for everyone): one upstream call per user and symbol
+# per minute, ten per user per minute across symbols. Only calls that reach Finnhub are counted.
+_refresh_per_symbol = SlidingWindowLimiter(limit=1, window=60)
+_refresh_per_user = SlidingWindowLimiter(limit=10, window=60)
+
+
+def reset_news_refresh_limits() -> None:
+    _refresh_per_symbol.clear()
+    _refresh_per_user.clear()
+
+
+@router.post("/{symbol}/news/refresh")
+def refresh_news(symbol: SymbolDep, user: CurrentUser, company: CompanyDep) -> NewsListOut:
+    """Refetch news now, bypassing the 30-minute cache. If the refetch fails the previous items are
+    returned flagged stale; if the news is younger than a minute no upstream call is made."""
+    if company is None:
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE, "News needs FINNHUB_API_KEY to be set."
+        )
+    sym_key = (user.id, symbol)
+    wait = max(_refresh_per_symbol.retry_after(sym_key), _refresh_per_user.retry_after(user.id))
+    if wait:
+        raise HTTPException(
+            status.HTTP_429_TOO_MANY_REQUESTS,
+            f"Too many news refreshes. Try again in {wait} s.",
+            headers={"Retry-After": str(wait)},
+        )
+    fetched = False
+
+    def fetch():
+        nonlocal fetched
+        fetched = True
+        return company.get_news(symbol, NEWS_DAYS, NEWS_LIMIT)
+
+    try:
+        # Using the minimum age as the TTL gives the refresh its age floor, single-flight and
+        # stale-on-error behaviour from the same cache entry that GET /news serves.
+        cached = company_cache.get_or_set(("news", symbol), NEWS_REFRESH_MIN_AGE, fetch)
+    except ProviderError as e:
+        raise _unavailable("News", e) from e
+    finally:
+        if fetched:  # failures count too: the upstream call was spent
+            _refresh_per_symbol.hit(sym_key)
+            _refresh_per_user.hit(user.id)
+    return _news_out(cached)

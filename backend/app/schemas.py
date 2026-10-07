@@ -225,6 +225,7 @@ class NewsOut(BaseModel):
 class NewsListOut(BaseModel):
     items: list[NewsOut]
     stale: bool
+    as_of: datetime  # when these items were fetched upstream (UTC)
 
 
 class SearchHitOut(BaseModel):

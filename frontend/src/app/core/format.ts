@@ -23,3 +23,15 @@ export function tone(v: string | null): string {
   if (v === null) return 'muted';
   return Number(v) > 0 ? 'gain' : Number(v) < 0 ? 'loss' : '';
 }
+
+/** "just now" / "12 min ago" / "3 h ago" / "2 d ago". A time in the future (browser clock behind the server's) counts as just now. */
+export function ageLabel(asOf: string, nowMs: number): string {
+  const t = Date.parse(asOf);
+  if (!Number.isFinite(t)) return 'recently';
+  const s = Math.max(0, Math.floor((nowMs - t) / 1000));
+  if (s < 60) return 'just now';
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m} min ago`;
+  const h = Math.floor(m / 60);
+  return h < 24 ? `${h} h ago` : `${Math.floor(h / 24)} d ago`;
+}
