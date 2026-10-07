@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Annotated
 
@@ -157,3 +157,77 @@ class HoldingsOut(BaseModel):
     holdings: list[HoldingOut]
     warnings: list[str]
     prices_as_of: datetime | None
+
+
+class SymbolQuote(BaseModel):
+    price: Decimal
+    prev_close: Decimal | None
+    change: Decimal | None  # only for live quotes: a stale quote's "previous close" means nothing
+    change_pct: Decimal | None
+    as_of: datetime
+    stale: bool
+
+
+class SymbolProfile(BaseModel):
+    name: str | None
+    exchange: str | None
+    industry: str | None
+    country: str | None
+    currency: str | None
+    web_url: str | None
+    market_cap: Decimal | None  # USD
+
+
+class SymbolStats(BaseModel):
+    week52_high: Decimal | None
+    week52_low: Decimal | None
+    avg_volume_10d: Decimal | None  # shares
+    avg_volume_3m: Decimal | None
+
+
+class SymbolOverview(BaseModel):
+    symbol: str
+    name: str | None
+    quote: SymbolQuote | None
+    profile: SymbolProfile | None
+    stats: SymbolStats | None
+    position: HoldingOut | None  # your holding across all your accounts, None if not held
+    warnings: list[str]
+
+
+class BarOut(BaseModel):
+    t: int  # UTC epoch seconds (bar start)
+    d: date  # trading date in the exchange's time zone
+    o: Decimal
+    h: Decimal
+    l: Decimal
+    c: Decimal
+    v: int
+
+
+class HistoryOut(BaseModel):
+    symbol: str
+    range: str
+    intraday: bool
+    bars: list[BarOut]
+    stale: bool
+    as_of: datetime
+
+
+class NewsOut(BaseModel):
+    headline: str
+    summary: str
+    source: str
+    url: str
+    published_at: datetime
+
+
+class NewsListOut(BaseModel):
+    items: list[NewsOut]
+    stale: bool
+
+
+class SearchHitOut(BaseModel):
+    symbol: str
+    description: str
+    type: str

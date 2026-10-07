@@ -8,11 +8,22 @@ from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
+from app.cache import clear_all_caches
 from app.db import Base, get_db
 from app.main import app
 from app.models import User
-from app.providers import get_quote_provider
+from app.providers import get_company_provider, get_history_provider, get_quote_provider
 from app.security import hash_password
+
+
+class _no_network_history:
+    """Default history provider in tests: any call is a bug (it would reach Yahoo)."""
+
+    def get_history(self, symbol, range_):
+        raise AssertionError(
+            "test reached the real history provider; override get_history_provider"
+        )
+
 
 ADMIN = {"username": "admin", "password": "correct-horse-battery"}
 ALICE = {"username": "alice", "password": "alice-password-123"}
@@ -38,6 +49,9 @@ def client():
     app.dependency_overrides[get_db] = override
     # Never reach the real Finnhub (the dev .env has a key). Tests that need prices override this.
     app.dependency_overrides[get_quote_provider] = lambda: None
+    app.dependency_overrides[get_company_provider] = lambda: None
+    app.dependency_overrides[get_history_provider] = _no_network_history
+    clear_all_caches()
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
