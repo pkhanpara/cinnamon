@@ -12,6 +12,9 @@ class Settings(BaseSettings):
     quote_ttl_seconds: int = 60
     session_cookie_name: str = "cinnamon_session"
     session_days: int = 30
+    # Seeded on a brand-new database only, and must be changed at first sign-in (ADR 0004).
+    default_admin_username: str = "admin"
+    default_admin_password: str = "$admin123456"
     # Set true when served over HTTPS; false allows plain-HTTP LAN use.
     cookie_secure: bool = False
 

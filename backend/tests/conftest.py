@@ -6,7 +6,9 @@ from sqlalchemy.pool import StaticPool
 
 from app.db import Base, get_db
 from app.main import app
+from app.models import User
 from app.providers import get_quote_provider
+from app.security import hash_password
 
 ADMIN = {"username": "admin", "password": "correct-horse-battery"}
 ALICE = {"username": "alice", "password": "alice-password-123"}
@@ -45,9 +47,24 @@ def login(client: TestClient, creds: dict) -> TestClient:
     return c
 
 
+def seed_user(client, creds: dict, *, is_admin=False, must_change=False) -> None:
+    """Insert a user straight into the test DB (there is no public sign-up)."""
+    db = next(app.dependency_overrides[get_db]())
+    db.add(
+        User(
+            username=creds["username"],
+            password_hash=hash_password(creds["password"]),
+            is_admin=is_admin,
+            must_change_password=must_change,
+        )
+    )
+    db.commit()
+
+
 @pytest.fixture
 def admin(client):
-    assert client.post("/api/auth/setup", json=ADMIN).status_code == 201
+    seed_user(client, ADMIN, is_admin=True)
+    assert client.post("/api/auth/login", json=ADMIN).status_code == 200
     return client
 
 

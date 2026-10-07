@@ -8,19 +8,6 @@ from app.models import AuthSession, utcnow
 from tests.conftest import ADMIN, ALICE, login
 
 
-def test_setup_flow_only_once(client):
-    assert client.get("/api/auth/status").json() == {"setup_required": True}
-    r = client.post("/api/auth/setup", json=ADMIN)
-    assert r.status_code == 201 and r.json()["is_admin"] is True
-    assert client.get("/api/auth/status").json() == {"setup_required": False}
-    assert client.post("/api/auth/setup", json=ADMIN).status_code == 409
-
-
-def test_setup_validates_input(client):
-    assert client.post("/api/auth/setup", json={**ADMIN, "password": "short"}).status_code == 422
-    assert client.post("/api/auth/setup", json={**ADMIN, "username": "a b"}).status_code == 422
-
-
 def test_cookie_flags_and_me(admin):
     r = admin.post("/api/auth/login", json=ADMIN)
     cookie = r.headers["set-cookie"].lower()

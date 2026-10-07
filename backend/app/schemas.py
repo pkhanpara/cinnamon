@@ -25,13 +25,15 @@ class Credentials(BaseModel):
     password: str
 
 
-class SetupRequest(BaseModel):
+class UserCreate(BaseModel):
     username: Username
     password: Password
-
-
-class UserCreate(SetupRequest):
     is_admin: bool = False
+
+
+class ChangePassword(BaseModel):
+    current_password: str
+    new_password: Password
 
 
 class UserUpdate(BaseModel):
@@ -46,10 +48,7 @@ class UserOut(BaseModel):
     username: str
     is_admin: bool
     is_active: bool
-
-
-class AuthStatus(BaseModel):
-    setup_required: bool
+    must_change_password: bool = False
 
 
 class AccountCreate(BaseModel):
