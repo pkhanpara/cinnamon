@@ -1,0 +1,22 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# local/real data (repo is public)
+seed/private/
+data/
+*.db
+*.sqlite3
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# node / angular
+node_modules/
+frontend/dist/
+frontend/.angular/

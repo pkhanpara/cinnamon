@@ -1,0 +1,4 @@
+symbol,name,quantity,cost_basis,market_value,price_used,as_of
+ORCL,Oracle Corporation,40,5200.00,6800.00,170.00,2026-01-01T00:00:00Z
+INTC,Intel Corporation,100,3100.00,2500.00,25.00,2026-01-01T00:00:00Z
+DIS,The Walt Disney Company,25,2400.00,2750.00,110.00,2026-01-01T00:00:00Z

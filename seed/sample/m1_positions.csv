@@ -1,0 +1,4 @@
+symbol,name,quantity,cost_basis,market_value,price_used,as_of
+VTI,Vanguard Total Stock Market ETF,30,7000.00,8100.00,270.00,2026-01-01T00:00:00Z
+SCHD,Schwab US Dividend Equity ETF,80,6000.00,6400.00,80.00,2026-01-01T00:00:00Z
+ORCL,Oracle Corporation,10,1400.00,1700.00,170.00,2026-01-01T00:00:00Z
