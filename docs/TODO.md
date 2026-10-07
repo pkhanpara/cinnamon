@@ -1,11 +1,15 @@
 ### Todo
 
+- [ ] Per-user rate limit on symbol search/lookups (Finnhub allows 60 calls/min for everyone) #sec  
+- [ ] Rebuild Docker image and check size/build with yfinance (pandas) #chore  
+- [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges #feat  
+- [ ] Playwright coverage for the ticker page and symbol search (E2E suite lives in frontend/e2e) #test  
+- [ ] Ticker page: allow adding a symbol to a watchlist (when watchlists exist) #feat  
 - [ ] Admin password reset command (no recovery path if the admin password is lost) #sec  
 - [ ] Force a password change for users an admin creates or resets #sec  
 - [ ] Optional TOTP 2FA #feat  
 - [ ] Friendlier username-pattern 422 message on the Users form #ux  
 - [ ] Guard the startup migration/seed against two processes starting at once #chore  
-- [ ] Click a holdings row to open the ticker detail page #feat  
 - [ ] Cash balances (the PDF had $14,177.37 cash; totals currently exclude cash) #feat  
 - [ ] Quote fetching beyond 60 distinct symbols/min: batch or queue #chore  
 - [ ] Persist holdings account selection per user on the server (currently per browser) #feat  
@@ -21,11 +25,10 @@
 - [ ] Pin the uv image tag in Dockerfile (currently :latest) #chore  
 - [ ] Upgrade Angular 21 -> 22 (needs Node >= 24.15; machine has 24.4.1) #chore  
 - [ ] Real Robinhood / M1 CSV parsers (need real sample exports from user) #feat  
-- [ ] yfinance history provider + Finnhub news/profile + ticker detail page (quote, chart, news) #feat  
 - [ ] Transactions, cost basis (avg-cost; ADR 0005), watchlists #feat  
 - [ ] Daily snapshots, performance + allocation charts #feat  
 - [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  
-- [ ] ADR 0006 cost-basis method (when transactions are built) #docs  
+- [ ] ADR 0007 cost-basis method (when transactions are built) #docs  
 
 ### In Progress
 
@@ -51,3 +54,4 @@
 - [x] Default admin seeded on an empty DB with forced password change; change-password page and API; first-run setup removed (ADR 0005)  
 - [x] /home landing page and Settings (Accounts, User setup, Change password) with redirects from old URLs  
 - [x] README with run instructions, first sign-in, CSV format, configuration (ADR 0005)  
+- [x] Ticker detail page: quote header, lightweight-charts price chart (1D-All), key stats, your position, news, header symbol search; yfinance + Finnhub providers with TTL cache (ADR 0006); 212 backend + 129 frontend tests; verified live in a browser  

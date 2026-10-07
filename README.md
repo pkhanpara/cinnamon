@@ -8,10 +8,13 @@ accounts, with live prices.
   (preview, then confirm). Re-importing replaces that account's positions.
 - **Home:** holdings across all or ticked accounts: total value, day change, gain/loss, allocation
   donut, sortable table, merged rows that expand to per-account lines.
+- **Ticker pages:** click any symbol (or use the search box) for a price chart (1D to All), key statistics,
+  your position across accounts, and news. Works for symbols you don't hold.
 - **Live prices:** Finnhub quotes with a short cache. Without an API key the app falls back to the
   values in your imported files and says so.
 - **Multi-user:** local accounts, an admin who manages users.
-- **Stack:** FastAPI + SQLAlchemy + Alembic + SQLite, Angular, one Docker image.
+- **Stack:** FastAPI + SQLAlchemy + Alembic + SQLite, Angular, one Docker image. Price history comes from Yahoo
+  Finance through the unofficial `yfinance` package, so it may break without notice.
 
 Status: early. Robinhood and M1 each need a real export sample before a native parser exists; for now
 use the generic "positions snapshot" CSV below.
@@ -93,7 +96,8 @@ cd frontend && CI=1 npx ng test --watch=false && npx ng build
 
 ## Your data
 
-Everything stays on your machine; the only outbound calls are Finnhub quote requests (symbols only).
+Everything stays on your machine. The only outbound calls are made by the server: Finnhub (symbols, plus the
+search text you type) and Yahoo Finance (symbols, for price history). Your holdings and quantities are never sent.
 This is a public repository: keep real exports and database files out of git. `seed/private/` and
 `*.db` are ignored for that reason.
 
