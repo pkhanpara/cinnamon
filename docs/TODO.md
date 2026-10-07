@@ -1,9 +1,11 @@
 ### Todo
 
-- [ ] Seed data: make a few holdings overlap across accounts so merged rows show in the UI #chore  
-  - [ ] Extend `scripts/make_seed.py` (today ETFs go to `m1`, everything else to `robinhood`, so nothing overlaps); output stays in git-ignored `seed/private/`  
-  - [ ] Split 3-4 symbols (e.g. NVDA, MSFT, VOO) across two or three accounts, keeping the combined totals equal to the PDF's so the cross-check still holds  
-  - [ ] Look at the merged-row expand control on Home and the per-account lines on the ticker page with that data, and note any UI problems  
+- [ ] Merged-row UI polish found with the overlapping seed (see docs/log/20261007-170000-seed-overlap.md) #ux  
+  - [ ] Home holdings table scrolls inside its own box, so the first/last rows are clipped mid-row at page level; decide on one scroll container  
+  - [ ] Expanded per-account lines leave Price, Day change, Gain/loss and Weight empty; show at least per-line gain  
+  - [ ] Per-account lines show "robinhood robinhood" when nickname equals platform; show the platform only when it differs  
+  - [ ] Ticker page "Your position" ignores the Home account selection (still lists an unchecked account); decide if that is intended and label it  
+  - [ ] Ticker position lines show quantity and value only; add cost basis / gain like Home  
 - [ ] News refresh follow-ups #chore  
   - [ ] Look at the news header row (Updated label + Refresh button) in a real browser, incl. narrow screens  
   - [ ] Reuse `app/ratelimit.py` for the per-user search/lookup limit; limiter and caches are per process  
@@ -51,6 +53,7 @@
 
 ### Done ✓
 
+- [x] Seed data: NVDA, MSFT, VOO, AAPL split across robinhood/m1/schwab by `SPLITS` in `scripts/make_seed.py`; totals still 685,600.54; 16 tests, 7 mutation checks  
 - [x] News: 30-minute cache, Refresh button (POST /news/refresh, rate-limited) and "Updated N min ago" label; 222 backend + 139 frontend tests (see docs/log/20261007-163500-news-cache-and-refresh.md)  
 - [x] Playwright e2e workflow tests: first-time login + returning user (15 tests)  
 - [x] Create public repo pkhanpara/cinnamon and set origin  
