@@ -1,0 +1,4 @@
+header { display: flex; align-items: baseline; gap: 1rem; padding: 1rem; }
+h1 { margin: 0; }
+.status[data-status='ok'] { color: green; }
+.status[data-status='unreachable'] { color: crimson; }
