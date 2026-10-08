@@ -9,3 +9,7 @@ seed/
 **/data
 **/__pycache__
 docs/
+backend/tests
+backend/static
+**/.pytest_cache
+**/.ruff_cache
