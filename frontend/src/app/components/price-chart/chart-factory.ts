@@ -3,6 +3,8 @@ import { ChartPoint } from '../../core/chart-data';
 
 export interface ChartHandle {
   setData(points: ChartPoint[], opts: { intraday: boolean; up: boolean }): void;
+  /** Overlay a second line (e.g. a benchmark); null removes it. Optional so simple charts need not implement it. */
+  setCompare?(points: ChartPoint[] | null): void;
   destroy(): void;
 }
 

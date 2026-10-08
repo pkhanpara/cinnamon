@@ -1,4 +1,4 @@
-import { AreaSeries, ColorType, createChart, TickMarkType, UTCTimestamp } from 'lightweight-charts';
+import { AreaSeries, ColorType, createChart, ISeriesApi, LineSeries, TickMarkType, UTCTimestamp } from 'lightweight-charts';
 import { ChartPoint, formatCrosshairTime, formatIntradayTick } from '../../core/chart-data';
 import { ChartHandle } from './chart-factory';
 
@@ -30,7 +30,18 @@ export function createLightweightChart(el: HTMLElement): ChartHandle {
   });
   const series = chart.addSeries(AreaSeries, { lineWidth: 2, priceLineVisible: false });
 
+  let compare: ISeriesApi<'Line'> | null = null;
+
   return {
+    setCompare(points: ChartPoint[] | null) {
+      if (points === null) {
+        if (compare) chart.removeSeries(compare);
+        compare = null;
+        return;
+      }
+      compare ??= chart.addSeries(LineSeries, { lineWidth: 2, color: '#6b7280', priceLineVisible: false, lastValueVisible: false });
+      compare.setData(points.map((p) => ({ time: p.time as UTCTimestamp | string, value: p.value })) as never);
+    },
     setData(points: ChartPoint[], { intraday, up }) {
       const color = up ? GAIN : LOSS;
       series.applyOptions({ lineColor: color, topColor: alpha(color, 0.28), bottomColor: alpha(color, 0) });
