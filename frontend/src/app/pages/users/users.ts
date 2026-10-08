@@ -1,10 +1,26 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
 import { apiError } from '../../core/errors';
 import { User } from '../../core/models';
 import { UserPatch, UsersService } from '../../core/users.service';
+
+const USERNAME_HINT = 'Usernames: 3-64 letters, digits, . _ -';
+// Mirrors the backend Username type (it trims and lowercases first).
+const USERNAME_PATTERN = /^[a-z0-9_.-]{3,64}$/i;
+
+function usernameValidator(c: AbstractControl): ValidationErrors | null {
+  const v = String(c.value ?? '').trim();
+  return v === '' || USERNAME_PATTERN.test(v) ? null : { username: true };
+}
+
+/** A 422 whose first problem is on the username field (pydantic prints the raw regex otherwise). */
+function isUsernameRejected(e: unknown): boolean {
+  const d = e instanceof HttpErrorResponse && e.status === 422 ? e.error?.detail : null;
+  return Array.isArray(d) && Array.isArray(d[0]?.loc) && d[0].loc.includes('username');
+}
 
 @Component({
   selector: 'app-users',
@@ -24,9 +40,10 @@ import { UserPatch, UsersService } from '../../core/users.service';
             <span class="platform">
               {{ u.is_admin ? 'admin' : 'user' }}{{ u.is_active ? '' : ' · deactivated' }}
               @if (u.id === me()?.id) { · you }
+              @if (u.must_change_password) { · must set a new password at next sign-in }
             </span>
             @if (resettingId() === u.id) {
-              <input #pw type="password" aria-label="New password" placeholder="New password (10+ chars)"
+              <input #pw type="password" aria-label="Temporary password" placeholder="Temporary password (10+ chars)"
                      autocomplete="new-password" (keyup.enter)="resetPassword(u, pw.value)"
                      (keyup.escape)="resettingId.set(null)" />
               <button type="button" (click)="resetPassword(u, pw.value)">Save</button>
@@ -48,16 +65,18 @@ import { UserPatch, UsersService } from '../../core/users.service';
     <form class="card" [formGroup]="form" (ngSubmit)="add()">
       <h3>Add user</h3>
       <label>Username <input formControlName="username" autocomplete="off" /></label>
-      <label>Password
+      <label>Temporary password
         <input type="password" formControlName="password" autocomplete="new-password" />
       </label>
       <label class="check"><input type="checkbox" formControlName="is_admin" /> Administrator</label>
-      <p class="hint">Usernames: 3-64 letters, digits, . _ -</p>
+      <p class="hint" [class.error]="usernameInvalid()">{{ USERNAME_HINT }}</p>
+      <p class="hint">They will be asked to choose their own password at first sign-in.</p>
       <button type="submit" [disabled]="form.invalid || busy()">Add user</button>
     </form>
   `,
 })
 export class Users {
+  protected readonly USERNAME_HINT = USERNAME_HINT;
   private readonly api = inject(UsersService);
   protected readonly me = inject(AuthService).user;
   protected readonly users = signal<User[]>([]);
@@ -67,10 +86,15 @@ export class Users {
   protected readonly notice = signal('');
   protected readonly resettingId = signal<number | null>(null);
   protected readonly form = inject(FormBuilder).nonNullable.group({
-    username: ['', [Validators.required, Validators.minLength(3)]],
+    username: ['', [Validators.required, usernameValidator]],
     password: ['', [Validators.required, Validators.minLength(10)]],
     is_admin: [false],
   });
+
+  protected usernameInvalid(): boolean {
+    const c = this.form.controls.username;
+    return c.dirty && c.invalid;
+  }
 
   constructor() {
     void this.reload();
@@ -99,9 +123,9 @@ export class Users {
       const created = await firstValueFrom(this.api.create(username, password, is_admin));
       this.users.update((list) => [...list, created]);
       this.form.reset();
-      this.notice.set(`Created ${created.username}.`);
+      this.notice.set(`Created ${created.username}. They must set a new password at first sign-in.`);
     } catch (e) {
-      this.error.set(apiError(e, 'Could not add user'));
+      this.error.set(isUsernameRejected(e) ? USERNAME_HINT : apiError(e, 'Could not add user'));
     } finally {
       this.busy.set(false);
     }
@@ -124,9 +148,10 @@ export class Users {
       return;
     }
     try {
-      await firstValueFrom(this.api.update(u.id, { password }));
+      const updated = await firstValueFrom(this.api.update(u.id, { password }));
+      this.users.update((list) => list.map((x) => (x.id === u.id ? updated : x)));
       this.resettingId.set(null);
-      this.notice.set(`Password reset for ${u.username}. Their sessions were signed out.`);
+      this.notice.set(`Password reset for ${u.username}. Their sessions were signed out and they must set a new password at next sign-in.`);
     } catch (e) {
       this.error.set(apiError(e, 'Could not reset password'));
     }

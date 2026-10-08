@@ -82,4 +82,40 @@ describe('Users page', () => {
     await p; f.detectChanges();
     expect(el.querySelector('[role=status]')?.textContent).toContain('signed out');
   });
+
+  it('flags created and reset users as needing a new password', async () => {
+    const { f, http, el, c } = await mount([ME, { ...ALICE, must_change_password: true }]);
+    expect(el.querySelectorAll('li')[1].textContent).toContain('must set a new password');
+    const p = c['resetPassword'](ALICE, 'temporary-password');
+    http.expectOne('/api/users/2').flush({ ...ALICE, must_change_password: true });
+    await p; f.detectChanges();
+    expect(el.querySelector('[role=status]')?.textContent).toContain('must set a new password');
+  });
+
+  it('rejects a bad username before submitting', async () => {
+    const { f, c } = await mount([ME]);
+    for (const bad of ['ab', 'has space', 'x'.repeat(65), 'bad!']) {
+      c['form'].controls.username.setValue(bad);
+      c['form'].controls.username.markAsDirty();
+      c['form'].controls.password.setValue('long-enough-pw');
+      expect(c['form'].invalid, bad).toBe(true);
+    }
+    c['form'].controls.username.setValue('Good.Name-1');
+    expect(c['form'].valid).toBe(true);
+    f.detectChanges();
+  });
+
+  it('shows the friendly username message for a 422 on the username field', async () => {
+    const { f, http, el, c } = await mount([ME]);
+    c['form'].setValue({ username: 'okname', password: 'long-enough-pw', is_admin: false });
+    const p = c['add']();
+    http.expectOne('/api/users').flush(
+      { detail: [{ loc: ['body', 'username'], msg: "String should match pattern '^[a-z0-9_.-]{3,64}$'" }] },
+      { status: 422, statusText: 'Unprocessable' },
+    );
+    await p; f.detectChanges();
+    const msg = el.querySelector('[role=alert]')?.textContent ?? '';
+    expect(msg).toContain('3-64 letters, digits');
+    expect(msg).not.toContain('pattern');
+  });
 });

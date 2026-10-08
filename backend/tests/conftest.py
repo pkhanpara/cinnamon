@@ -4,7 +4,7 @@ os.environ["AUTO_MIGRATE"] = "false"  # tests build their own in-memory schema; 
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, update
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -81,6 +81,15 @@ def seed_user(client, creds: dict, *, is_admin=False, must_change=False) -> None
     db.commit()
 
 
+def clear_forced_change(creds: dict) -> None:
+    """Admin-created users must change their password first; most tests are about something else."""
+    db = next(app.dependency_overrides[get_db]())
+    db.execute(
+        update(User).where(User.username == creds["username"]).values(must_change_password=False)
+    )
+    db.commit()
+
+
 @pytest.fixture
 def admin(client):
     seed_user(client, ADMIN, is_admin=True)
@@ -91,4 +100,5 @@ def admin(client):
 @pytest.fixture
 def alice(admin):
     assert admin.post("/api/users", json=ALICE).status_code == 201
+    clear_forced_change(ALICE)
     return login(admin, ALICE)
