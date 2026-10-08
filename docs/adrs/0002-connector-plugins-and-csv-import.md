@@ -28,6 +28,7 @@ Alternatives considered: unofficial live APIs, a third-party aggregator, manual 
 - Replace-and-discard means **imports are not history**: the performance-over-time chart must come from the
   daily portfolio snapshot job, not from old imports (decided with the user; revisit if history is wanted).
 - SQL cannot SUM/ORDER BY the decimal columns correctly; aggregate in Python.
-- The snapshot layout is ours. Real Robinhood/M1 parsers need real sample exports.
+- The snapshot layout is ours. Real Robinhood/M1 parsers need real sample exports. (Update: M1's open tax lots
+  connector was added and Robinhood deferred; see ADR 0011.)
 - Preview and commit both parse the file, so a file changed between the two steps imports the new content
   (the user's UI re-sends the same File object, which the browser snapshots at selection).

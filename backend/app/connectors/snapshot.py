@@ -2,31 +2,18 @@
 
 Required columns: symbol, quantity, cost_basis
 Optional columns: name, market_value, price_used, as_of (ISO 8601; naive values are taken as UTC)
-Headers are case-insensitive. Numbers may contain "$" and "," (stripped). One row per symbol.
+Headers are case-insensitive. Numbers may contain "$" and "," (stripped); "(1.5)" means -1.5.
+One row per symbol.
 """
 
 import csv
 import io
-import re
 from datetime import UTC, datetime
-from decimal import Decimal, InvalidOperation
 
+from app.connectors._csv import MAX_ROWS, SYMBOL_RE, decode, is_blank, parse_decimal
 from app.connectors.base import ParsedPosition, ParseResult, RowIssue
 
-MAX_ROWS = 5000
 REQUIRED = ("symbol", "quantity", "cost_basis")
-SYMBOL_RE = re.compile(r"^[A-Z0-9][A-Z0-9.\-]{0,14}$")
-
-
-def _decimal(raw: str, label: str) -> Decimal:
-    cleaned = raw.strip().replace("$", "").replace(",", "")
-    try:
-        value = Decimal(cleaned)
-    except InvalidOperation:
-        raise ValueError(f"{label} is not a number: {raw.strip()!r}") from None
-    if not value.is_finite():
-        raise ValueError(f"{label} must be a finite number")
-    return value
 
 
 class SnapshotConnector:
@@ -37,9 +24,8 @@ class SnapshotConnector:
 
     def parse(self, data: bytes) -> ParseResult:
         result = ParseResult()
-        try:
-            text = data.decode("utf-8-sig")
-        except UnicodeDecodeError:
+        text = decode(data)
+        if text is None:
             result.errors.append(RowIssue(0, "File is not valid UTF-8 text"))
             return result
 
@@ -56,7 +42,7 @@ class SnapshotConnector:
         seen: dict[str, int] = {}
         for raw in reader:
             line = reader.line_num
-            if not any((v or "").strip() for v in raw.values() if not isinstance(v, list)):
+            if is_blank(raw.values()):
                 continue  # blank line
             if len(seen) >= MAX_ROWS:
                 result.errors.append(RowIssue(line, f"More than {MAX_ROWS} rows"))
@@ -91,23 +77,23 @@ class SnapshotConnector:
 
         if not get("quantity"):
             raise ValueError("quantity is required")
-        quantity = _decimal(get("quantity"), "quantity")
+        quantity = parse_decimal(get("quantity"), "quantity")
         if quantity <= 0:
             raise ValueError("quantity must be greater than 0")
 
         if not get("cost_basis"):
             raise ValueError("cost_basis is required")
-        cost_basis = _decimal(get("cost_basis"), "cost_basis")
+        cost_basis = parse_decimal(get("cost_basis"), "cost_basis")
         if cost_basis < 0:
             raise ValueError("cost_basis cannot be negative")
 
         market_value = price = as_of = None
         if get("market_value"):
-            market_value = _decimal(get("market_value"), "market_value")
+            market_value = parse_decimal(get("market_value"), "market_value")
             if market_value < 0:
                 raise ValueError("market_value cannot be negative")
         if get("price_used"):
-            price = _decimal(get("price_used"), "price_used")
+            price = parse_decimal(get("price_used"), "price_used")
             if price <= 0:
                 raise ValueError("price_used must be greater than 0")
         if get("as_of"):
