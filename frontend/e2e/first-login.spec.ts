@@ -171,15 +171,21 @@ test.describe('first-time login on a fresh install', () => {
   test('the admin creates a second user, who is not an admin and sees none of the admin data', async ({ browser }) => {
     await page.goto('/settings/user-setup');
     await page.getByLabel('Username').fill('carol');
-    await page.getByLabel('Password', { exact: true }).fill('carol-password-1');
+    await page.getByLabel('Temporary password').fill('carol-temporary-1');
     await page.getByRole('button', { name: 'Add user' }).click();
-    await expect(page.getByRole('status')).toHaveText('Created carol.');
+    await expect(page.getByRole('status')).toContainText('Created carol.');
+    await expect(page.locator('li', { hasText: 'carol' })).toContainText('must set a new password');
 
     const ctx = await browser.newContext(); // a separate browser profile
     const carol = await ctx.newPage();
     watch(carol, 'carol');
     await carol.goto('/login');
-    await signIn(carol, 'carol', 'carol-password-1');
+    await signIn(carol, 'carol', 'carol-temporary-1');
+    await expect(carol).toHaveURL(/\/settings\/change-password$/); // an admin-set password is only temporary
+    await carol.getByLabel('Current password').fill('carol-temporary-1');
+    await carol.getByLabel('New password', { exact: true }).fill('carol-password-1');
+    await carol.getByLabel('Confirm new password').fill('carol-password-1');
+    await carol.getByRole('button', { name: 'Change password' }).click();
     await expect(carol).toHaveURL(/\/home$/);
     await expect(carol.getByText('No accounts yet')).toBeVisible(); // isolation from the admin's account
 

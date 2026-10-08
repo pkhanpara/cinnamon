@@ -10,6 +10,7 @@ import { adminSession, signIn } from './support';
  */
 
 const USER = 'dave';
+const TEMP_PASSWORD = 'dave-temporary-1';
 const PASSWORD = 'dave-password-1';
 const NEW_PASSWORD = 'dave-password-2';
 const FIRST_CSV = path.resolve(__dirname, '../../seed/sample/robinhood_positions.csv'); // ORCL, INTC, DIS
@@ -24,9 +25,17 @@ test.describe('a returning user', () => {
   test.beforeAll(async ({ browser, playwright, baseURL }) => {
     const admin = await playwright.request.newContext({ baseURL });
     await adminSession(admin);
-    const created = await admin.post('/api/users', { data: { username: USER, password: PASSWORD } });
+    const created = await admin.post('/api/users', { data: { username: USER, password: TEMP_PASSWORD } });
     expect(created.status(), 'user is created (fresh database per run)').toBe(201);
     await admin.dispose();
+    // An admin-set password is temporary: take the forced change out of the way via the API.
+    const dave = await playwright.request.newContext({ baseURL });
+    expect((await dave.post('/api/auth/login', { data: { username: USER, password: TEMP_PASSWORD } })).ok()).toBeTruthy();
+    const changed = await dave.post('/api/auth/change-password', {
+      data: { current_password: TEMP_PASSWORD, new_password: PASSWORD },
+    });
+    expect(changed.ok()).toBeTruthy();
+    await dave.dispose();
 
     fs.writeFileSync(
       SECOND_CSV,
@@ -41,7 +50,7 @@ test.describe('a returning user', () => {
   test('signs in, and the session survives a reload and a deep link', async () => {
     await page.goto('/login');
     await signIn(page, USER, PASSWORD);
-    await expect(page).toHaveURL(/\/home$/); // no forced password change for a created user
+    await expect(page).toHaveURL(/\/home$/);
     await page.reload();
     await expect(page).toHaveURL(/\/home$/);
     await page.goto('/settings/accounts');
