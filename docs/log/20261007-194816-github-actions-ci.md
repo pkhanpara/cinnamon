@@ -1,6 +1,6 @@
 # GitHub Actions CI: lint, unit tests, e2e
 
-Status: in progress (PR open, waiting on the first CI run). Branch `ci/github-actions`.
+Status: done, PR #18 green. Branch `ci/github-actions`.
 
 Touched: `.github/workflows/ci.yml` (new), `frontend/package.json` (scripts `test:ci`,
 `typecheck`, `format`, `format:check`), `frontend/.prettierrc`, `frontend/.prettierignore` (new),
@@ -68,7 +68,17 @@ Rejected (user choice in planning):
 7. Added the npm scripts and `.github/workflows/ci.yml`.
    `npm run format:check && npm run typecheck`: OK.
 8. `CINNAMON_E2E_DIR=/tmp/cinnamon-e2e-ci npm run e2e`: 15 passed (20.7s).
-9. CI run on the PR: _see below once it finishes_.
+9. Pushed and opened https://github.com/pkhanpara/cinnamon/pull/18. Run 37719907649, everything green
+   on the first try:
+   - Backend (ruff, pytest): 47s.
+   - Frontend (prettier, tsc, vitest, build): 37s.
+   - End-to-end (Playwright): 1m3s. `15 passed (20.3s)`, browser cache cold
+     (`Cache not found for input keys: playwright-Linux-1.63.0`).
+10. Annotations from that run:
+    - "The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026". Pinned
+      `runs-on: ubuntu-24.04`, because `playwright install --with-deps` is distro-specific.
+    - setup-uv "Unable to reserve cache ... another job may be creating this cache". This is
+      harmless: backend and e2e share a cache key and race to save it.
 
 ## Still to do
 
@@ -80,6 +90,7 @@ Tracked in `docs/TODO.md` under "CI follow-ups":
 - A safe way to format templates (e.g. `htmlWhitespaceSensitivity: "strict"`, checked against
   the specs), or leave them unformatted.
 - Docker image build in CI and Dependabot/Renovate (existing TODO item).
+- Bump `runs-on` to Ubuntu 26 deliberately, once Playwright supports it.
 
 ## Gotchas
 

@@ -57,6 +57,7 @@
 - [ ] CI follow-ups (see 20261007-194816 log) #chore  
   - [ ] Branch protection on `main` requiring the three CI checks  
   - [ ] After the CI PR is squash-merged: add `.git-blame-ignore-revs` with the merge SHA (the prettier reformat lands in it)  
+  - [ ] Runners are pinned to `ubuntu-24.04` (ubuntu-latest becomes 26 on 2026-10-19); bump once Playwright `--with-deps` supports 26  
   - [ ] ESLint via angular-eslint (`ng add @angular-eslint/schematics`) and fix what it reports  
   - [ ] Format Angular templates safely: Prettier's HTML reflow changes rendered whitespace (`.prettierignore` skips `*.html`, `embeddedLanguageFormatting: off` skips inline templates)  
 - [ ] E2E: more workflows (CSV error paths, account rename, M1 connector, live-quote holdings) #test  

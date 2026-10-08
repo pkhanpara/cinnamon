@@ -15,7 +15,8 @@ permissions:
   contents: read
 
 # Actions are pinned to commit SHAs (public repo: a moved tag must not change what runs).
-# uv and Node match the Dockerfile; bump them together.
+# uv and Node match the Dockerfile; bump them together. The runner image is pinned too
+# (ubuntu-latest moves to 26 on 2026-10-19; Playwright's --with-deps is distro-specific).
 env:
   UV_VERSION: '0.12.23'
   NODE_VERSION: '22'
@@ -23,7 +24,7 @@ env:
 jobs:
   backend:
     name: Backend (ruff, pytest)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     defaults:
       run:
@@ -43,7 +44,7 @@ jobs:
 
   frontend:
     name: Frontend (prettier, tsc, vitest, build)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     defaults:
       run:
@@ -63,7 +64,7 @@ jobs:
 
   e2e:
     name: End-to-end (Playwright)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
