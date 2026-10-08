@@ -27,6 +27,7 @@
   - [x] Compare against SPY: toggle to overlay SPY rebased to the portfolio's starting value (or show both as % change from the start of the range); show the difference at the end of the range  
   - [x] Ranges 1D, 5D, 1M, 6M, YTD, 1Y, ALL (same set and labels as the ticker page, `RANGES` in `core/chart-data.ts`)  
   - [x] Open question for a design/ADR: we only store the current snapshot per account (no transactions yet), so history would be a back-cast of today's quantities x historical prices (yfinance, per symbol, cached) and ignores past buys/sells/cash; either label it clearly as "current holdings, past prices" or build it on the daily snapshots / transactions item below. 1D needs intraday bars; many symbols means many yfinance calls, so cache per symbol and cap the number  
+  - [ ] Bug: the chart does not show on the Home page in the user's dev app (http://localhost:4200), while the ticker chart at /symbol/VOO does. Reproduce first (empty/hidden section? `/api/portfolio/...` request failing or empty? stale `ng serve` or backend without the merged endpoint? only some account selections?) and fix #bug  
   - [ ] Eyeball the Home portfolio chart in a real browser (SPY overlay colours in dark mode, 1D on a weekend, narrow window) and add a Playwright case #test  
   - [ ] Portfolio chart: 1D colour/baseline vs previous close, `%` view option, and charts for holdings beyond the 25-symbol cap or without a Yahoo ticker (cash, funds) #feat  
   - [ ] Swap the back-cast for real history once daily snapshots/transactions exist (same endpoint, `basis` field) #feat  
@@ -37,7 +38,6 @@
 - [ ] Ticker page: allow adding a symbol to a watchlist (when watchlists exist) #feat  
 - [x] Force a password change for users an admin creates or resets #sec  
 - [x] Verify `docker compose exec cinnamon python -m app.cli reset-password` against a built image #sec  
-- [ ] Make the password-reset API refuse deactivated users like the CLI does (ADR 0009) #sec  
 - [ ] Make the e2e ports in playwright.config.ts configurable #chore  
 - [ ] Optional TOTP 2FA #feat  
 - [x] Friendlier username-pattern 422 message on the Users form #ux  
@@ -69,6 +69,7 @@
 
 ### Done ✓
 
+- [x] ~~Make the password-reset API refuse deactivated users like the CLI does (ADR 0009)~~ won't do: dropped by the user 2026-10-07, do not pick up  
 - [x] LLM news summary + chat side panel: OpenAI-compatible `LlmProvider`, SSE streaming, `Ask AI` panel with two presets, position sent only on opt-in, env-only config (ADR 0008); thinking disabled by default; API verified live against llama-swap dt-default (see docs/log/20261007-163432-llm-news-chat.md)  
 - [x] Seed data: NVDA, MSFT, VOO, AAPL split across robinhood/m1/schwab by `SPLITS` in `scripts/make_seed.py`; totals still 685,600.54; 16 tests, 7 mutation checks  
 - [x] News: 30-minute cache, Refresh button (POST /news/refresh, rate-limited) and "Updated N min ago" label; 222 backend + 139 frontend tests (see docs/log/20261007-163500-news-cache-and-refresh.md)  
