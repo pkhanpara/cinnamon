@@ -6,7 +6,7 @@ import { AuthService } from '../../core/auth.service';
 import { Holdings } from './holdings';
 
 const acct = (id: number, nickname: string, platform = 'robinhood') => ({ id, platform, nickname, created_at: '', position_count: 1, last_import_at: null });
-const line = (id: number, nick: string, quantity: string, value: string) => ({ account_id: id, account_nickname: nick, platform: 'x', quantity, cost_basis: '100', value, source: 'live' });
+const line = (id: number, nick: string, quantity: string, value: string | null, over: Record<string, unknown> = {}) => ({ account_id: id, account_nickname: nick, platform: 'x', quantity, cost_basis: '100', value, source: 'live', ...over });
 const holding = (symbol: string, over: Record<string, unknown> = {}) => ({
   symbol, name: `${symbol} Inc.`, quantity: '10', cost_basis: '100', price: '12', source: 'live', value: '120.00',
   gain: '20.00', gain_pct: '20.0000', weight_pct: '50.0000', day_change: '5.00', day_change_pct: '4.3478',
@@ -160,6 +160,48 @@ describe('Holdings page', () => {
     expect(subs).toHaveLength(2);
     expect(subs[0]).toContain('M1'); expect(subs[0]).toContain('$1,705.50');
     expect(subs[1]).toContain('RH');
+  });
+
+  it('expanded lines show their own gain (amount and percent), dashes without a price, no percent at zero cost', async () => {
+    const m = await mount();
+    await m.reply(response([
+      holding('ORCL', { lines: [
+        line(1, 'RH', '40', '120.00'),
+        line(2, 'M1', '10', '80.00'),
+        line(3, 'X1', '1', null, { source: 'none' }),
+        line(4, 'Z0', '1', '50.00', { cost_basis: '0' }),
+      ] }),
+    ]));
+    (m.el.querySelector('button[aria-expanded]') as HTMLButtonElement).click(); m.f.detectChanges();
+    const gains = Array.from(m.el.querySelectorAll('tr.subrow td.line-gain'));
+    expect(gains).toHaveLength(4);
+    expect(gains[0].textContent).toContain('+$20.00'); expect(gains[0].textContent).toContain('+20.00%');
+    expect(gains[0].classList.contains('gain')).toBe(true);
+    expect(gains[1].textContent).toContain('-$20.00'); expect(gains[1].textContent).toContain('-20.00%');
+    expect(gains[1].classList.contains('loss')).toBe(true);
+    expect(gains[2].textContent!.trim()).toBe('—');
+    expect(gains[3].textContent).toContain('+$50.00'); expect(gains[3].textContent).not.toContain('%');
+  });
+
+  it('shows the platform next to an account only when it differs from the nickname', async () => {
+    const m = await mount({ accounts: [acct(1, 'Robinhood', 'robinhood'), acct(2, 'Roth', 'robinhood')] });
+    expect(Array.from(m.el.querySelectorAll('.accounts-filter .platform')).map((e) => e.textContent!.trim())).toEqual(['robinhood']);
+    await m.reply(response([
+      holding('ORCL', { lines: [line(1, 'Robinhood', '40', '120.00', { platform: 'robinhood' }), line(2, 'Roth', '10', '80.00', { platform: 'robinhood' })] }),
+    ]));
+    (m.el.querySelector('button[aria-expanded]') as HTMLButtonElement).click(); m.f.detectChanges();
+    const subs = Array.from(m.el.querySelectorAll('tr.subrow'));
+    expect(subs[0].querySelector('.platform')).toBeNull();
+    expect(subs[0].textContent).not.toMatch(/robinhood\s+robinhood/i);
+    expect(subs[1].querySelector('.platform')?.textContent).toBe('robinhood');
+  });
+
+  it('has a single vertical scroller: the table sits in no max-height scroll box', async () => {
+    const m = await mount();
+    await m.reply(response([holding('DIS')]));
+    const table = m.el.querySelector('table')!;
+    expect(table.closest('.scroll')).toBeNull();
+    expect(table.parentElement!.classList.contains('table-x')).toBe(true);
   });
 
   it('sorts by value descending by default and toggles on header click, sinking rows with no value', async () => {

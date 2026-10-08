@@ -9,6 +9,7 @@ import { apiError } from '../../core/errors';
 import { HoldingsService } from '../../core/holdings.service';
 import { Account, Holding, HoldingsResponse } from '../../core/models';
 import { Donut } from '../../components/donut/donut';
+import { lineGain, showPlatform } from '../../core/lines';
 import { fmtMoney, fmtPct, fmtQty, fmtSigned, tone } from '../../core/format';
 
 type SortKey = 'symbol' | 'quantity' | 'price' | 'cost_basis' | 'value' | 'day_change' | 'gain' | 'weight_pct';
@@ -46,7 +47,7 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
           <label class="check">
             <input type="checkbox" [attr.aria-label]="a.nickname" [checked]="selected().includes(a.id)"
                    (change)="toggle(a.id)" /> {{ a.nickname }}
-            <span class="platform">{{ a.platform }}</span>
+            @if (showPlatform(a.nickname, a.platform)) { <span class="platform">{{ a.platform }}</span> }
           </label>
         }
       </fieldset>
@@ -76,7 +77,7 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
 
           <app-donut [holdings]="d.holdings" />
 
-          <div class="scroll tall">
+          <div class="table-x">
             <table>
               <thead>
                 <tr>
@@ -120,10 +121,17 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
                     @for (l of h.lines; track l.account_id) {
                       <tr class="subrow">
                         <td></td>
-                        <td class="sub">{{ l.account_nickname }} <span class="platform">{{ l.platform }}</span></td>
-                        <td class="num">{{ qty(l.quantity) }}</td><td></td>
+                        <td class="sub">{{ l.account_nickname }}@if (showPlatform(l.account_nickname, l.platform)) { <span class="platform">{{ l.platform }}</span> }</td>
+                        <td class="num">{{ qty(l.quantity) }}</td>
+                        <!-- Price and day change belong to the symbol (shown on the row above); the API has no per-line day change or weight. -->
+                        <td></td>
                         <td class="num">{{ fmt(l.cost_basis) }}</td>
-                        <td class="num">{{ l.value ? fmt(l.value) : '—' }}</td><td></td><td></td><td></td>
+                        <td class="num">{{ l.value ? fmt(l.value) : '—' }}</td>
+                        <td></td>
+                        @if (gainOf(l); as g) {
+                          <td class="num line-gain" [class]="tone(g.gain)">{{ signed(g.gain) }}@if (g.pct !== null) { <div class="sub">{{ pct(g.pct) }}</div> }</td>
+                        } @else { <td class="num line-gain muted">—</td> }
+                        <td></td>
                       </tr>
                     }
                   }
@@ -278,6 +286,8 @@ export class Holdings {
   protected readonly qty = fmtQty;
   protected readonly pct = fmtPct;
   protected readonly tone = tone;
+  protected readonly showPlatform = showPlatform;
+  protected readonly gainOf = lineGain;
   protected badge(h: Holding): string {
     return h.source === 'stale' ? '(stale price)' : h.source === 'file' ? '(imported value)' : h.source === 'none' ? '(no price)' : '';
   }

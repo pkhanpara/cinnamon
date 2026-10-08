@@ -6,8 +6,11 @@ import { map } from 'rxjs';
 import { NewsChat } from '../../components/news-chat/news-chat';
 import { PriceChart } from '../../components/price-chart/price-chart';
 import { RANGES } from '../../core/chart-data';
+import { loadSelection } from '../../core/account-selection';
+import { AuthService } from '../../core/auth.service';
 import { apiError } from '../../core/errors';
 import { ageLabel, fmtCompactMoney, fmtCompactNumber, fmtMoney, fmtPct, fmtQty, fmtSigned, tone } from '../../core/format';
+import { lineGain, showPlatform } from '../../core/lines';
 import { HistoryRange, HistoryResponse, NewsResponse, SymbolOverview } from '../../core/models';
 import { SymbolsService } from '../../core/symbols.service';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -92,12 +95,34 @@ import { firstValueFrom } from 'rxjs';
               <dt>Gain / loss</dt>
               <dd [class]="tone(p.gain)">{{ p.gain !== null ? signed(p.gain) + ' (' + pct(p.gain_pct) + ')' : '—' }}</dd>
             </dl>
+            <p class="hint pos-scope">
+              @if (p.lines.length === 1) { In {{ p.lines[0].account_nickname }} }
+              @else { Across all your accounts ({{ p.lines.length }}) }
+            </p>
             @if (p.lines.length > 1) {
-              <ul class="lines">
-                @for (l of p.lines; track l.account_id) {
-                  <li>{{ l.account_nickname }}: {{ qty(l.quantity) }} · {{ l.value ? fmt(l.value) : '—' }}</li>
-                }
-              </ul>
+              <div class="table-x">
+                <table class="lines">
+                  <thead>
+                    <tr><th>Account</th><th class="num">Qty</th><th class="num">Cost</th><th class="num">Value</th><th class="num">Gain / loss</th></tr>
+                  </thead>
+                  <tbody>
+                    @for (l of p.lines; track l.account_id) {
+                      <tr>
+                        <td>
+                          {{ l.account_nickname }}@if (showPlatform(l.account_nickname, l.platform)) { <span class="platform">{{ l.platform }}</span> }
+                          @if (hiddenOnHome().has(l.account_id)) { <span class="sub hidden-tag">hidden on Home</span> }
+                        </td>
+                        <td class="num">{{ qty(l.quantity) }}</td>
+                        <td class="num">{{ fmt(l.cost_basis) }}</td>
+                        <td class="num">{{ l.value ? fmt(l.value) : '—' }}</td>
+                        @if (gainOf(l); as g) {
+                          <td class="num line-gain" [class]="tone(g.gain)">{{ signed(g.gain) }}@if (g.pct !== null) { <div class="sub">{{ pct(g.pct) }}</div> }</td>
+                        } @else { <td class="num line-gain muted">—</td> }
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
             }
           } @else {
             <p class="hint">You don't hold {{ o.symbol }} in any account.</p>
@@ -147,6 +172,7 @@ import { firstValueFrom } from 'rxjs';
 })
 export class SymbolPage {
   private readonly api = inject(SymbolsService);
+  private readonly auth = inject(AuthService);
   protected readonly ticker = toSignal(
     inject(ActivatedRoute).paramMap.pipe(map((p) => (p.get('ticker') ?? '').toUpperCase())),
     { initialValue: '' },
@@ -162,6 +188,16 @@ export class SymbolPage {
   protected readonly prevClose = computed(() => {
     const v = this.overview()?.quote?.prev_close;
     return v ? Number(v) : null;
+  });
+  /**
+   * The position always covers every account (it is what you own, and what the AI chat is told). Home's
+   * account ticks are only a view filter, so accounts unticked there are tagged rather than dropped.
+   */
+  protected readonly hiddenOnHome = computed(() => {
+    const user = this.auth.user();
+    const saved = user ? loadSelection(user.id) : null;
+    const lines = this.overview()?.position?.lines ?? [];
+    return new Set(saved ? lines.map((l) => l.account_id).filter((id) => saved.known.includes(id) && !saved.selected.includes(id)) : []);
   });
   protected readonly news = signal<NewsResponse | null>(null);
   protected readonly newsError = signal('');
@@ -186,6 +222,8 @@ export class SymbolPage {
   protected readonly pct = fmtPct;
   protected readonly qty = fmtQty;
   protected readonly tone = tone;
+  protected readonly showPlatform = showPlatform;
+  protected readonly gainOf = lineGain;
   protected readonly compactMoney = fmtCompactMoney;
   protected readonly compactNumber = fmtCompactNumber;
 
