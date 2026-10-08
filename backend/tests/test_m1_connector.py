@@ -86,6 +86,15 @@ def test_closed_lots_file_rejected_with_hint():
     assert msgs(r) == [(0, "This looks like the Closed tax lots file; download Open tax lots")]
 
 
+def test_holdings_file_rejected_with_hint():
+    holdings = SAMPLE.with_name("m1_holdings.csv").read_bytes()
+    r = parse(holdings)
+    assert r.positions == []
+    assert msgs(r) == [
+        (0, "This looks like the M1 Holdings file; choose the M1 Finance Holdings CSV format")
+    ]
+
+
 @pytest.mark.parametrize(
     "data",
     [
@@ -163,6 +172,7 @@ def test_row_limit_counts_lots():
 
 
 def test_registered_for_m1_only():
-    assert [c.slug for c in connectors.for_platform("m1")] == ["m1-tax-lots", "snapshot"]
+    slugs = [c.slug for c in connectors.for_platform("m1")]
+    assert slugs == ["m1-holdings", "m1-tax-lots", "snapshot"]
     assert [c.slug for c in connectors.for_platform("robinhood")] == ["snapshot"]
     assert connectors.get("m1-tax-lots") is not None
