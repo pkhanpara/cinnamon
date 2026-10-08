@@ -35,10 +35,12 @@
 - [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges #feat  
 - [ ] Playwright coverage for the ticker page and symbol search (E2E suite lives in frontend/e2e) #test  
 - [ ] Ticker page: allow adding a symbol to a watchlist (when watchlists exist) #feat  
-- [ ] Force a password change for users an admin creates or resets #sec  
+- [x] Force a password change for users an admin creates or resets #sec  
 - [x] Verify `docker compose exec cinnamon python -m app.cli reset-password` against a built image #sec  
+- [ ] Make the password-reset API refuse deactivated users like the CLI does (ADR 0009) #sec  
+- [ ] Make the e2e ports in playwright.config.ts configurable #chore  
 - [ ] Optional TOTP 2FA #feat  
-- [ ] Friendlier username-pattern 422 message on the Users form #ux  
+- [x] Friendlier username-pattern 422 message on the Users form #ux  
 - [ ] Guard the startup migration/seed against two processes starting at once #chore  
 - [ ] Cash balances (the PDF had $14,177.37 cash; totals currently exclude cash) #feat  
 - [ ] Quote fetching beyond 60 distinct symbols/min: batch or queue #chore  
