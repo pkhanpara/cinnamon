@@ -23,10 +23,13 @@
   - [x] Add a way to clear the conversation (a "Clear" / "New chat" button in the panel header, disabled while empty): abort any in-flight stream, empty messages, warnings, error and draft, keep the position checkbox off; test that the next question is sent with empty history  
   - [ ] Eyeball the Ask AI panel in a real browser with a long answer (scroll, follow, New chat); on very short windows the log can shrink to nothing, so consider `.log` min-height with the panel scrolling as fallback #bug  
 - [ ] Portfolio value chart on Home, with SPY comparison and ranges #feat  
-  - [ ] Chart of total portfolio value over time (reuse the lightweight-charts wrapper `components/price-chart` behind `CHART_FACTORY`), respecting the Home account selection  
-  - [ ] Compare against SPY: toggle to overlay SPY rebased to the portfolio's starting value (or show both as % change from the start of the range); show the difference at the end of the range  
-  - [ ] Ranges 1D, 5D, 1M, 6M, YTD, 1Y, ALL (same set and labels as the ticker page, `RANGES` in `core/chart-data.ts`)  
-  - [ ] Open question for a design/ADR: we only store the current snapshot per account (no transactions yet), so history would be a back-cast of today's quantities x historical prices (yfinance, per symbol, cached) and ignores past buys/sells/cash; either label it clearly as "current holdings, past prices" or build it on the daily snapshots / transactions item below. 1D needs intraday bars; many symbols means many yfinance calls, so cache per symbol and cap the number  
+  - [x] Chart of total portfolio value over time (reuse the lightweight-charts wrapper `components/price-chart` behind `CHART_FACTORY`), respecting the Home account selection  
+  - [x] Compare against SPY: toggle to overlay SPY rebased to the portfolio's starting value (or show both as % change from the start of the range); show the difference at the end of the range  
+  - [x] Ranges 1D, 5D, 1M, 6M, YTD, 1Y, ALL (same set and labels as the ticker page, `RANGES` in `core/chart-data.ts`)  
+  - [x] Open question for a design/ADR: we only store the current snapshot per account (no transactions yet), so history would be a back-cast of today's quantities x historical prices (yfinance, per symbol, cached) and ignores past buys/sells/cash; either label it clearly as "current holdings, past prices" or build it on the daily snapshots / transactions item below. 1D needs intraday bars; many symbols means many yfinance calls, so cache per symbol and cap the number  
+  - [ ] Eyeball the Home portfolio chart in a real browser (SPY overlay colours in dark mode, 1D on a weekend, narrow window) and add a Playwright case #test  
+  - [ ] Portfolio chart: 1D colour/baseline vs previous close, `%` view option, and charts for holdings beyond the 25-symbol cap or without a Yahoo ticker (cash, funds) #feat  
+  - [ ] Swap the back-cast for real history once daily snapshots/transactions exist (same endpoint, `basis` field) #feat  
 - [ ] Per-user rate limit on symbol search/lookups (Finnhub allows 60 calls/min for everyone) #sec  
 - [ ] Rebuild Docker image and check size/build with yfinance (pandas) #chore  
 - [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges #feat  
