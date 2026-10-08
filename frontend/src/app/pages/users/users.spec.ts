@@ -16,10 +16,16 @@ async function mount(list: unknown[] = [ME, ALICE]) {
   http.expectOne('/api/users').flush(list);
   await f.whenStable();
   f.detectChanges();
-  return { f, http, el: f.nativeElement as HTMLElement, c: f.componentInstance as never as Record<string, any> };
+  return {
+    f,
+    http,
+    el: f.nativeElement as HTMLElement,
+    c: f.componentInstance as never as Record<string, any>,
+  };
 }
 
-const buttons = (li: Element) => Array.from(li.querySelectorAll('button')).map((b) => b.textContent?.trim());
+const buttons = (li: Element) =>
+  Array.from(li.querySelectorAll('button')).map((b) => b.textContent?.trim());
 
 describe('Users page', () => {
   it('lists users and hides self-destructive actions on your own row', async () => {
@@ -35,9 +41,14 @@ describe('Users page', () => {
     c['form'].setValue({ username: 'bob', password: 'bob-password-1', is_admin: true });
     const p = c['add']();
     const req = http.expectOne('/api/users');
-    expect(req.request.body).toEqual({ username: 'bob', password: 'bob-password-1', is_admin: true });
+    expect(req.request.body).toEqual({
+      username: 'bob',
+      password: 'bob-password-1',
+      is_admin: true,
+    });
     req.flush({ id: 3, username: 'bob', is_admin: true, is_active: true });
-    await p; f.detectChanges();
+    await p;
+    f.detectChanges();
     expect(el.querySelectorAll('li').length).toBe(2);
     expect(el.querySelector('[role=status]')?.textContent).toContain('Created bob');
     expect(c['form'].getRawValue().password).toBe('');
@@ -47,8 +58,11 @@ describe('Users page', () => {
     const { f, http, el, c } = await mount();
     c['form'].setValue({ username: 'alice', password: 'whatever-long-1', is_admin: false });
     const p = c['add']();
-    http.expectOne('/api/users').flush({ detail: 'Username already exists' }, { status: 409, statusText: 'Conflict' });
-    await p; f.detectChanges();
+    http
+      .expectOne('/api/users')
+      .flush({ detail: 'Username already exists' }, { status: 409, statusText: 'Conflict' });
+    await p;
+    f.detectChanges();
     expect(el.querySelector('[role=alert]')?.textContent).toContain('Username already exists');
   });
 
@@ -59,7 +73,8 @@ describe('Users page', () => {
     expect(req.request.method).toBe('PATCH');
     expect(req.request.body).toEqual({ is_active: false });
     req.flush({ ...ALICE, is_active: false });
-    await p; f.detectChanges();
+    await p;
+    f.detectChanges();
     const alice = el.querySelectorAll('li')[1];
     expect(alice.textContent).toContain('deactivated');
     expect(buttons(alice)).toContain('Activate');
@@ -79,7 +94,8 @@ describe('Users page', () => {
     const req = http.expectOne('/api/users/2');
     expect(req.request.body).toEqual({ password: 'a-brand-new-password' });
     req.flush({ ...ALICE });
-    await p; f.detectChanges();
+    await p;
+    f.detectChanges();
     expect(el.querySelector('[role=status]')?.textContent).toContain('signed out');
   });
 
@@ -88,7 +104,8 @@ describe('Users page', () => {
     expect(el.querySelectorAll('li')[1].textContent).toContain('must set a new password');
     const p = c['resetPassword'](ALICE, 'temporary-password');
     http.expectOne('/api/users/2').flush({ ...ALICE, must_change_password: true });
-    await p; f.detectChanges();
+    await p;
+    f.detectChanges();
     expect(el.querySelector('[role=status]')?.textContent).toContain('must set a new password');
   });
 
@@ -110,10 +127,15 @@ describe('Users page', () => {
     c['form'].setValue({ username: 'okname', password: 'long-enough-pw', is_admin: false });
     const p = c['add']();
     http.expectOne('/api/users').flush(
-      { detail: [{ loc: ['body', 'username'], msg: "String should match pattern '^[a-z0-9_.-]{3,64}$'" }] },
+      {
+        detail: [
+          { loc: ['body', 'username'], msg: "String should match pattern '^[a-z0-9_.-]{3,64}$'" },
+        ],
+      },
       { status: 422, statusText: 'Unprocessable' },
     );
-    await p; f.detectChanges();
+    await p;
+    f.detectChanges();
     const msg = el.querySelector('[role=alert]')?.textContent ?? '';
     expect(msg).toContain('3-64 letters, digits');
     expect(msg).not.toContain('pattern');

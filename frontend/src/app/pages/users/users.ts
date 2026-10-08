@@ -1,6 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
-import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
 import { apiError } from '../../core/errors';
@@ -123,7 +129,9 @@ export class Users {
       const created = await firstValueFrom(this.api.create(username, password, is_admin));
       this.users.update((list) => [...list, created]);
       this.form.reset();
-      this.notice.set(`Created ${created.username}. They must set a new password at first sign-in.`);
+      this.notice.set(
+        `Created ${created.username}. They must set a new password at first sign-in.`,
+      );
     } catch (e) {
       this.error.set(isUsernameRejected(e) ? USERNAME_HINT : apiError(e, 'Could not add user'));
     } finally {
@@ -151,7 +159,9 @@ export class Users {
       const updated = await firstValueFrom(this.api.update(u.id, { password }));
       this.users.update((list) => list.map((x) => (x.id === u.id ? updated : x)));
       this.resettingId.set(null);
-      this.notice.set(`Password reset for ${u.username}. Their sessions were signed out and they must set a new password at next sign-in.`);
+      this.notice.set(
+        `Password reset for ${u.username}. Their sessions were signed out and they must set a new password at next sign-in.`,
+      );
     } catch (e) {
       this.error.set(apiError(e, 'Could not reset password'));
     }

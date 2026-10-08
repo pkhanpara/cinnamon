@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 
-export const STALE_SERVER = "This server doesn't know this request. The backend may be older than the app: restart it.";
+export const STALE_SERVER =
+  "This server doesn't know this request. The backend may be older than the app: restart it.";
 
 /** Turn an API error into a short message for the UI. FastAPI sends {detail: string | [{msg}]}. */
 export function apiError(err: unknown, fallback = 'Something went wrong'): string {

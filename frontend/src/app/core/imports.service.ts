@@ -12,11 +12,17 @@ export class ImportsService {
   }
 
   preview(accountId: number, connector: string, file: File): Observable<ImportPreview> {
-    return this.http.post<ImportPreview>(`/api/accounts/${accountId}/imports/preview`, form(connector, file));
+    return this.http.post<ImportPreview>(
+      `/api/accounts/${accountId}/imports/preview`,
+      form(connector, file),
+    );
   }
 
   commit(accountId: number, connector: string, file: File): Observable<ImportResult> {
-    return this.http.post<ImportResult>(`/api/accounts/${accountId}/imports`, form(connector, file));
+    return this.http.post<ImportResult>(
+      `/api/accounts/${accountId}/imports`,
+      form(connector, file),
+    );
   }
 }
 

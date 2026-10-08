@@ -90,7 +90,9 @@ export class Import {
   protected readonly account = signal<Account | null>(null);
   protected readonly connectors = signal<Connector[]>([]);
   protected readonly connector = signal('');
-  protected readonly selectedConnector = computed(() => this.connectors().find((c) => c.slug === this.connector()));
+  protected readonly selectedConnector = computed(() =>
+    this.connectors().find((c) => c.slug === this.connector()),
+  );
   protected readonly file = signal<File | null>(null);
   protected readonly preview = signal<ImportPreview | null>(null);
   protected readonly result = signal<ImportResult | null>(null);
@@ -142,7 +144,9 @@ export class Import {
     this.busy.set(true);
     this.error.set('');
     try {
-      this.preview.set(await firstValueFrom(this.api.preview(this.accountId, this.connector(), file)));
+      this.preview.set(
+        await firstValueFrom(this.api.preview(this.accountId, this.connector(), file)),
+      );
     } catch (e) {
       this.preview.set(null);
       this.error.set(apiError(e, 'Could not read the file'));
@@ -157,7 +161,9 @@ export class Import {
     this.busy.set(true);
     this.error.set('');
     try {
-      this.result.set(await firstValueFrom(this.api.commit(this.accountId, this.connector(), file)));
+      this.result.set(
+        await firstValueFrom(this.api.commit(this.accountId, this.connector(), file)),
+      );
     } catch (e) {
       this.error.set(apiError(e, 'Import failed'));
     } finally {

@@ -10,7 +10,7 @@ describe('App shell', () => {
     TestBed.configureTestingModule({
       imports: [App],
       providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
-    })
+    }),
   );
 
   it('shows only the title when signed out', async () => {
@@ -24,7 +24,11 @@ describe('App shell', () => {
   it('shows the user and Sign out when signed in', async () => {
     const auth = TestBed.inject(AuthService);
     (auth as unknown as { _user: { set(u: unknown): void } })._user.set({
-      id: 1, username: 'poojan', is_admin: true, is_active: true, must_change_password: false,
+      id: 1,
+      username: 'poojan',
+      is_admin: true,
+      is_active: true,
+      must_change_password: false,
     });
     const f = TestBed.createComponent(App);
     await f.whenStable();
@@ -32,14 +36,21 @@ describe('App shell', () => {
     expect(el.querySelector('.who')?.textContent).toContain('poojan');
     expect(el.querySelector('.who')?.textContent).toContain('admin');
     expect(el.querySelector('button')?.textContent).toContain('Sign out');
-    expect(Array.from(el.querySelectorAll('nav a')).map((a) => a.textContent?.trim())).toEqual(['Home', 'Settings']);
+    expect(Array.from(el.querySelectorAll('nav a')).map((a) => a.textContent?.trim())).toEqual([
+      'Home',
+      'Settings',
+    ]);
     expect(el.querySelector('input[role=combobox]')).not.toBeNull(); // symbol search
   });
 
   it('hides symbol search while a password change is pending (the API would refuse it anyway)', async () => {
     const auth = TestBed.inject(AuthService);
     (auth as unknown as { _user: { set(u: unknown): void } })._user.set({
-      id: 1, username: 'admin', is_admin: true, is_active: true, must_change_password: true,
+      id: 1,
+      username: 'admin',
+      is_admin: true,
+      is_active: true,
+      must_change_password: true,
     });
     const f = TestBed.createComponent(App);
     await f.whenStable();

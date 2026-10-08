@@ -5,18 +5,31 @@ import { Router, provideRouter } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { ChangePassword } from './change-password';
 
-const user = (pending: boolean) => ({ id: 1, username: 'admin', is_admin: true, is_active: true, must_change_password: pending });
+const user = (pending: boolean) => ({
+  id: 1,
+  username: 'admin',
+  is_admin: true,
+  is_active: true,
+  must_change_password: pending,
+});
 
 function mount(pending: boolean) {
   TestBed.resetTestingModule(); // called twice in one test
-  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])] });
-  (TestBed.inject(AuthService) as unknown as { _user: { set(u: unknown): void } })._user.set(user(pending));
+  TestBed.configureTestingModule({
+    providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+  });
+  (TestBed.inject(AuthService) as unknown as { _user: { set(u: unknown): void } })._user.set(
+    user(pending),
+  );
   const nav = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
   const f = TestBed.createComponent(ChangePassword);
   f.detectChanges();
   const c = f.componentInstance as never as Record<string, any>;
   const el = f.nativeElement as HTMLElement;
-  const fill = (current: string, next: string, confirm: string) => { c['form'].setValue({ current, next, confirm }); f.detectChanges(); };
+  const fill = (current: string, next: string, confirm: string) => {
+    c['form'].setValue({ current, next, confirm });
+    f.detectChanges();
+  };
   return { f, c, el, nav, fill, http: TestBed.inject(HttpTestingController) };
 }
 
@@ -33,7 +46,8 @@ describe('Change password page', () => {
     expect(btn.disabled).toBe(true);
     m.fill('old-password', 'long-enough-1', 'long-enough-2');
     expect(btn.disabled).toBe(true);
-    m.c['form'].controls.confirm.markAsDirty(); m.f.detectChanges();
+    m.c['form'].controls.confirm.markAsDirty();
+    m.f.detectChanges();
     expect(m.el.querySelector('[role=alert]')?.textContent).toContain("don't match");
     m.fill('old-password', 'long-enough-1', 'long-enough-1');
     expect(btn.disabled).toBe(false);
@@ -44,7 +58,10 @@ describe('Change password page', () => {
     m.fill('$admin123456', 'my-new-password', 'my-new-password');
     const p = m.c['submit']();
     const req = m.http.expectOne('/api/auth/change-password');
-    expect(req.request.body).toEqual({ current_password: '$admin123456', new_password: 'my-new-password' });
+    expect(req.request.body).toEqual({
+      current_password: '$admin123456',
+      new_password: 'my-new-password',
+    });
     req.flush(user(false));
     await p;
     expect(m.nav).toHaveBeenCalledWith('/home');
@@ -55,7 +72,8 @@ describe('Change password page', () => {
     m.fill('old-password', 'my-new-password', 'my-new-password');
     const p = m.c['submit']();
     m.http.expectOne('/api/auth/change-password').flush(user(false));
-    await p; m.f.detectChanges();
+    await p;
+    m.f.detectChanges();
     expect(m.nav).not.toHaveBeenCalled();
     expect(m.el.querySelector('[role=status]')?.textContent).toContain('Password changed');
   });
@@ -64,9 +82,17 @@ describe('Change password page', () => {
     const m = mount(true);
     m.fill('wrong', 'my-new-password', 'my-new-password');
     const p = m.c['submit']();
-    m.http.expectOne('/api/auth/change-password').flush({ detail: 'Current password is incorrect' }, { status: 400, statusText: 'Bad Request' });
-    await p; m.f.detectChanges();
-    expect(m.el.querySelector('[role=alert]')?.textContent).toContain('Current password is incorrect');
+    m.http
+      .expectOne('/api/auth/change-password')
+      .flush(
+        { detail: 'Current password is incorrect' },
+        { status: 400, statusText: 'Bad Request' },
+      );
+    await p;
+    m.f.detectChanges();
+    expect(m.el.querySelector('[role=alert]')?.textContent).toContain(
+      'Current password is incorrect',
+    );
     expect(m.nav).not.toHaveBeenCalled();
     expect(m.el.querySelector('[role=note]')).not.toBeNull(); // still forced
   });

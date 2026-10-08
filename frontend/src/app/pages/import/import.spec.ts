@@ -4,19 +4,49 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { ActivatedRoute, provideRouter } from '@angular/router';
 import { Import } from './import';
 
-const ACCOUNT = { id: 7, platform: 'robinhood', nickname: 'Main', created_at: '', position_count: 0, last_import_at: null };
-const CONNECTORS = [{ slug: 'snapshot', label: 'Positions snapshot (CSV)', description: 'symbol, quantity, cost_basis' }];
-const ROW = { symbol: 'ORCL', name: 'Oracle', quantity: '40', cost_basis: '5200.00', market_value: '6800.00', price: '170', as_of: null };
-const PREVIEW = {
-  connector: 'snapshot', filename: 'a.csv', rows: [ROW], errors: [], warnings: [],
-  current_position_count: 0, total_cost_basis: '5200.00', total_market_value: '6800.00',
+const ACCOUNT = {
+  id: 7,
+  platform: 'robinhood',
+  nickname: 'Main',
+  created_at: '',
+  position_count: 0,
+  last_import_at: null,
 };
-const file = (name = 'a.csv') => new File(['symbol,quantity,cost_basis\nORCL,40,5200\n'], name, { type: 'text/csv' });
+const CONNECTORS = [
+  {
+    slug: 'snapshot',
+    label: 'Positions snapshot (CSV)',
+    description: 'symbol, quantity, cost_basis',
+  },
+];
+const ROW = {
+  symbol: 'ORCL',
+  name: 'Oracle',
+  quantity: '40',
+  cost_basis: '5200.00',
+  market_value: '6800.00',
+  price: '170',
+  as_of: null,
+};
+const PREVIEW = {
+  connector: 'snapshot',
+  filename: 'a.csv',
+  rows: [ROW],
+  errors: [],
+  warnings: [],
+  current_position_count: 0,
+  total_cost_basis: '5200.00',
+  total_market_value: '6800.00',
+};
+const file = (name = 'a.csv') =>
+  new File(['symbol,quantity,cost_basis\nORCL,40,5200\n'], name, { type: 'text/csv' });
 
 async function mount() {
   TestBed.configureTestingModule({
     providers: [
-      provideHttpClient(), provideHttpClientTesting(), provideRouter([]),
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      provideRouter([]),
       { provide: ActivatedRoute, useValue: { snapshot: { paramMap: new Map([['id', '7']]) } } },
     ],
   });
@@ -30,7 +60,9 @@ async function mount() {
   f.detectChanges();
   const c = f.componentInstance as never as Record<string, any>;
   const el = f.nativeElement as HTMLElement;
-  const btn = (text: string) => Array.from(el.querySelectorAll('button')).find((b) => b.textContent?.includes(text)) as HTMLButtonElement | undefined;
+  const btn = (text: string) =>
+    Array.from(el.querySelectorAll('button')).find((b) => b.textContent?.includes(text)) as
+      HTMLButtonElement | undefined;
   return { f, http, c, el, btn };
 }
 
@@ -59,7 +91,8 @@ describe('Import page', () => {
     expect(body.get('connector')).toBe('snapshot');
     expect((body.get('file') as File).name).toBe('rh.csv');
     req.flush(PREVIEW);
-    await p; m.f.detectChanges();
+    await p;
+    m.f.detectChanges();
     expect(m.el.querySelector('tbody')?.textContent).toContain('ORCL');
     expect(m.el.textContent).toContain('cost basis 5,200.00');
     expect(m.btn('Import')?.disabled).toBe(false);
@@ -67,7 +100,14 @@ describe('Import page', () => {
 
   it('lists errors with line numbers and blocks confirming', async () => {
     const m = await mount();
-    await previewWith(m, { ...PREVIEW, rows: [], errors: [{ row: 3, message: 'quantity is not a number' }, { row: 0, message: 'Missing required column(s): symbol' }] });
+    await previewWith(m, {
+      ...PREVIEW,
+      rows: [],
+      errors: [
+        { row: 3, message: 'quantity is not a number' },
+        { row: 0, message: 'Missing required column(s): symbol' },
+      ],
+    });
     const alert = m.el.querySelector('[role=alert]')?.textContent ?? '';
     expect(alert).toContain('Line 3: quantity is not a number');
     expect(alert).toContain('File: Missing required column(s): symbol');
@@ -82,7 +122,11 @@ describe('Import page', () => {
 
   it('shows warnings and a replace label on the confirm button', async () => {
     const m = await mount();
-    await previewWith(m, { ...PREVIEW, current_position_count: 17, warnings: ["Importing will replace this account's 17 current position(s)."] });
+    await previewWith(m, {
+      ...PREVIEW,
+      current_position_count: 17,
+      warnings: ["Importing will replace this account's 17 current position(s)."],
+    });
     expect(m.el.querySelector('[role=note]')?.textContent).toContain('replace');
     expect(m.btn('Replace 17 position(s)')).toBeTruthy();
   });
@@ -97,16 +141,25 @@ describe('Import page', () => {
     expect(sent.name).toBe(fl.name);
     expect(sent.size).toBe(fl.size);
     req.flush({ id: 1, connector: 'snapshot', filename: 'rh.csv', row_count: 1, created_at: '' });
-    await p; m.f.detectChanges();
-    expect(m.el.querySelector('[role=status]')?.textContent).toContain('Imported 1 position(s) from rh.csv');
+    await p;
+    m.f.detectChanges();
+    expect(m.el.querySelector('[role=status]')?.textContent).toContain(
+      'Imported 1 position(s) from rh.csv',
+    );
   });
 
   it('keeps the preview and shows the server message when the commit fails', async () => {
     const m = await mount();
     await previewWith(m, PREVIEW);
     const p = m.c['confirm']();
-    m.http.expectOne('/api/accounts/7/imports').flush({ detail: 'File has 1 error(s); nothing was imported.' }, { status: 422, statusText: 'Unprocessable' });
-    await p; m.f.detectChanges();
+    m.http
+      .expectOne('/api/accounts/7/imports')
+      .flush(
+        { detail: 'File has 1 error(s); nothing was imported.' },
+        { status: 422, statusText: 'Unprocessable' },
+      );
+    await p;
+    m.f.detectChanges();
     expect(m.el.querySelector('[role=alert]')?.textContent).toContain('nothing was imported');
     expect(m.c['result']()).toBeNull();
   });
@@ -123,8 +176,11 @@ describe('Import page', () => {
     const m = await mount();
     m.c['file'].set(file());
     const p = m.c['runPreview']();
-    m.http.expectOne('/api/accounts/7/imports/preview').flush({ detail: 'File is larger than 2 MB' }, { status: 413, statusText: 'Too Large' });
-    await p; m.f.detectChanges();
+    m.http
+      .expectOne('/api/accounts/7/imports/preview')
+      .flush({ detail: 'File is larger than 2 MB' }, { status: 413, statusText: 'Too Large' });
+    await p;
+    m.f.detectChanges();
     expect(m.el.querySelector('[role=alert]')?.textContent).toContain('larger than 2 MB');
     expect(m.c['preview']()).toBeNull();
   });

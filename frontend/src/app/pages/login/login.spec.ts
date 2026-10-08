@@ -28,7 +28,13 @@ describe('Login page', () => {
     const nav = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     f.componentInstance['form'].setValue({ username: 'a', password: 'b' });
     const p = f.componentInstance['submit']();
-    http.expectOne('/api/auth/login').flush({ id: 1, username: 'a', is_admin: false, is_active: true, must_change_password: false });
+    http.expectOne('/api/auth/login').flush({
+      id: 1,
+      username: 'a',
+      is_admin: false,
+      is_active: true,
+      must_change_password: false,
+    });
     await p;
     expect(nav).toHaveBeenCalledWith('/home');
   });
@@ -38,7 +44,13 @@ describe('Login page', () => {
     const nav = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     f.componentInstance['form'].setValue({ username: 'admin', password: '$admin123456' });
     const p = f.componentInstance['submit']();
-    http.expectOne('/api/auth/login').flush({ id: 1, username: 'admin', is_admin: true, is_active: true, must_change_password: true });
+    http.expectOne('/api/auth/login').flush({
+      id: 1,
+      username: 'admin',
+      is_admin: true,
+      is_active: true,
+      must_change_password: true,
+    });
     await p;
     expect(nav).toHaveBeenCalledWith('/settings/change-password');
   });
@@ -48,9 +60,14 @@ describe('Login page', () => {
     const nav = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
     f.componentInstance['form'].setValue({ username: 'a', password: 'wrong' });
     const p = f.componentInstance['submit']();
-    http.expectOne('/api/auth/login').flush(
-      { detail: 'Invalid username or password' }, { status: 401, statusText: 'Unauthorized' });
-    await p; f.detectChanges();
+    http
+      .expectOne('/api/auth/login')
+      .flush(
+        { detail: 'Invalid username or password' },
+        { status: 401, statusText: 'Unauthorized' },
+      );
+    await p;
+    f.detectChanges();
     expect(el.querySelector('[role=alert]')?.textContent).toContain('Invalid username or password');
     expect(nav).not.toHaveBeenCalled();
   });

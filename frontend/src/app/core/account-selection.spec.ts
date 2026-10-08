@@ -7,7 +7,8 @@ describe('parseUrlSelection', () => {
     expect(parseUrlSelection('1,3')).toEqual([1, 3]);
   });
   it('ignores junk', () => {
-    for (const bad of ['a', '1,x', '1.5', '-2', '0', '1,,2']) expect(parseUrlSelection(bad)).toBeNull();
+    for (const bad of ['a', '1,x', '1.5', '-2', '0', '1,,2'])
+      expect(parseUrlSelection(bad)).toBeNull();
   });
 });
 
@@ -47,14 +48,21 @@ describe('storage', () => {
   it('treats corrupt or malformed data as nothing saved', () => {
     localStorage.setItem('cinnamon.holdings.selection.1', '{nope');
     expect(loadSelection(1)).toBeNull();
-    localStorage.setItem('cinnamon.holdings.selection.1', JSON.stringify({ selected: ['a'], known: [] }));
+    localStorage.setItem(
+      'cinnamon.holdings.selection.1',
+      JSON.stringify({ selected: ['a'], known: [] }),
+    );
     expect(loadSelection(1)).toBeNull();
   });
   it('survives storage throwing', () => {
-    const boom = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => { throw new Error('blocked'); });
+    const boom = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
     expect(loadSelection(1)).toBeNull();
     boom.mockRestore();
-    const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new Error('full'); });
+    const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('full');
+    });
     expect(() => saveSelection(1, [1], [1])).not.toThrow();
     set.mockRestore();
   });

@@ -29,7 +29,11 @@ function envPort(name: string, fallback: number): number {
 function envDir(name: string, fallback: string): string {
   const raw = process.env[name]?.trim() || fallback;
   const dir = path.normalize(raw).replace(/\/$/, ''); // resolve '..' before checking the name
-  if (!path.isAbsolute(dir) || !/^[\w/.-]+$/.test(dir) || !path.basename(dir).startsWith('cinnamon-e2e')) {
+  if (
+    !path.isAbsolute(dir) ||
+    !/^[\w/.-]+$/.test(dir) ||
+    !path.basename(dir).startsWith('cinnamon-e2e')
+  ) {
     throw new Error(
       `${name} must be an absolute path of [A-Za-z0-9_./-] whose last segment starts with ` +
         `'cinnamon-e2e' (it is deleted every run), got '${raw}'`,
@@ -42,7 +46,9 @@ export const E2E_DIR = envDir('CINNAMON_E2E_DIR', '/tmp/cinnamon-e2e');
 const BACKEND_PORT = envPort('CINNAMON_E2E_BACKEND_PORT', 8310);
 const FRONTEND_PORT = envPort('CINNAMON_E2E_FRONTEND_PORT', 4310);
 if (BACKEND_PORT === FRONTEND_PORT) {
-  throw new Error(`CINNAMON_E2E_BACKEND_PORT and CINNAMON_E2E_FRONTEND_PORT are both ${BACKEND_PORT}`);
+  throw new Error(
+    `CINNAMON_E2E_BACKEND_PORT and CINNAMON_E2E_FRONTEND_PORT are both ${BACKEND_PORT}`,
+  );
 }
 
 export default defineConfig({

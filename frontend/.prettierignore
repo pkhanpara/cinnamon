@@ -1,0 +1,4 @@
+# Angular templates are whitespace-sensitive: Prettier's reflow adds spaces inside text nodes
+# that render (pre-wrap blocks, inline "Name · Account" runs) and broke six specs. Inline
+# `template:` strings are skipped for the same reason via embeddedLanguageFormatting: off.
+*.html

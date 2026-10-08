@@ -1,9 +1,21 @@
 /** Display formatting. The API sends exact decimals as strings; convert only here, only to show them. */
 
 const money = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
-const signedMoney = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', signDisplay: 'exceptZero' });
-const compactMoney = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 2 });
-const compactNumber = new Intl.NumberFormat('en-US', { notation: 'compact', maximumFractionDigits: 2 });
+const signedMoney = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  signDisplay: 'exceptZero',
+});
+const compactMoney = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  notation: 'compact',
+  maximumFractionDigits: 2,
+});
+const compactNumber = new Intl.NumberFormat('en-US', {
+  notation: 'compact',
+  maximumFractionDigits: 2,
+});
 const quantity = new Intl.NumberFormat('en-US', { maximumFractionDigits: 6 });
 
 export const fmtMoney = (v: string): string => money.format(Number(v));

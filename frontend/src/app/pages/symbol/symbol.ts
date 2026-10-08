@@ -9,7 +9,16 @@ import { RANGES } from '../../core/chart-data';
 import { loadSelection } from '../../core/account-selection';
 import { AuthService } from '../../core/auth.service';
 import { apiError } from '../../core/errors';
-import { ageLabel, fmtCompactMoney, fmtCompactNumber, fmtMoney, fmtPct, fmtQty, fmtSigned, tone } from '../../core/format';
+import {
+  ageLabel,
+  fmtCompactMoney,
+  fmtCompactNumber,
+  fmtMoney,
+  fmtPct,
+  fmtQty,
+  fmtSigned,
+  tone,
+} from '../../core/format';
 import { lineGain, showPlatform } from '../../core/lines';
 import { HistoryRange, HistoryResponse, NewsResponse, SymbolOverview } from '../../core/models';
 import { SymbolsService } from '../../core/symbols.service';
@@ -197,7 +206,13 @@ export class SymbolPage {
     const user = this.auth.user();
     const saved = user ? loadSelection(user.id) : null;
     const lines = this.overview()?.position?.lines ?? [];
-    return new Set(saved ? lines.map((l) => l.account_id).filter((id) => saved.known.includes(id) && !saved.selected.includes(id)) : []);
+    return new Set(
+      saved
+        ? lines
+            .map((l) => l.account_id)
+            .filter((id) => saved.known.includes(id) && !saved.selected.includes(id))
+        : [],
+    );
   });
   protected readonly news = signal<NewsResponse | null>(null);
   protected readonly newsError = signal('');
@@ -211,7 +226,9 @@ export class SymbolPage {
     const n = this.news();
     return n ? ageLabel(n.as_of, this.now()) : '';
   });
-  protected readonly retryIn = computed(() => Math.max(0, Math.ceil((this.retryAt() - this.now()) / 1000)));
+  protected readonly retryIn = computed(() =>
+    Math.max(0, Math.ceil((this.retryAt() - this.now()) / 1000)),
+  );
 
   // Sequence numbers: a slow answer for a previous symbol/range must never overwrite a newer one.
   private symbolSeq = 0;
@@ -295,7 +312,9 @@ export class SymbolPage {
       if (seq === this.symbolSeq) {
         const noKey = e instanceof HttpErrorResponse && e.status === 503;
         this.newsNoKey.set(noKey);
-        this.newsError.set(noKey ? 'News needs a Finnhub API key.' : apiError(e, 'News is unavailable'));
+        this.newsError.set(
+          noKey ? 'News needs a Finnhub API key.' : apiError(e, 'News is unavailable'),
+        );
       }
     }
   }
@@ -320,7 +339,9 @@ export class SymbolPage {
         this.retryAt.set(Date.now() + (Number.isFinite(secs) && secs > 0 ? secs : 60) * 1000);
         this.now.set(Date.now());
       } else {
-        this.newsNote.set(`${apiError(e, 'Could not refresh the news')}${this.news() ? ' Showing earlier headlines.' : ''}`);
+        this.newsNote.set(
+          `${apiError(e, 'Could not refresh the news')}${this.news() ? ' Showing earlier headlines.' : ''}`,
+        );
       }
     } finally {
       if (seq === this.symbolSeq) this.newsRefreshing.set(false);

@@ -1,4 +1,11 @@
-import { expect, test, type Browser, type BrowserContext, type Page, type Response } from '@playwright/test';
+import {
+  expect,
+  test,
+  type Browser,
+  type BrowserContext,
+  type Page,
+  type Response,
+} from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { E2E_DIR } from '../playwright.config';
@@ -20,7 +27,11 @@ const SAMPLE_CSV = path.resolve(__dirname, '../../seed/sample/robinhood_position
 const EXPECTED_ERROR_RESPONSES: { status: number; url: RegExp; why: string }[] = [
   { status: 401, url: /\/api\/auth\/me$/, why: 'anonymous page load asks who is signed in' },
   { status: 401, url: /\/api\/auth\/login$/, why: 'deliberate wrong-password attempts' },
-  { status: 400, url: /\/api\/auth\/change-password$/, why: 'deliberate rejected password changes' },
+  {
+    status: 400,
+    url: /\/api\/auth\/change-password$/,
+    why: 'deliberate rejected password changes',
+  },
 ];
 
 const problems: string[] = [];
@@ -30,16 +41,23 @@ function watch(page: Page, who: string): void {
   page.on('console', (m) => {
     // The browser echoes every failed request as "Failed to load resource"; those are judged
     // (against the allow-list above) from the response event instead.
-    if ((m.type() === 'error' || m.type() === 'warning') && !m.text().startsWith('Failed to load resource')) {
+    if (
+      (m.type() === 'error' || m.type() === 'warning') &&
+      !m.text().startsWith('Failed to load resource')
+    ) {
       problems.push(`[${who}] console.${m.type()}: ${m.text()}`);
     }
   });
   page.on('response', (r: Response) => {
-    const expected = EXPECTED_ERROR_RESPONSES.some((e) => e.status === r.status() && e.url.test(r.url()));
-    if (r.status() >= 400 && !expected) problems.push(`[${who}] unexpected ${r.status()} ${r.request().method()} ${r.url()}`);
+    const expected = EXPECTED_ERROR_RESPONSES.some(
+      (e) => e.status === r.status() && e.url.test(r.url()),
+    );
+    if (r.status() >= 400 && !expected)
+      problems.push(`[${who}] unexpected ${r.status()} ${r.request().method()} ${r.url()}`);
   });
   page.on('requestfailed', (r) => {
-    if (r.failure()?.errorText !== 'net::ERR_ABORTED') problems.push(`[${who}] request failed: ${r.url()} ${r.failure()?.errorText}`);
+    if (r.failure()?.errorText !== 'net::ERR_ABORTED')
+      problems.push(`[${who}] request failed: ${r.url()} ${r.failure()?.errorText}`);
   });
 }
 
@@ -168,7 +186,9 @@ test.describe('first-time login on a fresh install', () => {
     await expect(page.getByRole('checkbox', { name: 'E2E Robinhood' })).toBeChecked();
   });
 
-  test('the admin creates a second user, who is not an admin and sees none of the admin data', async ({ browser }) => {
+  test('the admin creates a second user, who is not an admin and sees none of the admin data', async ({
+    browser,
+  }) => {
     await page.goto('/settings/user-setup');
     await page.getByLabel('Username').fill('carol');
     await page.getByLabel('Temporary password').fill('carol-temporary-1');
@@ -202,7 +222,10 @@ test.describe('first-time login on a fresh install', () => {
 
     const backend = fs.readFileSync(`${E2E_DIR}/backend.log`, 'utf8');
     expect(backend).toContain('Application startup complete');
-    expect(backend.match(/Created default admin 'admin'/g), 'default admin seeded exactly once').toHaveLength(1);
+    expect(
+      backend.match(/Created default admin 'admin'/g),
+      'default admin seeded exactly once',
+    ).toHaveLength(1);
     expect(backend, 'backend errors').not.toMatch(/Traceback|\bERROR\b|\bCRITICAL\b|Exception/);
     expect(backend, 'backend 5xx responses').not.toMatch(/HTTP\/1\.1" 5\d\d/);
 

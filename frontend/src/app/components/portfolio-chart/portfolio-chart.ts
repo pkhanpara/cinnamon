@@ -1,5 +1,16 @@
 import { DatePipe } from '@angular/common';
-import { Component, DestroyRef, ElementRef, computed, effect, inject, input, signal, untracked, viewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { RANGES } from '../../core/chart-data';
 import { apiError } from '../../core/errors';
@@ -87,7 +98,9 @@ export class PortfolioChart {
   protected readonly hasPoints = computed(() => (this.data()?.points.length ?? 0) > 0);
   protected readonly label = computed(() => {
     const d = this.data();
-    return d?.points.length ? `Portfolio value, ${d.range}, from ${d.start_value} to ${d.end_value}` : 'Portfolio value chart';
+    return d?.points.length
+      ? `Portfolio value, ${d.range}, from ${d.start_value} to ${d.end_value}`
+      : 'Portfolio value chart';
   });
 
   protected readonly signed = fmtSigned;

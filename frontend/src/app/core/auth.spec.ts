@@ -6,7 +6,13 @@ import { AuthService } from './auth.service';
 import { adminGuard, authGuard, guestGuard, sessionGuard } from './auth.guard';
 import { authInterceptor } from './auth.interceptor';
 
-const USER = { id: 1, username: 'a', is_admin: false, is_active: true, must_change_password: false };
+const USER = {
+  id: 1,
+  username: 'a',
+  is_admin: false,
+  is_active: true,
+  must_change_password: false,
+};
 const ADMIN = { ...USER, is_admin: true };
 const PENDING = { ...ADMIN, must_change_password: true };
 const UNAUTH = { status: 401, statusText: 'Unauthorized' };
@@ -26,7 +32,9 @@ function setup() {
 /** Run a guard with /api/auth/me answering `me` (null = 401); returns the guard's verdict as a string. */
 async function verdict(guard: typeof authGuard, me: object | null): Promise<string> {
   const { http } = setup();
-  const p = TestBed.runInInjectionContext(() => guard({} as never, {} as never)) as Promise<unknown>;
+  const p = TestBed.runInInjectionContext(() =>
+    guard({} as never, {} as never),
+  ) as Promise<unknown>;
   const req = http.expectOne('/api/auth/me');
   if (me) req.flush(me);
   else req.flush({}, UNAUTH);
@@ -67,7 +75,10 @@ describe('AuthService', () => {
     await l;
     const p = auth.changePassword('old-password', 'new-password-1');
     const req = http.expectOne('/api/auth/change-password');
-    expect(req.request.body).toEqual({ current_password: 'old-password', new_password: 'new-password-1' });
+    expect(req.request.body).toEqual({
+      current_password: 'old-password',
+      new_password: 'new-password-1',
+    });
     req.flush(ADMIN);
     await p;
     expect(auth.mustChangePassword()).toBe(false);
@@ -119,8 +130,12 @@ describe('authInterceptor', () => {
   it('401 on a normal call clears auth and goes to /login', async () => {
     const { http, auth } = setup();
     const nav = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
-    const p = auth.login('a', 'pw'); http.expectOne('/api/auth/login').flush(USER); await p;
-    TestBed.inject(HttpClient).get('/api/accounts').subscribe({ error: () => undefined });
+    const p = auth.login('a', 'pw');
+    http.expectOne('/api/auth/login').flush(USER);
+    await p;
+    TestBed.inject(HttpClient)
+      .get('/api/accounts')
+      .subscribe({ error: () => undefined });
     http.expectOne('/api/accounts').flush({}, UNAUTH);
     expect(auth.user()).toBeNull();
     expect(nav).toHaveBeenCalledWith('/login');
@@ -129,7 +144,9 @@ describe('authInterceptor', () => {
   it('401 from /api/auth/* does not redirect (wrong password)', () => {
     const { http } = setup();
     const nav = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
-    TestBed.inject(HttpClient).post('/api/auth/login', {}).subscribe({ error: () => undefined });
+    TestBed.inject(HttpClient)
+      .post('/api/auth/login', {})
+      .subscribe({ error: () => undefined });
     http.expectOne('/api/auth/login').flush({}, UNAUTH);
     expect(nav).not.toHaveBeenCalled();
   });
@@ -137,9 +154,15 @@ describe('authInterceptor', () => {
   it('403 "Password change required" keeps the session and sends the user to change it', async () => {
     const { http, auth } = setup();
     const nav = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
-    const p = auth.login('a', 'pw'); http.expectOne('/api/auth/login').flush(USER); await p;
-    TestBed.inject(HttpClient).get('/api/accounts').subscribe({ error: () => undefined });
-    http.expectOne('/api/accounts').flush({ detail: 'Password change required' }, { status: 403, statusText: 'Forbidden' });
+    const p = auth.login('a', 'pw');
+    http.expectOne('/api/auth/login').flush(USER);
+    await p;
+    TestBed.inject(HttpClient)
+      .get('/api/accounts')
+      .subscribe({ error: () => undefined });
+    http
+      .expectOne('/api/accounts')
+      .flush({ detail: 'Password change required' }, { status: 403, statusText: 'Forbidden' });
     expect(auth.isAuthenticated()).toBe(true);
     expect(auth.mustChangePassword()).toBe(true);
     expect(nav).toHaveBeenCalledWith('/settings/change-password');
@@ -148,8 +171,12 @@ describe('authInterceptor', () => {
   it('other 403s (e.g. admin only) are left to the page', () => {
     const { http } = setup();
     const nav = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
-    TestBed.inject(HttpClient).get('/api/users').subscribe({ error: () => undefined });
-    http.expectOne('/api/users').flush({ detail: 'Admin only' }, { status: 403, statusText: 'Forbidden' });
+    TestBed.inject(HttpClient)
+      .get('/api/users')
+      .subscribe({ error: () => undefined });
+    http
+      .expectOne('/api/users')
+      .flush({ detail: 'Admin only' }, { status: 403, statusText: 'Forbidden' });
     expect(nav).not.toHaveBeenCalled();
   });
 });

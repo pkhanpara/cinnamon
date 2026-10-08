@@ -1,8 +1,21 @@
-import { formatCrosshairTime, formatIntradayTick, periodUp, RANGES, toChartPoints } from './chart-data';
+import {
+  formatCrosshairTime,
+  formatIntradayTick,
+  periodUp,
+  RANGES,
+  toChartPoints,
+} from './chart-data';
 import { Bar, HistoryResponse } from './models';
 
 const bar = (t: number, d: string, c: string): Bar => ({ t, d, o: c, h: c, l: c, c, v: 1 });
-const hist = (intraday: boolean, bars: Bar[]): HistoryResponse => ({ symbol: 'X', range: '1m', intraday, bars, stale: false, as_of: '' });
+const hist = (intraday: boolean, bars: Bar[]): HistoryResponse => ({
+  symbol: 'X',
+  range: '1m',
+  intraday,
+  bars,
+  stale: false,
+  as_of: '',
+});
 
 describe('chart data', () => {
   it('daily bars use the exchange date string, intraday bars the epoch', () => {
@@ -12,18 +25,31 @@ describe('chart data', () => {
   });
 
   it('colours the period by whether it ended at or above its start', () => {
-    expect(periodUp([{ time: 1, value: 10 }, { time: 2, value: 10 }])).toBe(true);
-    expect(periodUp([{ time: 1, value: 10 }, { time: 2, value: 9.99 }])).toBe(false);
+    expect(
+      periodUp([
+        { time: 1, value: 10 },
+        { time: 2, value: 10 },
+      ]),
+    ).toBe(true);
+    expect(
+      periodUp([
+        { time: 1, value: 10 },
+        { time: 2, value: 9.99 },
+      ]),
+    ).toBe(false);
     expect(periodUp([])).toBe(true);
   });
 
   it('a single day is coloured against the previous close, so it agrees with the header', () => {
     // opened at 241, drifted down to 239.17, but yesterday closed at 238.90: up on the day
-    const day = [{ time: 1, value: 241 }, { time: 2, value: 239.17 }];
-    expect(periodUp(day)).toBe(false);          // first-to-last would say "down"
+    const day = [
+      { time: 1, value: 241 },
+      { time: 2, value: 239.17 },
+    ];
+    expect(periodUp(day)).toBe(false); // first-to-last would say "down"
     expect(periodUp(day, 238.9)).toBe(true);
     expect(periodUp(day, 240)).toBe(false);
-    expect(periodUp(day, 239.17)).toBe(true);   // unchanged counts as up, like the header
+    expect(periodUp(day, 239.17)).toBe(true); // unchanged counts as up, like the header
   });
 
   it('offers the PDF ranges in order', () => {

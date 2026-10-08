@@ -23,7 +23,12 @@ const frame = (event: string, data: object) => `event: ${event}\ndata: ${JSON.st
 
 function setup(fetchImpl: typeof fetch) {
   TestBed.configureTestingModule({
-    providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([]), { provide: LLM_FETCH, useValue: fetchImpl }],
+    providers: [
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      provideRouter([]),
+      { provide: LLM_FETCH, useValue: fetchImpl },
+    ],
   });
   const router = TestBed.inject(Router);
   const nav = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
@@ -40,18 +45,26 @@ describe('LlmService', () => {
   it('asks for the status over HttpClient', () => {
     const m = setup(vi.fn());
     m.svc.status().subscribe();
-    TestBed.inject(HttpTestingController).expectOne('/api/llm/status').flush({ enabled: true, model: 'm' });
+    TestBed.inject(HttpTestingController)
+      .expectOne('/api/llm/status')
+      .flush({ enabled: true, model: 'm' });
   });
 
   it('posts JSON with the session cookie and yields events until done, even when frames and UTF-8 are split', async () => {
-    const bytes = enc.encode(frame('delta', { text: 'café' }) + frame('warning', { message: 'w' }) + frame('done', {}));
+    const bytes = enc.encode(
+      frame('delta', { text: 'café' }) + frame('warning', { message: 'w' }) + frame('done', {}),
+    );
     const cut = bytes.indexOf(0xa9); // inside the two-byte "é"
     const fetchFn = vi.fn(async () => streamResponse([bytes.slice(0, cut), bytes.slice(cut)]));
     const m = setup(fetchFn as unknown as typeof fetch);
 
     const events = await collect(m.svc.chat('BRK.B', REQ, new AbortController().signal));
 
-    expect(events).toEqual([{ type: 'delta', text: 'café' }, { type: 'warning', message: 'w' }, { type: 'done' }]);
+    expect(events).toEqual([
+      { type: 'delta', text: 'café' },
+      { type: 'warning', message: 'w' },
+      { type: 'done' },
+    ]);
     const [url, init] = fetchFn.mock.calls[0] as unknown as [string, RequestInit];
     expect(url).toBe('/api/llm/BRK.B/chat');
     expect(init.method).toBe('POST');
@@ -60,7 +73,11 @@ describe('LlmService', () => {
   });
 
   it('stops at an error event', async () => {
-    const body = enc.encode(frame('delta', { text: 'a' }) + frame('error', { message: 'boom' }) + frame('delta', { text: 'late' }));
+    const body = enc.encode(
+      frame('delta', { text: 'a' }) +
+        frame('error', { message: 'boom' }) +
+        frame('delta', { text: 'late' }),
+    );
     const m = setup((async () => streamResponse([body])) as unknown as typeof fetch);
     expect(await collect(m.svc.chat('X', REQ, new AbortController().signal))).toEqual([
       { type: 'delta', text: 'a' },
@@ -69,21 +86,36 @@ describe('LlmService', () => {
   });
 
   it('reports a stream that ends without done', async () => {
-    const m = setup((async () => streamResponse([enc.encode(frame('delta', { text: 'a' }))])) as unknown as typeof fetch);
+    const m = setup((async () =>
+      streamResponse([enc.encode(frame('delta', { text: 'a' }))])) as unknown as typeof fetch);
     const events = await collect(m.svc.chat('X', REQ, new AbortController().signal));
     expect(events.at(-1)).toEqual({ type: 'error', message: 'The answer ended unexpectedly' });
   });
 
   it('turns a refusal before streaming into a readable error', async () => {
-    const res = new Response(JSON.stringify({ detail: 'The language model is not configured (set LLM_BASE_URL and LLM_MODEL).' }), { status: 503 });
+    const res = new Response(
+      JSON.stringify({
+        detail: 'The language model is not configured (set LLM_BASE_URL and LLM_MODEL).',
+      }),
+      { status: 503 },
+    );
     const m = setup((async () => res) as unknown as typeof fetch);
-    await expect(collect(m.svc.chat('X', REQ, new AbortController().signal))).rejects.toThrow(/not configured/);
+    await expect(collect(m.svc.chat('X', REQ, new AbortController().signal))).rejects.toThrow(
+      /not configured/,
+    );
   });
 
   it('treats a 401 like the interceptor: clear the session and go to /login', async () => {
-    const m = setup((async () => new Response(JSON.stringify({ detail: 'Not authenticated' }), { status: 401 })) as unknown as typeof fetch);
+    const m = setup(
+      (async () =>
+        new Response(JSON.stringify({ detail: 'Not authenticated' }), {
+          status: 401,
+        })) as unknown as typeof fetch,
+    );
     const clear = vi.spyOn(m.auth, 'clear');
-    await expect(collect(m.svc.chat('X', REQ, new AbortController().signal))).rejects.toThrow('Not authenticated');
+    await expect(collect(m.svc.chat('X', REQ, new AbortController().signal))).rejects.toThrow(
+      'Not authenticated',
+    );
     expect(clear).toHaveBeenCalled();
     expect(m.nav).toHaveBeenCalledWith('/login');
   });
@@ -92,7 +124,9 @@ describe('LlmService', () => {
     const m = setup((async () => {
       throw new TypeError('Failed to fetch');
     }) as unknown as typeof fetch);
-    await expect(collect(m.svc.chat('X', REQ, new AbortController().signal))).rejects.toThrow('Cannot reach the server');
+    await expect(collect(m.svc.chat('X', REQ, new AbortController().signal))).rejects.toThrow(
+      'Cannot reach the server',
+    );
   });
 
   it('ends quietly when aborted mid-stream', async () => {
@@ -100,7 +134,9 @@ describe('LlmService', () => {
     let streamCtl!: ReadableStreamDefaultController<Uint8Array>;
     const fetchFn = async (_u: string, init: RequestInit) => {
       const body = new ReadableStream<Uint8Array>({ start: (c) => (streamCtl = c) });
-      init.signal!.addEventListener('abort', () => streamCtl.error(new DOMException('aborted', 'AbortError')));
+      init.signal!.addEventListener('abort', () =>
+        streamCtl.error(new DOMException('aborted', 'AbortError')),
+      );
       return new Response(body);
     };
     const m = setup(fetchFn as unknown as typeof fetch);
