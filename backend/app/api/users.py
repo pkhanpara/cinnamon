@@ -21,6 +21,7 @@ def create_user(body: UserCreate, _: AdminUser, db: DbDep) -> UserOut:
         username=body.username,
         password_hash=hash_password(body.password),
         is_admin=body.is_admin,
+        must_change_password=True,  # the admin chose it, so it is only a temporary password
     )
     db.add(user)
     try:
@@ -44,6 +45,7 @@ def update_user(user_id: int, body: UserUpdate, admin: AdminUser, db: DbDep) -> 
         user.is_admin = body.is_admin
     if body.password is not None:
         user.password_hash = hash_password(body.password)
+        user.must_change_password = True
     if body.is_active is False or body.password is not None:
         db.execute(delete(AuthSession).where(AuthSession.user_id == user.id))
     db.commit()

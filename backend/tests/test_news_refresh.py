@@ -11,7 +11,7 @@ from app.main import app
 from app.providers import ProviderError
 from app.providers.base import NewsItem
 from app.ratelimit import SlidingWindowLimiter
-from tests.conftest import login
+from tests.conftest import clear_forced_change, login
 from tests.test_symbols_api import FakeCompany, use
 
 BOB = {"username": "bob", "password": "bob-password-1234"}
@@ -116,6 +116,7 @@ def test_second_refresh_by_the_same_user_is_429_with_retry_after_and_no_upstream
 @pytest.fixture
 def bob(admin):
     assert admin.post("/api/users", json=BOB).status_code == 201
+    clear_forced_change(BOB)
     return login(admin, BOB)
 
 
