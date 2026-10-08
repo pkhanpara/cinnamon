@@ -13,7 +13,8 @@ def _normalize(v):
 Username = Annotated[
     str, BeforeValidator(_normalize), StringConstraints(pattern=r"^[a-z0-9_.-]{3,64}$")
 ]
-Password = Annotated[str, StringConstraints(min_length=10, max_length=256)]
+MIN_PASSWORD_LENGTH = 10
+Password = Annotated[str, StringConstraints(min_length=MIN_PASSWORD_LENGTH, max_length=256)]
 Platform = Annotated[
     str, BeforeValidator(_normalize), StringConstraints(pattern=r"^[a-z0-9_-]{2,32}$")
 ]

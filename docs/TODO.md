@@ -29,8 +29,8 @@
 - [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges #feat  
 - [ ] Playwright coverage for the ticker page and symbol search (E2E suite lives in frontend/e2e) #test  
 - [ ] Ticker page: allow adding a symbol to a watchlist (when watchlists exist) #feat  
-- [ ] Admin password reset command (no recovery path if the admin password is lost) #sec  
 - [ ] Force a password change for users an admin creates or resets #sec  
+- [ ] Verify `docker compose exec cinnamon python -m app.cli reset-password` against a built image #sec  
 - [ ] Optional TOTP 2FA #feat  
 - [ ] Friendlier username-pattern 422 message on the Users form #ux  
 - [ ] Guard the startup migration/seed against two processes starting at once #chore  
@@ -82,3 +82,4 @@
 - [x] /home landing page and Settings (Accounts, User setup, Change password) with redirects from old URLs  
 - [x] README with run instructions, first sign-in, CSV format, configuration (ADR 0005)  
 - [x] Ticker detail page: quote header, lightweight-charts price chart (1D-All), key stats, your position, news, header symbol search; yfinance + Finnhub providers with TTL cache (ADR 0006); 212 backend + 129 frontend tests; verified live in a browser  
+- [x] Admin password reset command (`python -m app.cli reset-password`) #sec  

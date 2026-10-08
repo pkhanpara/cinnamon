@@ -13,6 +13,7 @@ uv run uvicorn app.main:app --reload     # API on :8000 (runs migrations on star
 uv run pytest                            # all tests
 uv run pytest tests/test_holdings_math.py::test_name   # single test
 uv run ruff check . && uv run ruff format .            # line length 100
+uv run python -m app.cli reset-password <user>         # offline password reset (prompt/stdin)
 uv run alembic revision --autogenerate -m "msg"        # new migration (then review it)
 ```
 
