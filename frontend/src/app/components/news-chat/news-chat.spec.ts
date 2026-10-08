@@ -14,8 +14,10 @@ class FakeChat {
   calls: { url: string; body: any }[] = [];
   private ctl!: ReadableStreamDefaultController<Uint8Array>;
   refuse: Response | null = null;
+  signal: AbortSignal | null = null; // of the latest request
   readonly fetch = (async (url: string, init: RequestInit) => {
     this.calls.push({ url, body: JSON.parse(init.body as string) });
+    this.signal = init.signal!;
     if (this.refuse) return this.refuse;
     const body = new ReadableStream<Uint8Array>({ start: (c) => (this.ctl = c) });
     init.signal!.addEventListener('abort', () => this.ctl.error(new DOMException('aborted', 'AbortError')));
@@ -183,5 +185,153 @@ describe('NewsChat', () => {
     expect((m.el.querySelector('input[type=checkbox]') as HTMLInputElement).checked).toBe(false);
     expect(m.el.textContent).toContain('Ask AI about AAPL');
     expect(m.btn(/Send/)).toBeDefined(); // not stuck busy
+  });
+
+  describe('scrolling', () => {
+    /** jsdom has no layout: give the log fake metrics and a working scrollTop. */
+    function fakeScroll(log: HTMLElement) {
+      const s = { top: 0, height: 100, view: 100 };
+      Object.defineProperty(log, 'scrollHeight', { get: () => s.height, configurable: true });
+      Object.defineProperty(log, 'clientHeight', { get: () => s.view, configurable: true });
+      Object.defineProperty(log, 'scrollTop', { get: () => s.top, set: (v: number) => (s.top = v), configurable: true });
+      return {
+        s,
+        grow: (to: number) => { s.height = to; },
+        userScrollTo: (top: number) => { s.top = top; log.dispatchEvent(new Event('scroll')); },
+      };
+    }
+    const logOf = (m: { el: HTMLElement }) => m.el.querySelector('.log') as HTMLElement;
+
+    it('the message log is the scroll area, not the whole panel', async () => {
+      const m = await mount();
+      await m.open();
+      const log = getComputedStyle(logOf(m));
+      expect(log.overflowY).toBe('auto');
+      expect(log.minHeight).toBe('0px');
+      expect(getComputedStyle(m.el.querySelector('aside')!).overflowY).toBe('hidden');
+    });
+
+    it('keeps the newest text in view while streaming', async () => {
+      const m = await mount();
+      await m.open();
+      const sc = fakeScroll(logOf(m));
+      m.btn(/Summarize/)!.click(); await m.settle();
+      for (const h of [300, 500, 900]) {
+        sc.grow(h);
+        m.chat.push('delta', { text: 'more ' }); await m.settle();
+        expect(sc.s.top).toBe(h);
+      }
+    });
+
+    it('stops following once the user scrolls up, and resumes at the bottom', async () => {
+      const m = await mount();
+      await m.open();
+      const sc = fakeScroll(logOf(m));
+      m.btn(/Summarize/)!.click(); await m.settle();
+      sc.grow(500);
+      m.chat.push('delta', { text: 'a' }); await m.settle();
+
+      sc.userScrollTo(50);
+      sc.grow(700);
+      m.chat.push('delta', { text: 'b' }); await m.settle();
+      expect(sc.s.top).toBe(50);
+
+      sc.userScrollTo(600); // 700 - 600 - 100 = 0 from the bottom
+      sc.grow(900);
+      m.chat.push('delta', { text: 'c' }); await m.settle();
+      expect(sc.s.top).toBe(900);
+    });
+
+    it('asking a new question brings the log back to the bottom', async () => {
+      const m = await mount();
+      await m.open();
+      const sc = fakeScroll(logOf(m));
+      m.btn(/Summarize/)!.click(); await m.settle();
+      sc.grow(500);
+      m.chat.push('delta', { text: 'a' }); m.chat.push('done', {}); await m.settle();
+      sc.userScrollTo(0);
+
+      sc.grow(600);
+      m.btn(/up\/down today/)!.click(); await m.settle();
+      expect(sc.s.top).toBe(600);
+    });
+  });
+
+  describe('New chat', () => {
+    const type = async (m: Awaited<ReturnType<typeof mount>>, q: string) => {
+      const ta = m.el.querySelector('textarea') as HTMLTextAreaElement;
+      ta.value = q; ta.dispatchEvent(new Event('input')); await m.settle();
+    };
+
+    it('is disabled on an empty panel and enabled once there is a draft or a conversation', async () => {
+      const m = await mount();
+      await m.open();
+      expect(m.btn(/New chat/)!.disabled).toBe(true);
+      await type(m, 'hello');
+      expect(m.btn(/New chat/)!.disabled).toBe(false);
+      m.btn(/New chat/)!.click(); await m.settle();
+      expect((m.el.querySelector('textarea') as HTMLTextAreaElement).value).toBe('');
+      expect(m.btn(/New chat/)!.disabled).toBe(true);
+
+      m.btn(/Summarize/)!.click(); await m.settle();
+      expect(m.btn(/New chat/)!.disabled).toBe(false); // still usable while streaming
+    });
+
+    it('mid-stream aborts and empties messages, warnings, error, draft and the position opt-in', async () => {
+      const m = await mount();
+      await m.open(); await m.tick();
+      m.btn(/Summarize/)!.click(); await m.settle();
+      m.chat.push('warning', { message: 'News unavailable (429).' });
+      m.chat.push('delta', { text: 'partial' }); await m.settle();
+      await type(m, 'half typed');
+      const aborted = new Promise<void>((r) => m.chat.signal!.addEventListener('abort', () => r()));
+
+      m.btn(/New chat/)!.click(); await m.settle();
+      await aborted;
+      expect(m.text()).toEqual([]);
+      expect(m.el.querySelector('.warn')).toBeNull();
+      expect(m.el.querySelector('[role=alert]')).toBeNull();
+      expect((m.el.querySelector('textarea') as HTMLTextAreaElement).value).toBe('');
+      expect((m.el.querySelector('input[type=checkbox]') as HTMLInputElement).checked).toBe(false);
+      expect(m.btn(/Send/)).toBeDefined();
+      expect(m.btn(/Stop/)).toBeUndefined();
+    });
+
+    it('sends the next question with empty history and no position', async () => {
+      const m = await mount();
+      await m.open(); await m.tick();
+      m.btn(/Summarize/)!.click(); await m.settle();
+      m.chat.push('delta', { text: 'Summary.' }); m.chat.push('done', {}); await m.settle();
+
+      m.btn(/New chat/)!.click(); await m.settle();
+      await type(m, 'fresh start');
+      m.btn(/Send/)!.click(); await m.settle();
+      expect(m.chat.calls[1].body).toEqual({ message: 'fresh start', include_position: false, history: [] });
+    });
+
+    it('late output of the aborted stream does not leak into the new conversation', async () => {
+      const m = await mount();
+      await m.open();
+      m.btn(/Summarize/)!.click(); await m.settle();
+      m.chat.push('delta', { text: 'old' }); await m.settle();
+      m.btn(/New chat/)!.click(); await m.settle();
+
+      m.btn(/up\/down today/)!.click(); await m.settle();
+      m.chat.push('delta', { text: 'new' }); m.chat.push('done', {}); await m.settle();
+      expect(m.text()).toEqual(['Why is the stock up/down today?', 'new']);
+    });
+
+    it('clears an error and its Retry', async () => {
+      const m = await mount();
+      await m.open();
+      m.btn(/Summarize/)!.click(); await m.settle();
+      m.chat.push('error', { message: 'boom' }); await m.settle();
+      expect(m.btn(/Retry/)).toBeDefined();
+      expect(m.btn(/New chat/)!.disabled).toBe(false);
+
+      m.btn(/New chat/)!.click(); await m.settle();
+      expect(m.el.querySelector('[role=alert]')).toBeNull();
+      expect(m.btn(/Retry/)).toBeUndefined();
+    });
   });
 });

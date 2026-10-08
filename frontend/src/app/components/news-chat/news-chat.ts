@@ -1,4 +1,6 @@
-import { Component, DestroyRef, computed, effect, inject, input, signal, untracked } from '@angular/core';
+import {
+  Component, DestroyRef, ElementRef, afterRenderEffect, computed, effect, inject, input, signal, untracked, viewChild,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
 import { ChatRequest, ChatTurn, LlmService, Preset } from '../../core/llm.service';
@@ -15,6 +17,7 @@ const PRESETS: { value: Preset; label: string }[] = [
 const MESSAGE_MAX = 500;
 const HISTORY_MAX = 10;
 const TURN_MAX = 4000; // the server rejects longer turns
+const BOTTOM_SLACK = 24; // px from the bottom of the log that still counts as "following"
 
 /** Ask-AI side panel for the ticker page (ADR 0008). Renders nothing unless the server has a model configured. */
 @Component({
@@ -22,12 +25,15 @@ const TURN_MAX = 4000; // the server rejects longer turns
   template: `
     @if (status()?.enabled) {
       @if (!open()) {
-        <button type="button" class="ask" (click)="open.set(true)">Ask AI</button>
+        <button type="button" class="ask" (click)="openPanel()">Ask AI</button>
       } @else {
-        <aside class="panel" role="complementary" aria-label="Ask AI" (keydown.escape)="open.set(false)">
+        <aside class="panel" role="complementary" aria-label="Ask AI" (keydown.escape)="close()">
           <header>
             <h3>Ask AI about {{ symbol() }}</h3>
-            <button type="button" class="link" (click)="open.set(false)" aria-label="Close panel">Close</button>
+            <span class="actions">
+              <button type="button" class="link" [disabled]="!hasContent()" (click)="clear()">New chat</button>
+              <button type="button" class="link" (click)="close()" aria-label="Close panel">Close</button>
+            </span>
           </header>
           <p class="hint">Model: {{ status()?.model }}. Answers can be wrong; check the sources.</p>
 
@@ -43,7 +49,7 @@ const TURN_MAX = 4000; // the server rejects longer turns
           </label>
           <p class="hint sent" data-testid="sent-note">{{ sentNote() }}</p>
 
-          <div class="log" aria-live="polite">
+          <div class="log" #log aria-live="polite" (scroll)="onLogScroll()">
             @for (m of messages(); track $index) {
               <p class="msg" [class.user]="m.role === 'user'">{{ m.text }}@if (busy() && $last && m.role === 'assistant') {<span class="cursor">▍</span>}</p>
             }
@@ -55,7 +61,7 @@ const TURN_MAX = 4000; // the server rejects longer turns
           }
 
           <form (submit)="$event.preventDefault(); sendDraft()">
-            <textarea rows="2" [maxLength]="max" [value]="draft()" (input)="onDraft($event)" [disabled]="busy()"
+            <textarea #draftBox rows="2" [maxLength]="max" [value]="draft()" (input)="onDraft($event)" [disabled]="busy()"
                       placeholder="Ask a question about the news" aria-label="Your question"></textarea>
             <div class="row">
               <span class="hint">{{ draft().length }}/{{ max }}</span>
@@ -73,13 +79,15 @@ const TURN_MAX = 4000; // the server rejects longer turns
   styles: `
     .ask { position: fixed; right: 1rem; bottom: 1rem; z-index: 10; }
     .panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(26rem, 100vw); z-index: 20; display: flex; flex-direction: column;
-      gap: 0.5rem; padding: 0.75rem 1rem; overflow-y: auto; background: Canvas; color: CanvasText; border-left: 1px solid var(--border, #ccc); }
+      gap: 0.5rem; padding: 0.75rem 1rem; overflow-y: hidden; background: Canvas; color: CanvasText; border-left: 1px solid var(--border, #ccc); }
+    .panel > :not(.log) { flex: none; }
     header { display: flex; justify-content: space-between; align-items: baseline; }
     h3 { margin: 0; }
+    .actions { display: flex; gap: 0.75rem; }
     .presets { display: flex; flex-wrap: wrap; gap: 0.4rem; }
     .opt { display: flex; gap: 0.4rem; align-items: center; }
     .sent { margin: 0; font-size: 0.85em; }
-    .log { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; min-height: 4rem; }
+    .log { flex: 1 1 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
     .msg { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
     .msg.user { font-weight: 600; }
     .cursor { opacity: 0.5; }
@@ -102,6 +110,9 @@ export class NewsChat {
   protected readonly warnings = signal<string[]>([]);
   protected readonly draft = signal('');
   protected readonly includePosition = signal(false);
+  protected readonly hasContent = computed(
+    () => this.messages().length > 0 || this.warnings().length > 0 || !!this.error() || !!this.draft(),
+  );
   protected readonly sentNote = computed(
     () =>
       `Sent to ${this.status()?.model ?? 'the model'}: the symbol, today's price change and public headlines` +
@@ -111,6 +122,9 @@ export class NewsChat {
   /** The request behind the last answer, kept so Retry can resend it. */
   protected lastRequest: { req: Omit<ChatRequest, 'history'>; label: string } | null = null;
   private abort: AbortController | null = null;
+  private readonly log = viewChild<ElementRef<HTMLElement>>('log');
+  private readonly draftBox = viewChild<ElementRef<HTMLTextAreaElement>>('draftBox');
+  private following = true; // keep the newest text in view unless the user scrolled up
   private seq = 0; // a stream from a previous symbol or request must never write into a newer one
 
   constructor() {
@@ -118,10 +132,36 @@ export class NewsChat {
       this.symbol();
       untracked(() => this.reset());
     });
+    afterRenderEffect(() => {
+      this.messages();
+      const el = this.log()?.nativeElement;
+      if (el && this.following) el.scrollTop = el.scrollHeight;
+    });
     inject(DestroyRef).onDestroy(() => this.abort?.abort());
   }
 
+  protected openPanel(): void {
+    this.following = true;
+    this.open.set(true);
+  }
+
+  protected close(): void {
+    this.open.set(false);
+  }
+
+  protected onLogScroll(): void {
+    const el = this.log()?.nativeElement;
+    if (el) this.following = el.scrollHeight - el.scrollTop - el.clientHeight <= BOTTOM_SLACK;
+  }
+
+  /** "New chat": drop the conversation, including any stream still running. */
+  protected clear(): void {
+    this.reset();
+    this.draftBox()?.nativeElement.focus();
+  }
+
   private reset(): void {
+    this.following = true;
     this.seq++;
     this.abort?.abort();
     this.abort = null;
@@ -169,6 +209,7 @@ export class NewsChat {
     if (this.busy()) return;
     const symbol = this.symbol();
     const seq = ++this.seq;
+    this.following = true; // a new question should show itself and its answer
     const history: ChatTurn[] = this.messages()
       .filter((m) => m.text)
       .slice(-HISTORY_MAX)
