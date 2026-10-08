@@ -9,6 +9,7 @@ import { apiError } from '../../core/errors';
 import { HoldingsService } from '../../core/holdings.service';
 import { Account, Holding, HoldingsResponse } from '../../core/models';
 import { Donut } from '../../components/donut/donut';
+import { PortfolioChart } from '../../components/portfolio-chart/portfolio-chart';
 import { lineGain, showPlatform } from '../../core/lines';
 import { fmtMoney, fmtPct, fmtQty, fmtSigned, tone } from '../../core/format';
 
@@ -27,7 +28,7 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
 
 @Component({
   selector: 'app-holdings',
-  imports: [DatePipe, RouterLink, Donut],
+  imports: [DatePipe, RouterLink, Donut, PortfolioChart],
   template: `
     <h2>Home</h2>
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
@@ -74,6 +75,8 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
             </div>
             <div class="tile"><span class="k">Cost basis</span><strong>{{ fmt(d.summary.total_cost_basis) }}</strong></div>
           </div>
+
+          <app-portfolio-chart [accountIds]="selected()" />
 
           <app-donut [holdings]="d.holdings" />
 

@@ -51,6 +51,18 @@ async function mount(opts: { accounts?: object[]; query?: string | null; saved?:
 }
 
 describe('Holdings page', () => {
+  it('shows the portfolio chart for the selected accounts and follows the selection', async () => {
+    const m = await mount();
+    await m.reply(response([holding('ORCL')]), '1,2');
+    expect(m.el.querySelector('app-portfolio-chart')).not.toBeNull();
+    const charts = () => m.http.match((r) => r.url === '/api/portfolio/history');
+    const first = charts();
+    expect(first.map((r) => r.request.params.get('account_ids'))).toEqual(['1,2']);
+    m.box('M1').click();
+    await m.f.whenStable(); m.f.detectChanges();
+    expect(charts().map((r) => r.request.params.get('account_ids'))).toEqual(['1']);
+  });
+
   it('selects every account by default and requests them explicitly', async () => {
     const m = await mount();
     await m.reply(response([holding('ORCL')]), '1,2');

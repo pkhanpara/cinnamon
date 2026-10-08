@@ -159,6 +159,30 @@ export interface HistoryResponse {
   as_of: string;
 }
 
+export interface PortfolioPoint {
+  t: number; // UTC epoch seconds
+  d: string; // YYYY-MM-DD
+  value: string;
+  spy_value: string | null; // SPY rebased to the portfolio's first value
+}
+
+export interface PortfolioHistory {
+  basis: 'backcast'; // today's quantities x past prices (ADR 0010)
+  range: HistoryRange;
+  intraday: boolean;
+  points: PortfolioPoint[];
+  start_value: string | null;
+  end_value: string | null;
+  change: string | null;
+  change_pct: string | null;
+  spy: { change_pct: string | null; difference_pp: string | null } | null;
+  symbols: string[];
+  covered_value_pct: string | null;
+  warnings: string[];
+  stale: boolean;
+  as_of: string | null;
+}
+
 export interface NewsItem {
   headline: string;
   summary: string;
