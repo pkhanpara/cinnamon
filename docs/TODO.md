@@ -52,7 +52,13 @@
 - [ ] Import: undo/restore previous snapshot if replace-and-discard proves too risky #feat  
 - [ ] Users page: allow deleting a user and show created_at / last login #feat  
 - [ ] Replace window.confirm in account delete with an in-app dialog #chore  
-- [ ] Browser-check the Docker image UI (API/static verified, see 20261007-182000 log); add frontend tests and `npm run e2e` (needs `playwright install --with-deps chromium`, uv) to CI #chore  
+- [ ] Browser-check the Docker image UI (API/static verified, see 20261007-182000 log) #chore  
+- [x] GitHub Actions CI: ruff, pytest, prettier, tsc, vitest, ng build, Playwright e2e (see 20261007-194816 log) #chore  
+- [ ] CI follow-ups (see 20261007-194816 log) #chore  
+  - [ ] Branch protection on `main` requiring the three CI checks  
+  - [ ] After the CI PR is squash-merged: add `.git-blame-ignore-revs` with the merge SHA (the prettier reformat lands in it)  
+  - [ ] ESLint via angular-eslint (`ng add @angular-eslint/schematics`) and fix what it reports  
+  - [ ] Format Angular templates safely: Prettier's HTML reflow changes rendered whitespace (`.prettierignore` skips `*.html`, `embeddedLanguageFormatting: off` skips inline templates)  
 - [ ] E2E: more workflows (CSV error paths, account rename, M1 connector, live-quote holdings) #test  
 - [ ] Login rate limiting / lockout #sec  
 - [ ] Serialize timestamps as UTC (SQLite drops tzinfo; API shows naive created_at) #bug  

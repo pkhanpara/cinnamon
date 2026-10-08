@@ -1,0 +1,97 @@
+# GitHub Actions CI: lint, unit tests, e2e
+
+Status: in progress (PR open, waiting on the first CI run). Branch `ci/github-actions`.
+
+Touched: `.github/workflows/ci.yml` (new), `frontend/package.json` (scripts `test:ci`,
+`typecheck`, `format`, `format:check`), `frontend/.prettierrc`, `frontend/.prettierignore` (new),
+53 frontend `.ts`/`.scss` files (Prettier reformat only), `CLAUDE.md`, `docs/TODO.md`.
+
+## Why
+
+- The repo had no CI: no `.github/` directory. Lint and tests ran only when someone remembered.
+- `pkhanpara/cinnamon` is public (`gh repo view --json visibility` → `PUBLIC`), so GitHub Actions
+  minutes on standard hosted runners are free. The cost question was the user's precondition.
+- TODO already asked for "frontend tests and `npm run e2e` ... to CI".
+
+## Pre-flight findings
+
+Measured locally on `main` @ a546ddb, before any change:
+
+| check | result |
+|---|---|
+| `uv run ruff check .` | All checks passed |
+| `uv run ruff format --check .` | 66 files already formatted |
+| `uv run pytest -q` | 352 passed, 1 warning in 38.57s |
+| `npx ng test --watch=false` | 23 files, 204 passed, 1.47s |
+| `npx tsc -p tsconfig.app.json --noEmit` / `tsconfig.spec.json` | clean |
+| `npx prettier --check "src/**/*.{ts,html,scss,css}" "e2e/**/*.ts"` | **58 files** with issues |
+| ESLint | not installed |
+
+Prettier 3.8 and a `.prettierrc` existed, but Prettier had never been run across the code.
+
+## Design
+
+- Three parallel jobs: `backend` (ruff check, ruff format --check, pytest), `frontend`
+  (format:check, typecheck, test:ci, build), `e2e` (Playwright, Chromium). They are independent
+  because the e2e config builds its own throwaway stack.
+- uv `0.12.23` and Node 22 match the Dockerfile. Actions are pinned to commit SHAs (public repo).
+- Playwright browsers are cached by the `@playwright/test` version. On a cache hit, only
+  `playwright install-deps` runs, because the system libraries aren't in the cache.
+- e2e uses `CINNAMON_E2E_DIR=${{ runner.temp }}/cinnamon-e2e`, which passes the config's path
+  check. On failure, `results/` and the backend/frontend logs are uploaded (7 days).
+- No secrets: tests override the quote provider, and the e2e config sets `FINNHUB_API_KEY: ''`.
+- Concurrency: a new push cancels an older run on the same PR. Runs on `main` always finish.
+
+Rejected (user choice in planning):
+- **ESLint now**: angular-eslint would add a dependency and fixes to this PR. Deferred to TODO.
+- **Docker image build job**: catches lockfile drift but costs ~3-4 min per run. Still in TODO.
+- **Dependabot/Renovate**: still in TODO.
+- **Python version matrix**: the app ships on 3.12 only (Dockerfile), so a matrix adds nothing.
+
+## What was done
+
+1. `git checkout -b ci/github-actions`
+2. `npx prettier --write "src/**/*.{ts,html,scss,css}" "e2e/**/*.ts" playwright.config.ts`
+   reformatted 58 files. **`ng test` then failed 6 tests** (see Gotchas). `tsc` and `ng build`
+   were still fine.
+3. Reverted the two `.html` files: still 6 failures, because most components use inline
+   `template:` strings, which Prettier formats as embedded Angular.
+4. Reverted everything. Set `embeddedLanguageFormatting: "off"` in `.prettierrc` and added
+   `.prettierignore` with `*.html`. (The old `*.html` → `angular` parser override was dropped as
+   dead.) Then `prettier --write "src/**/*.{ts,scss,css}" "e2e/**/*.ts" playwright.config.ts`:
+   52 files changed, 204/204 tests pass, tsc clean, build OK. `git diff -w` shows only line
+   splitting and wrapping.
+5. Committed as `style(frontend): ...` (formatting only, kept separate from the CI commit).
+6. `npm run format:check` then flagged 2 more files (`login.spec.ts`, `users.spec.ts`): Prettier
+   isn't idempotent on `http.expectOne(...).flush({...})` chains. A second `--write` settled
+   them, and a third changed nothing. Amended into the reformat commit. Tests: 204 passed.
+7. Added the npm scripts and `.github/workflows/ci.yml`.
+   `npm run format:check && npm run typecheck`: OK.
+8. `CINNAMON_E2E_DIR=/tmp/cinnamon-e2e-ci npm run e2e`: 15 passed (20.7s).
+9. CI run on the PR: _see below once it finishes_.
+
+## Still to do
+
+Tracked in `docs/TODO.md` under "CI follow-ups":
+- Branch protection on `main` requiring the three checks (a repo setting, not code).
+- `.git-blame-ignore-revs`: the repo squash-merges, so the reformat commit's SHA on this branch
+  won't exist on `main`. Add the merge SHA after the merge.
+- ESLint (angular-eslint).
+- A safe way to format templates (e.g. `htmlWhitespaceSensitivity: "strict"`, checked against
+  the specs), or leave them unformatted.
+- Docker image build in CI and Dependabot/Renovate (existing TODO item).
+
+## Gotchas
+
+- **Prettier on Angular templates changes rendering.** The reflow adds leading and trailing
+  whitespace inside text nodes. Angular collapses whitespace but keeps one space, so:
+  - the chat answer (a `pre-wrap` block) became `" Half an ans "`;
+  - `"DIS Inc. · RH"` on Home got extra spaces;
+  - range-button lookups by text broke.
+
+  That is six specs in `news-chat`, `portfolio-chart`, `holdings` and `symbol`. Inline templates
+  are affected too, not only `.html` files.
+- Prettier's member-chain formatting isn't idempotent in a few cases. One `--write` can still
+  fail `--check`, so run `npm run format` until it's stable.
+- `uv run` syncs the dev group by default, so `uv sync --no-dev` before e2e would only cause a
+  second sync.
