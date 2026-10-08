@@ -65,6 +65,11 @@ Baseline: `cd backend && uv run pytest -q` -> `315 passed`.
    - Full suite `352 passed`; `ruff check .` all passed; `ruff format --check .` clean after formatting `test_imports.py`.
    - `grep -rIl` for the real files' account number / uuid over the worktree: no matches. Only `.env` is ignored-and-present.
 3. Docs: ADR 0011 (new), with a one-line pointer from ADR 0002's consequences; `docs/TODO.md`; this log.
+4. Pre-PR: `git fetch origin && git rebase origin/main` -> "Current branch feat/broker-csv-parsers is up to date."
+   Then `uv run pytest` -> `352 passed`, `ruff check .` -> all passed, `ruff format --check .` -> 66 files already formatted.
+   `git diff --name-only origin/main...HEAD` lists no `.env` or `seed/private/` path. Privacy check: 1189 values from the real
+   files (account numbers, lot ids, quantities, cost bases, unrealized G/L) compared against the branch diff's added lines, with
+   only the count printed -> 0 found.
 No frontend change (`pages/import/import.ts` lists whatever `/api/accounts/{id}/connectors` returns). No e2e run:
 the e2e specs only create `robinhood` accounts, whose connector list is unchanged (`["snapshot"]`).
 
