@@ -1,6 +1,6 @@
 # GitHub Actions CI: lint, unit tests, e2e
 
-Status: done, PR #18 green. Branch `ci/github-actions`.
+Status: done. PR #18 squash-merged as 85245f9; branch protection on. Branch `ci/github-actions`.
 
 Touched: `.github/workflows/ci.yml` (new), `frontend/package.json` (scripts `test:ci`,
 `typecheck`, `format`, `format:check`), `frontend/.prettierrc`, `frontend/.prettierignore` (new),
@@ -79,13 +79,20 @@ Rejected (user choice in planning):
       `runs-on: ubuntu-24.04`, because `playwright install --with-deps` is distro-specific.
     - setup-uv "Unable to reserve cache ... another job may be creating this cache". This is
       harmless: backend and e2e share a cache key and race to save it.
+11. `gh pr merge 18 --squash --delete-branch` merged it as `85245f9`.
+12. Branch protection on `main` (`PUT repos/pkhanpara/cinnamon/branches/main/protection`):
+    - The three job names are required checks, bound to the GitHub Actions app (`app_id` 15368),
+      so no other integration can post a passing status under those names.
+    - `strict: false`: PRs don't have to be rebased onto the latest main. Parallel agent PRs
+      would otherwise force a rebase on every merge.
+    - No required reviews (solo repo). Force-pushes and deletion are blocked.
+    - `enforce_admins: false`: the owner can still push docs commits straight to main (as with
+      `d74893b`), and `gh pr merge` refuses a red PR unless given `--admin`.
+13. Added `.git-blame-ignore-revs` with `85245f9`, in its own PR (the first PR under protection).
 
 ## Still to do
 
 Tracked in `docs/TODO.md` under "CI follow-ups":
-- Branch protection on `main` requiring the three checks (a repo setting, not code).
-- `.git-blame-ignore-revs`: the repo squash-merges, so the reformat commit's SHA on this branch
-  won't exist on `main`. Add the merge SHA after the merge.
 - ESLint (angular-eslint).
 - A safe way to format templates (e.g. `htmlWhitespaceSensitivity: "strict"`, checked against
   the specs), or leave them unformatted.

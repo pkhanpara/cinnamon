@@ -55,8 +55,8 @@
 - [ ] Browser-check the Docker image UI (API/static verified, see 20261007-182000 log) #chore  
 - [x] GitHub Actions CI: ruff, pytest, prettier, tsc, vitest, ng build, Playwright e2e (see 20261007-194816 log) #chore  
 - [ ] CI follow-ups (see 20261007-194816 log) #chore  
-  - [ ] Branch protection on `main` requiring the three CI checks  
-  - [ ] After the CI PR is squash-merged: add `.git-blame-ignore-revs` with the merge SHA (the prettier reformat lands in it)  
+  - [x] Branch protection on `main` requiring the three CI checks  
+  - [x] After the CI PR is squash-merged: add `.git-blame-ignore-revs` with the merge SHA (the prettier reformat lands in it)  
   - [ ] Runners are pinned to `ubuntu-24.04` (ubuntu-latest becomes 26 on 2026-10-19); bump once Playwright `--with-deps` supports 26  
   - [ ] ESLint via angular-eslint (`ng add @angular-eslint/schematics`) and fix what it reports  
   - [ ] Format Angular templates safely: Prettier's HTML reflow changes rendered whitespace (`.prettierignore` skips `*.html`, `embeddedLanguageFormatting: off` skips inline templates)  

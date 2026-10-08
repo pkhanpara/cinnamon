@@ -1,0 +1,3 @@
+# Prettier reformat of the frontend TS/SCSS/e2e sources (squashed into the CI PR #18).
+# Use locally with: git config blame.ignoreRevsFile .git-blame-ignore-revs
+85245f931dae23c47f10632a6b8698d57bac8033
