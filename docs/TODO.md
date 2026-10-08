@@ -1,11 +1,13 @@
 ### Todo
 
-- [ ] Merged-row UI polish found with the overlapping seed (see docs/log/20261007-170000-seed-overlap.md) #ux  
-  - [ ] Home holdings table scrolls inside its own box, so the first/last rows are clipped mid-row at page level; decide on one scroll container  
-  - [ ] Expanded per-account lines leave Price, Day change, Gain/loss and Weight empty; show at least per-line gain  
-  - [ ] Per-account lines show "robinhood robinhood" when nickname equals platform; show the platform only when it differs  
-  - [ ] Ticker page "Your position" ignores the Home account selection (still lists an unchecked account); decide if that is intended and label it  
-  - [ ] Ticker position lines show quantity and value only; add cost basis / gain like Home  
+- [x] Merged-row UI polish found with the overlapping seed (see docs/log/20261007-174319-merged-row-ui-polish.md) #ux  
+  - [x] Home holdings table has one scroll container (the page)  
+  - [x] Expanded per-account lines show per-line gain  
+  - [x] Platform shown only when it differs from the nickname  
+  - [x] Ticker "Your position" is intentionally all accounts; labelled, lines unticked on Home are tagged  
+  - [x] Ticker position lines show cost basis, value and gain  
+  - [ ] Real-browser check of Home (single scrollbar, narrow screen) and /symbol/MSFT with an account unticked  
+  - [ ] Optional: ticker position following the Home selection (needs a backend `accounts` param); per-line day change and weight (needs API data)  
 - [ ] News refresh follow-ups #chore  
   - [ ] Look at the news header row (Updated label + Refresh button) in a real browser, incl. narrow screens  
   - [ ] Reuse `app/ratelimit.py` for the per-user search/lookup limit; limiter and caches are per process  

@@ -35,7 +35,8 @@ a.button { padding: 0.4rem 0.8rem; border: 1px solid ButtonBorder; border-radius
 .gain, .gain .sub { color: #067647; }
 .loss, .loss .sub { color: var(--danger); }
 .muted { color: var(--muted); }
-.scroll.tall { max-height: 36rem; margin-top: 1rem; }
+/* The page is the only vertical scroller; this wrapper has no max-height and only scrolls sideways on narrow screens. */
+.table-x { overflow-x: auto; margin-top: 1rem; }
 button.link { background: none; border: none; padding: 0; color: inherit; font: inherit; font-weight: 600; cursor: pointer; }
 .foot { margin-top: 0.75rem; }
 tr.subrow td { background: color-mix(in srgb, CanvasText 4%, Canvas); }
@@ -51,7 +52,9 @@ tr.subrow td { background: color-mix(in srgb, CanvasText 4%, Canvas); }
 dl { display: grid; grid-template-columns: auto 1fr; gap: 0.35rem 1rem; margin: 0; }
 dt { color: var(--muted); }
 dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-ul.lines { margin: 0.5rem 0 0; padding-left: 1.1rem; color: var(--muted); font-size: 0.9rem; }
+p.pos-scope { margin: 0.5rem 0 0; font-size: 0.9rem; }
+table.lines { margin-top: 0.5rem; font-size: 0.85rem; }
+.hidden-tag { display: block; }
 .news-head { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
 .news-head h3 { margin-right: auto; }
 ul.news { list-style: none; padding: 0; display: grid; gap: 0.9rem; }

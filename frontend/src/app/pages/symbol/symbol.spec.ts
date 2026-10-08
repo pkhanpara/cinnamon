@@ -3,6 +3,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, TestRequest, provideHttpClientTesting } from '@angular/common/http/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { AuthService } from '../../core/auth.service';
 import { CHART_FACTORY } from '../../components/price-chart/chart-factory';
 import { SymbolPage } from './symbol';
 
@@ -108,14 +109,40 @@ describe('Symbol page', () => {
     const pos = held.el.querySelector('#pos-h')!.parentElement!.textContent!;
     expect(pos).toContain('927.239');
     expect(pos).toContain('+$97,138.28 (+77.90%)');
-    expect(pos).toContain('Roth: 10 · $2,392.40');
-    expect(pos).toContain('Main: 917.239 · $219,440.26');
+    expect(pos).toContain('Across all your accounts (2)');
+    const rows = Array.from(held.el.querySelectorAll('table.lines tbody tr')).map((r) => r.textContent!.replace(/\s+/g, ' ').trim());
+    expect(rows[0]).toContain('Roth'); expect(rows[0]).toContain('10');
+    expect(rows[0]).toContain('$1,000.00'); expect(rows[0]).toContain('$2,392.40'); expect(rows[0]).toContain('+$1,392.40');
+    expect(rows[0]).toContain('+139.24%');
+    expect(rows[1]).toContain('Main'); expect(rows[1]).toContain('917.239');
+    expect(rows[1]).toContain('$123,694.38'); expect(rows[1]).toContain('$219,440.26'); expect(rows[1]).toContain('+$95,745.88');
+    expect(rows[0]).not.toMatch(/robinhood\s+robinhood/);
+    expect(held.el.querySelector('.hidden-tag')).toBeNull();
 
     TestBed.resetTestingModule();
     const none = await mount();
     none.one(OV).flush(overview()); none.one(HI).flush(history()); none.one(NE).flush(news());
     await none.settle();
     expect(none.el.querySelector('#pos-h')!.parentElement!.textContent).toContain("You don't hold NVDA in any account");
+  });
+
+  it('tags lines whose account is unticked on Home, and handles lines without a price or cost basis', async () => {
+    localStorage.setItem('cinnamon.holdings.selection.5', JSON.stringify({ selected: [1], known: [1, 2] }));
+    const held = await mount();
+    (TestBed.inject(AuthService) as unknown as { _user: { set(u: unknown): void } })._user.set({ id: 5, username: 'u', is_admin: false, is_active: true });
+    const lines = [
+      { ...position.lines[0], value: null, source: 'none' },
+      { ...position.lines[1], cost_basis: '0' },
+    ];
+    held.one(OV).flush(overview({ position: { ...position, lines } })); held.one(HI).flush(history()); held.one(NE).flush(news());
+    await held.settle();
+    const tags = Array.from(held.el.querySelectorAll('.hidden-tag'));
+    expect(tags).toHaveLength(1);
+    expect(tags[0].closest('tr')!.textContent).toContain('Roth');
+    const [roth, main] = Array.from(held.el.querySelectorAll('table.lines tbody tr'));
+    expect(roth.querySelector('.line-gain')!.textContent!.trim()).toBe('—');
+    expect(main.querySelector('.line-gain')!.textContent).not.toContain('%');
+    localStorage.clear();
   });
 
   it('a stale quote is labelled and shows no change', async () => {
