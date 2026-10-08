@@ -9,7 +9,7 @@ import { fmtPoints, portfolioPoints, portfolioUp, spyPoints } from '../../core/p
 import { PortfolioService } from '../../core/portfolio.service';
 import { CHART_FACTORY, ChartHandle } from '../price-chart/chart-factory';
 
-/** Portfolio value over a range for the given accounts. A back-cast, and says so (ADR 0009). */
+/** Portfolio value over a range for the given accounts. A back-cast, and says so (ADR 0010). */
 @Component({
   selector: 'app-portfolio-chart',
   imports: [DatePipe],

@@ -1,4 +1,4 @@
-"""Portfolio value over time (ADR 0009).
+"""Portfolio value over time (ADR 0010).
 
 We store only the current snapshot per account, so this is a *back-cast*: today's quantities x
 historical closes. It ignores past buys, sells, cash and dividends, and says so in `basis`.

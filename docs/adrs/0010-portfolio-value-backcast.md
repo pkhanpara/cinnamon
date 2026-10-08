@@ -1,4 +1,4 @@
-# 0009 - Portfolio value chart: a labelled back-cast of current holdings
+# 0010 - Portfolio value chart: a labelled back-cast of current holdings
 
 Status: Accepted (2026-10-07)
 

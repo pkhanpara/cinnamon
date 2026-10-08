@@ -167,7 +167,7 @@ export interface PortfolioPoint {
 }
 
 export interface PortfolioHistory {
-  basis: 'backcast'; // today's quantities x past prices (ADR 0009)
+  basis: 'backcast'; // today's quantities x past prices (ADR 0010)
   range: HistoryRange;
   intraday: boolean;
   points: PortfolioPoint[];

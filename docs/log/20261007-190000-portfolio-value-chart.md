@@ -1,6 +1,6 @@
 # Portfolio value chart on Home (back-cast)
 
-Branch `feat/portfolio-value-chart`. ADR: `docs/adrs/0009-portfolio-value-backcast.md`.
+Branch `feat/portfolio-value-chart`. ADR: `docs/adrs/0010-portfolio-value-backcast.md`.
 
 ## Why
 TODO item "Portfolio value chart on Home, with SPY comparison and ranges". Only the current snapshot per account is stored
@@ -13,7 +13,7 @@ TODO item "Portfolio value chart on Home, with SPY comparison and ranges". Only 
 - Position quantities per symbol come from `holdings.build` (also gives values for ranking the 25-symbol cap).
 
 ## Design
-See ADR 0009. Rejected: wait for snapshots (empty chart), build transactions first (scope), client-side summing (N requests, no cap).
+See ADR 0010. Rejected: wait for snapshots (empty chart), build transactions first (scope), client-side summing (N requests, no cap).
 
 ## What was done
 - `backend/app/api/portfolio.py` + router line in `main.py`; `backend/tests/test_portfolio_history.py` (24 tests).
