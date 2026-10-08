@@ -108,11 +108,17 @@ export class LlmService {
     if (res.status === 401) {
       this.auth.clear();
       void this.router.navigateByUrl('/login');
-    } else if (res.status === 403 && (body as { detail?: unknown } | null)?.detail === PASSWORD_CHANGE_REQUIRED) {
+    } else if (
+      res.status === 403 &&
+      (body as { detail?: unknown } | null)?.detail === PASSWORD_CHANGE_REQUIRED
+    ) {
       this.auth.markPasswordChangeRequired();
       void this.router.navigateByUrl(CHANGE_PASSWORD);
     }
-    return apiError(new HttpErrorResponse({ status: res.status, error: body }), 'The request failed');
+    return apiError(
+      new HttpErrorResponse({ status: res.status, error: body }),
+      'The request failed',
+    );
   }
 }
 
@@ -120,8 +126,10 @@ function toEvent(name: string, data: string): LlmEvent | null {
   try {
     const d = JSON.parse(data) as { text?: unknown; message?: unknown };
     if (name === 'delta' && typeof d.text === 'string') return { type: 'delta', text: d.text };
-    if (name === 'warning' && typeof d.message === 'string') return { type: 'warning', message: d.message };
-    if (name === 'error' && typeof d.message === 'string') return { type: 'error', message: d.message };
+    if (name === 'warning' && typeof d.message === 'string')
+      return { type: 'warning', message: d.message };
+    if (name === 'error' && typeof d.message === 'string')
+      return { type: 'error', message: d.message };
     if (name === 'done') return { type: 'done' };
   } catch {
     /* ignore a malformed frame */

@@ -22,9 +22,14 @@ Frontend (`cd frontend`, Node, npm):
 npm ci
 npm start            # ng serve; proxies /api -> http://localhost:8000 (proxy.conf.json)
 npm test             # ng test (Vitest + jsdom); one file: npx ng test --include='src/app/core/auth.spec.ts'
+npm run test:ci      # same, single run (what CI uses)
+npm run format:check # prettier (TS/SCSS/e2e only; templates are excluded, see .prettierignore); npm run format fixes
+npm run typecheck    # tsc over app and spec tsconfigs
 npm run build
 npm run e2e          # Playwright end-to-end workflows (see Testing notes)
 ```
+
+CI (`.github/workflows/ci.yml`) runs on every PR and push to main: backend (ruff check, ruff format --check, pytest), frontend (format:check, typecheck, test:ci, build), e2e (Playwright; on failure the results and logs are uploaded as the `e2e-results` artifact).
 
 Docker: `docker compose up --build` (port 8000, data volume `cinnamon-data`, reads `.env`). Config comes from env / `.env` (`backend/app/config.py`): `FINNHUB_API_KEY`, `DATABASE_URL`, `DEFAULT_ADMIN_*`, `COOKIE_SECURE`, `AUTO_MIGRATE`, ...
 

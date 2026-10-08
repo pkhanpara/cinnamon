@@ -1,5 +1,15 @@
 import {
-  Component, DestroyRef, ElementRef, afterRenderEffect, computed, effect, inject, input, signal, untracked, viewChild,
+  Component,
+  DestroyRef,
+  ElementRef,
+  afterRenderEffect,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+  viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, of } from 'rxjs';
@@ -99,7 +109,9 @@ export class NewsChat {
   readonly symbol = input.required<string>();
 
   private readonly api = inject(LlmService);
-  protected readonly status = toSignal(this.api.status().pipe(catchError(() => of(null))), { initialValue: null });
+  protected readonly status = toSignal(this.api.status().pipe(catchError(() => of(null))), {
+    initialValue: null,
+  });
   protected readonly presets = PRESETS;
   protected readonly max = MESSAGE_MAX;
 
@@ -111,12 +123,15 @@ export class NewsChat {
   protected readonly draft = signal('');
   protected readonly includePosition = signal(false);
   protected readonly hasContent = computed(
-    () => this.messages().length > 0 || this.warnings().length > 0 || !!this.error() || !!this.draft(),
+    () =>
+      this.messages().length > 0 || this.warnings().length > 0 || !!this.error() || !!this.draft(),
   );
   protected readonly sentNote = computed(
     () =>
       `Sent to ${this.status()?.model ?? 'the model'}: the symbol, today's price change and public headlines` +
-      (this.includePosition() ? ', and your position in this symbol.' : '. Your holdings are not sent.'),
+      (this.includePosition()
+        ? ', and your position in this symbol.'
+        : '. Your holdings are not sent.'),
   );
 
   /** The request behind the last answer, kept so Retry can resend it. */
@@ -201,7 +216,8 @@ export class NewsChat {
     const last = this.lastRequest;
     if (!last || this.busy()) return;
     // A failed attempt with an empty answer is already gone; drop a partial one before asking again.
-    if (this.error()) this.messages.update((m) => (m[m.length - 1]?.role === 'assistant' ? m.slice(0, -2) : m));
+    if (this.error())
+      this.messages.update((m) => (m[m.length - 1]?.role === 'assistant' ? m.slice(0, -2) : m));
     void this.run({ ...last.req, include_position: this.includePosition() }, last.label);
   }
 
@@ -217,7 +233,11 @@ export class NewsChat {
     this.lastRequest = { req, label };
     this.error.set('');
     this.warnings.set([]);
-    this.messages.update((m) => [...m, { role: 'user', text: label }, { role: 'assistant', text: '' }]);
+    this.messages.update((m) => [
+      ...m,
+      { role: 'user', text: label },
+      { role: 'assistant', text: '' },
+    ]);
     this.busy.set(true);
     const abort = (this.abort = new AbortController());
 
@@ -245,7 +265,9 @@ export class NewsChat {
         this.abort = null;
         // A question that got no answer at all is dropped, so the history never holds an unanswered turn.
         if (this.error()) {
-          this.messages.update((m) => (m[m.length - 1]?.role === 'assistant' && !m[m.length - 1].text ? m.slice(0, -2) : m));
+          this.messages.update((m) =>
+            m[m.length - 1]?.role === 'assistant' && !m[m.length - 1].text ? m.slice(0, -2) : m,
+          );
         }
       }
     }

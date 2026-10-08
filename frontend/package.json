@@ -7,6 +7,10 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:ci": "ng test --watch=false",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.spec.json --noEmit",
+    "format": "prettier --write \"src/**/*.{ts,scss,css}\" \"e2e/**/*.ts\" playwright.config.ts",
+    "format:check": "prettier --check \"src/**/*.{ts,scss,css}\" \"e2e/**/*.ts\" playwright.config.ts",
     "e2e": "playwright test"
   },
   "private": true,

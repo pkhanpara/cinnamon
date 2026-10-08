@@ -4,10 +4,19 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { provideRouter } from '@angular/router';
 import { Accounts } from './accounts';
 
-const A = { id: 1, platform: 'robinhood', nickname: 'Main', created_at: '2026-01-01T00:00:00', position_count: 0, last_import_at: null };
+const A = {
+  id: 1,
+  platform: 'robinhood',
+  nickname: 'Main',
+  created_at: '2026-01-01T00:00:00',
+  position_count: 0,
+  last_import_at: null,
+};
 
 async function mount(initial: unknown[]) {
-  TestBed.configureTestingModule({ providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])] });
+  TestBed.configureTestingModule({
+    providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+  });
   const http = TestBed.inject(HttpTestingController);
   const f = TestBed.createComponent(Accounts);
   f.detectChanges();
@@ -30,7 +39,10 @@ describe('Accounts page', () => {
   });
 
   it('shows import status and links to the import page', async () => {
-    const { el } = await mount([{ ...A, position_count: 17, last_import_at: '2026-10-07T10:00:00Z' }, { ...A, id: 2, nickname: 'New' }]);
+    const { el } = await mount([
+      { ...A, position_count: 17, last_import_at: '2026-10-07T10:00:00Z' },
+      { ...A, id: 2, nickname: 'New' },
+    ]);
     const [imported, empty] = Array.from(el.querySelectorAll('li'));
     expect(imported.textContent).toContain('17 position(s), imported');
     expect(empty.textContent).toContain('no holdings yet');
@@ -45,7 +57,8 @@ describe('Accounts page', () => {
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual({ platform: 'm1', nickname: 'Roth' });
     req.flush({ ...A, id: 2, platform: 'm1', nickname: 'Roth' });
-    await p; f.detectChanges();
+    await p;
+    f.detectChanges();
     expect(el.querySelectorAll('li').length).toBe(1);
     expect(f.componentInstance['form'].getRawValue()).toEqual({ platform: '', nickname: '' });
   });
@@ -54,9 +67,14 @@ describe('Accounts page', () => {
     const { f, http, el } = await mount([A]);
     f.componentInstance['form'].setValue({ platform: 'robinhood', nickname: 'Main' });
     const p = f.componentInstance['add']();
-    http.expectOne('/api/accounts').flush(
-      { detail: 'You already have an account with that nickname' }, { status: 409, statusText: 'Conflict' });
-    await p; f.detectChanges();
+    http
+      .expectOne('/api/accounts')
+      .flush(
+        { detail: 'You already have an account with that nickname' },
+        { status: 409, statusText: 'Conflict' },
+      );
+    await p;
+    f.detectChanges();
     expect(el.querySelector('[role=alert]')?.textContent).toContain('already have an account');
     expect(el.querySelectorAll('li').length).toBe(1);
   });
@@ -69,7 +87,8 @@ describe('Accounts page', () => {
     vi.spyOn(window, 'confirm').mockReturnValueOnce(true);
     const p = f.componentInstance['remove'](A);
     http.expectOne('/api/accounts/1').flush(null, { status: 204, statusText: 'No Content' });
-    await p; f.detectChanges();
+    await p;
+    f.detectChanges();
     expect(el.querySelectorAll('li').length).toBe(0);
   });
 

@@ -23,10 +23,15 @@ export class SymbolsService {
 
   /** Bypasses the server's 30-minute news cache; rate-limited (429 + Retry-After). */
   refreshNews(symbol: string): Observable<NewsResponse> {
-    return this.http.post<NewsResponse>(`/api/symbols/${encodeURIComponent(symbol)}/news/refresh`, null);
+    return this.http.post<NewsResponse>(
+      `/api/symbols/${encodeURIComponent(symbol)}/news/refresh`,
+      null,
+    );
   }
 
   search(query: string): Observable<SearchHit[]> {
-    return this.http.get<SearchHit[]>('/api/symbols/search', { params: new HttpParams().set('q', query) });
+    return this.http.get<SearchHit[]>('/api/symbols/search', {
+      params: new HttpParams().set('q', query),
+    });
   }
 }

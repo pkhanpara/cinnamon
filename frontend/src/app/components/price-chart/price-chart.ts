@@ -1,4 +1,13 @@
-import { Component, DestroyRef, ElementRef, computed, effect, inject, input, viewChild } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  ElementRef,
+  computed,
+  effect,
+  inject,
+  input,
+  viewChild,
+} from '@angular/core';
 import { periodUp, toChartPoints } from '../../core/chart-data';
 import { HistoryResponse } from '../../core/models';
 import { CHART_FACTORY, ChartHandle } from './chart-factory';
@@ -29,7 +38,10 @@ export class PriceChart {
     effect(() => {
       const h = this.history();
       const points = toChartPoints(h);
-      const opts = { intraday: h.intraday, up: periodUp(points, h.range === '1d' ? this.baseline() : null) };
+      const opts = {
+        intraday: h.intraday,
+        up: periodUp(points, h.range === '1d' ? this.baseline() : null),
+      };
       // One chart per component; later data goes through the same promise so updates stay in order.
       this.handle ??= this.factory(this.host().nativeElement);
       void this.handle.then((chart) => {

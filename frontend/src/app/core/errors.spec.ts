@@ -5,7 +5,9 @@ const http = (status: number, error: unknown) => new HttpErrorResponse({ status,
 
 describe('apiError', () => {
   it('uses a string detail', () => {
-    expect(apiError(http(409, { detail: 'Setup already completed' }))).toBe('Setup already completed');
+    expect(apiError(http(409, { detail: 'Setup already completed' }))).toBe(
+      'Setup already completed',
+    );
   });
 
   it('uses the first validation message', () => {

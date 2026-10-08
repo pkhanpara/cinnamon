@@ -2,7 +2,9 @@ import { SseParser } from './sse';
 
 describe('SseParser', () => {
   it('parses a complete frame', () => {
-    expect(new SseParser().push('event: delta\ndata: {"text":"hi"}\n\n')).toEqual([{ event: 'delta', data: '{"text":"hi"}' }]);
+    expect(new SseParser().push('event: delta\ndata: {"text":"hi"}\n\n')).toEqual([
+      { event: 'delta', data: '{"text":"hi"}' },
+    ]);
   });
 
   it('waits for the blank line and handles frames split anywhere', () => {

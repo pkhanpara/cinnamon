@@ -64,7 +64,9 @@ export class SymbolSearch {
         switchMap((q) =>
           this.api.search(q).pipe(
             switchMap((hits) => of({ q, hits, error: '' })),
-            catchError((e) => of({ q, hits: [] as SearchHit[], error: apiError(e, 'Search is unavailable') })),
+            catchError((e) =>
+              of({ q, hits: [] as SearchHit[], error: apiError(e, 'Search is unavailable') }),
+            ),
           ),
         ),
         takeUntilDestroyed(),
@@ -73,7 +75,9 @@ export class SymbolSearch {
         this.hits.set(hits);
         this.hitsFor = q;
         this.active.set(-1);
-        this.message.set(error || (hits.length === 0 ? 'No matches. Press Enter to try the symbol as typed.' : ''));
+        this.message.set(
+          error || (hits.length === 0 ? 'No matches. Press Enter to try the symbol as typed.' : ''),
+        );
         this.open.set(true);
       });
   }
@@ -94,7 +98,7 @@ export class SymbolSearch {
     event.preventDefault();
     // n results plus one extra slot for "nothing highlighted" (-1), wrapping around both ends.
     const slots = n + 1;
-    this.active.set((((this.active() + 1 + delta) % slots) + slots) % slots - 1);
+    this.active.set(((((this.active() + 1 + delta) % slots) + slots) % slots) - 1);
   }
 
   protected enter(event: Event): void {
@@ -102,9 +106,11 @@ export class SymbolSearch {
     const q = this.query().trim();
     const fresh = this.hitsFor === q ? this.hits() : [];
     const chosen =
-      this.active() >= 0 ? this.hits()[this.active()]?.symbol
-      : fresh.find((h) => h.symbol === q.toUpperCase())?.symbol ?? fresh[0]?.symbol
-        ?? (SYMBOL_RE.test(q) ? q.toUpperCase() : undefined);
+      this.active() >= 0
+        ? this.hits()[this.active()]?.symbol
+        : (fresh.find((h) => h.symbol === q.toUpperCase())?.symbol ??
+          fresh[0]?.symbol ??
+          (SYMBOL_RE.test(q) ? q.toUpperCase() : undefined));
     if (chosen) this.go(chosen);
   }
 

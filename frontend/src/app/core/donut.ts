@@ -7,7 +7,16 @@ export interface Slice {
   color: string;
 }
 
-const COLORS = ['#2563eb', '#d97706', '#059669', '#db2777', '#7c3aed', '#0891b2', '#65a30d', '#dc2626'];
+const COLORS = [
+  '#2563eb',
+  '#d97706',
+  '#059669',
+  '#db2777',
+  '#7c3aed',
+  '#0891b2',
+  '#65a30d',
+  '#dc2626',
+];
 const OTHER = '#9ca3af';
 
 /** Largest `max` holdings by value get a slice each; the rest are grouped as "Other". */

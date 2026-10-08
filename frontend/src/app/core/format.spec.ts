@@ -1,4 +1,13 @@
-import { ageLabel, fmtCompactMoney, fmtCompactNumber, fmtMoney, fmtPct, fmtQty, fmtSigned, tone } from './format';
+import {
+  ageLabel,
+  fmtCompactMoney,
+  fmtCompactNumber,
+  fmtMoney,
+  fmtPct,
+  fmtQty,
+  fmtSigned,
+  tone,
+} from './format';
 
 describe('format', () => {
   it('formats money with grouping and cents', () => {

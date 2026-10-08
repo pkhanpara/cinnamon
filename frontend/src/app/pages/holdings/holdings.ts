@@ -3,7 +3,12 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AccountsService } from '../../core/accounts.service';
-import { loadSelection, parseUrlSelection, reconcile, saveSelection } from '../../core/account-selection';
+import {
+  loadSelection,
+  parseUrlSelection,
+  reconcile,
+  saveSelection,
+} from '../../core/account-selection';
 import { AuthService } from '../../core/auth.service';
 import { apiError } from '../../core/errors';
 import { HoldingsService } from '../../core/holdings.service';
@@ -13,7 +18,8 @@ import { PortfolioChart } from '../../components/portfolio-chart/portfolio-chart
 import { lineGain, showPlatform } from '../../core/lines';
 import { fmtMoney, fmtPct, fmtQty, fmtSigned, tone } from '../../core/format';
 
-type SortKey = 'symbol' | 'quantity' | 'price' | 'cost_basis' | 'value' | 'day_change' | 'gain' | 'weight_pct';
+type SortKey =
+  'symbol' | 'quantity' | 'price' | 'cost_basis' | 'value' | 'day_change' | 'gain' | 'weight_pct';
 
 const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
   { key: 'symbol', label: 'Symbol', numeric: false },
@@ -172,8 +178,12 @@ export class Holdings {
   protected readonly sortKey = signal<SortKey>('value');
   protected readonly sortDir = signal<'asc' | 'desc'>('desc');
 
-  protected readonly allSelected = computed(() => this.selected().length === this.accounts().length);
-  protected readonly someSelected = computed(() => this.selected().length > 0 && !this.allSelected());
+  protected readonly allSelected = computed(
+    () => this.selected().length === this.accounts().length,
+  );
+  protected readonly someSelected = computed(
+    () => this.selected().length > 0 && !this.allSelected(),
+  );
   protected readonly sorted = computed(() => {
     const rows = this.data()?.holdings ?? [];
     const key = this.sortKey();
@@ -236,7 +246,11 @@ export class Holdings {
 
   private async changeSelection(ids: number[]): Promise<void> {
     this.selected.set(ids);
-    saveSelection(this.auth.user()?.id ?? 0, ids, this.accounts().map((a) => a.id));
+    saveSelection(
+      this.auth.user()?.id ?? 0,
+      ids,
+      this.accounts().map((a) => a.id),
+    );
     void this.router.navigate([], {
       queryParams: { accounts: ids.join(',') },
       replaceUrl: true,
@@ -245,8 +259,14 @@ export class Holdings {
   }
 
   protected toggle(id: number): Promise<void> {
-    const next = this.selected().includes(id) ? this.selected().filter((x) => x !== id) : [...this.selected(), id];
-    return this.changeSelection(this.accounts().map((a) => a.id).filter((x) => next.includes(x)));
+    const next = this.selected().includes(id)
+      ? this.selected().filter((x) => x !== id)
+      : [...this.selected(), id];
+    return this.changeSelection(
+      this.accounts()
+        .map((a) => a.id)
+        .filter((x) => next.includes(x)),
+    );
   }
 
   protected toggleAll(): Promise<void> {
@@ -274,7 +294,11 @@ export class Holdings {
   }
 
   protected ariaSort(key: SortKey): string {
-    return this.sortKey() === key ? (this.sortDir() === 'asc' ? 'ascending' : 'descending') : 'none';
+    return this.sortKey() === key
+      ? this.sortDir() === 'asc'
+        ? 'ascending'
+        : 'descending'
+      : 'none';
   }
 
   private sortValue(h: Holding, key: SortKey): string | number | null {
@@ -292,6 +316,12 @@ export class Holdings {
   protected readonly showPlatform = showPlatform;
   protected readonly gainOf = lineGain;
   protected badge(h: Holding): string {
-    return h.source === 'stale' ? '(stale price)' : h.source === 'file' ? '(imported value)' : h.source === 'none' ? '(no price)' : '';
+    return h.source === 'stale'
+      ? '(stale price)'
+      : h.source === 'file'
+        ? '(imported value)'
+        : h.source === 'none'
+          ? '(no price)'
+          : '';
   }
 }

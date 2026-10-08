@@ -25,12 +25,18 @@ test.describe('a returning user', () => {
   test.beforeAll(async ({ browser, playwright, baseURL }) => {
     const admin = await playwright.request.newContext({ baseURL });
     await adminSession(admin);
-    const created = await admin.post('/api/users', { data: { username: USER, password: TEMP_PASSWORD } });
+    const created = await admin.post('/api/users', {
+      data: { username: USER, password: TEMP_PASSWORD },
+    });
     expect(created.status(), 'user is created (fresh database per run)').toBe(201);
     await admin.dispose();
     // An admin-set password is temporary: take the forced change out of the way via the API.
     const dave = await playwright.request.newContext({ baseURL });
-    expect((await dave.post('/api/auth/login', { data: { username: USER, password: TEMP_PASSWORD } })).ok()).toBeTruthy();
+    expect(
+      (
+        await dave.post('/api/auth/login', { data: { username: USER, password: TEMP_PASSWORD } })
+      ).ok(),
+    ).toBeTruthy();
     const changed = await dave.post('/api/auth/change-password', {
       data: { current_password: TEMP_PASSWORD, new_password: PASSWORD },
     });

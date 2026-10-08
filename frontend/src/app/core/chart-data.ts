@@ -33,10 +33,25 @@ export function periodUp(points: ChartPoint[], baseline: number | null = null): 
 }
 
 const NY = 'America/New_York';
-const timeOnly = new Intl.DateTimeFormat('en-US', { timeZone: NY, hour: 'numeric', minute: '2-digit' });
+const timeOnly = new Intl.DateTimeFormat('en-US', {
+  timeZone: NY,
+  hour: 'numeric',
+  minute: '2-digit',
+});
 const dayOnly = new Intl.DateTimeFormat('en-US', { timeZone: NY, month: 'short', day: 'numeric' });
-const dateTime = new Intl.DateTimeFormat('en-US', { timeZone: NY, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
-const fullDate = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', year: 'numeric', month: 'short', day: 'numeric' });
+const dateTime = new Intl.DateTimeFormat('en-US', {
+  timeZone: NY,
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+});
+const fullDate = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'UTC',
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+});
 
 /** Crosshair label. Intraday bars are shown in US Eastern time, where the market trades. */
 export function formatCrosshairTime(time: number | string): string {
