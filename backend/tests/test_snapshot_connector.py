@@ -70,6 +70,7 @@ def test_blank_lines_are_skipped():
         ("KO,,1", "quantity is required"),
         ("KO,1,", "cost_basis is required"),
         ("KO,1,-1", "cost_basis cannot be negative"),
+        ("KO,1,(5)", "cost_basis cannot be negative"),  # accounting-style negative
         ("K O,1,1", "Invalid symbol"),
         (",1,1", "Invalid symbol"),
         ("=CMD(),1,1", "Invalid symbol"),
