@@ -111,3 +111,14 @@ Run from `frontend/`.
   too, or the second run's `rm -rf` deletes the first run's database mid-test.
 - `pgrep -f <pattern>` inside a shell loop matches the loop's own command line. My first wait
   loop for the overridden run never ended for that reason; the run itself had finished fine.
+
+## Pre-PR verification (after `git fetch && git rebase origin/main`: no-op, main had no new commits)
+
+- `cd backend && uv run pytest` gave `315 passed, 1 warning`. `ruff check .` gave
+  `All checks passed!`. `ruff format --check .` gave `63 files already formatted`. The backend is
+  untouched; this was run as a sanity check.
+- `cd frontend && npm test` gave `23 passed` files and `201 passed` tests. `npm run build` gave
+  `Application bundle generation complete`.
+- e2e on non-default ports, to avoid other agents' runs:
+  `CINNAMON_E2E_BACKEND_PORT=8338 CINNAMON_E2E_FRONTEND_PORT=4338 CINNAMON_E2E_DIR=/tmp/cinnamon-e2e-8338 npm run e2e`
+  gave `15 passed (15.6s)`, with the backend on 8338. The dir was removed afterwards.
