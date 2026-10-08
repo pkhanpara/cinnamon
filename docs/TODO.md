@@ -39,7 +39,8 @@
 - [ ] Ticker page: allow adding a symbol to a watchlist (when watchlists exist) #feat  
 - [x] Force a password change for users an admin creates or resets #sec  
 - [x] Verify `docker compose exec cinnamon python -m app.cli reset-password` against a built image #sec  
-- [ ] Make the e2e ports in playwright.config.ts configurable #chore  
+- [x] Make the e2e ports in playwright.config.ts configurable #chore  
+- [ ] e2e: optionally auto-pick free ports/work dir (e.g. `CINNAMON_E2E_PORTS=auto`) so parallel worktree runs need no manual choice #chore  
 - [ ] Optional TOTP 2FA #feat  
 - [x] Friendlier username-pattern 422 message on the Users form #ux  
 - [ ] Guard the startup migration/seed against two processes starting at once #chore  
