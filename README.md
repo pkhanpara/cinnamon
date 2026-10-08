@@ -58,7 +58,26 @@ sign-in**: nothing else in the app works until you do. In a shell, quote it: `'$
 Then add other people under **Settings → User setup**.
 
 Do not expose a fresh instance to an untrusted network before changing that password.
-If you lose the admin password there is no reset command yet (see `docs/TODO.md`).
+
+### Lost a password?
+
+An operator with shell access can reset any user's password (there is deliberately no web route
+for this). The new password is read from a prompt or stdin, never from arguments. The user is
+signed out everywhere and must choose a new password at next sign-in. Deactivated users are not
+re-enabled; do that under Settings → Users first.
+
+```
+# dev (uses DATABASE_URL / .env)
+cd backend && uv run python -m app.cli reset-password admin
+
+# Docker (prompts twice)
+docker compose exec cinnamon python -m app.cli reset-password admin
+# non-interactive
+printf '%s' "$NEWPW" | docker compose exec -T cinnamon python -m app.cli reset-password admin
+```
+
+It is safe to run while the server is up. If the container is stopped, use
+`docker compose run --rm cinnamon python -m app.cli reset-password admin`.
 
 ## Importing holdings
 
