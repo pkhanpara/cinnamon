@@ -1,0 +1,9 @@
+"**This data is being provided for general and reference purposes only. This report reflects current data available from prior trading day close (fabricated sample, not a real M1 export)."
+" Fabricated test data in the layout of M1's Open tax lots download. Every lot, date, quantity and ID is made up."
+Symbol,Cusip,Acquisition Date,Quantity,Cost Basis,Short/Long Term Holding,Unrealized Gain/Loss,Close Date,Short Term Realized Gain/Loss,Long Term Realized Gain/Loss,Wash Sale Indicator,Disallowed Wash Sale Amount,M1 Tax Lot Id
+VTI,922908769,2024-02-15,12.5,2800.00,Long,575.00,,,,false,,100000001
+SCHD,808524797,2024-03-01,50,3900.00,Long,200.00,,,,false,,100000002
+VTI,922908769,2025-01-10,17.5,4200.00,Long,525.00,,,,false,,100000003
+ORCL,68389X105,2025-06-02,10,1400.00,Long,300.00,,,,false,,100000004
+SCHD,808524797,2025-11-20,25.12345,1800.00,Short,210.00,,,,true,,100000005
+SCHD,808524797,2026-04-07,4.87655,300.00,Short,-10.00,,,,false,,100000006

@@ -1,4 +1,5 @@
 import hashlib
+from decimal import Decimal
 from pathlib import Path
 
 from sqlalchemy import func, select
@@ -10,6 +11,7 @@ from app.models import Import, Position
 SAMPLE = Path(__file__).resolve().parents[2] / "seed" / "sample"
 RH = (SAMPLE / "robinhood_positions.csv").read_bytes()
 M1 = (SAMPLE / "m1_positions.csv").read_bytes()
+M1_LOTS = (SAMPLE / "m1_open_tax_lots.csv").read_bytes()
 
 
 def upload(client, path, content: bytes, connector="snapshot", name="positions.csv"):
@@ -38,6 +40,30 @@ def test_connectors_for_account(alice):
             "description": "symbol, quantity, cost_basis; optional name, market_value, price_used, as_of",
         }
     ]
+
+
+def test_m1_account_offers_tax_lots_first(alice):
+    a = acct(alice, platform="m1")
+    slugs = [c["slug"] for c in alice.get(f"/api/accounts/{a}/connectors").json()]
+    assert slugs == ["m1-tax-lots", "snapshot"]
+
+
+def test_m1_tax_lots_preview_and_commit(alice):
+    a = acct(alice, platform="m1")
+    body = upload(alice, f"/api/accounts/{a}/imports/preview", M1_LOTS, "m1-tax-lots").json()
+    assert body["errors"] == [] and len(body["rows"]) == 3
+    assert body["total_cost_basis"] == "14400.00" and body["total_market_value"] == "16200.00"
+    r = upload(alice, f"/api/accounts/{a}/imports", M1_LOTS, "m1-tax-lots")
+    assert r.status_code == 201 and r.json()["row_count"] == 3
+    pos = {p["symbol"]: p for p in alice.get(f"/api/accounts/{a}/positions").json()}
+    assert sorted(pos) == ["ORCL", "SCHD", "VTI"]
+    assert Decimal(pos["SCHD"]["quantity"]) == 80 and pos["SCHD"]["market_value"] == "6400.00"
+
+
+def test_m1_connector_not_offered_to_other_platforms(alice):
+    a = acct(alice)  # robinhood
+    r = upload(alice, f"/api/accounts/{a}/imports/preview", M1_LOTS, "m1-tax-lots")
+    assert r.status_code == 400
 
 
 def test_preview_writes_nothing_and_summarizes(alice):
