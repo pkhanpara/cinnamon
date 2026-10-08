@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { STALE_SERVER } from '../../core/errors';
 import { PortfolioHistory } from '../../core/models';
 import { CHART_FACTORY, ChartHandle } from '../price-chart/chart-factory';
 import { PortfolioChart } from './portfolio-chart';
@@ -36,11 +37,11 @@ function setup(ids = [1, 2]) {
   const http = TestBed.inject(HttpTestingController);
   f.detectChanges();
   const el = f.nativeElement as HTMLElement;
-  const next = async (b: PortfolioHistory | { status: number }, match?: (p: URLSearchParams) => void) => {
+  const next = async (b: PortfolioHistory | { status: number; detail?: string }, match?: (p: URLSearchParams) => void) => {
     await flush();
     const [req] = http.match((r) => r.url === '/api/portfolio/history');
     match?.(new URLSearchParams(req.request.params.toString()));
-    if ('status' in b) req.flush({ detail: 'nope' }, { status: b.status, statusText: 'x' });
+    if ('status' in b) req.flush({ detail: b.detail ?? 'nope' }, { status: b.status, statusText: 'x' });
     else req.flush(b);
     await flush(); f.detectChanges(); await flush();
   };
@@ -102,6 +103,17 @@ describe('PortfolioChart', () => {
     (e.el.querySelector('[role=alert] button') as HTMLButtonElement).click();
     await e.next(body());
     expect(e.el.querySelector('[role=alert]')).toBeNull();
+  });
+
+  it('says the backend may be stale when the endpoint is missing, and draws once Retry succeeds', async () => {
+    const m = setup();
+    await m.next({ status: 404, detail: 'Not Found' });
+    expect(m.el.querySelector('[role=alert]')?.textContent).toContain(STALE_SERVER);
+    expect(m.handle.setData).not.toHaveBeenCalled();
+    (m.el.querySelector('[role=alert] button') as HTMLButtonElement).click();
+    await m.next(body());
+    expect(m.el.querySelector('[role=alert]')).toBeNull();
+    expect(m.handle.setData).toHaveBeenCalled();
   });
 
   it('says so when there is nothing to chart, and destroys the chart with the component', async () => {
