@@ -19,6 +19,7 @@
 - [x] AI chat panel fixes (found while testing the first build) #bug  
   - [x] Scrolling does not work in the Ask AI panel: the message log cannot be scrolled, so long answers are cut off; make the log the scroll area (panel is a flex column with `overflow-y: auto` on the whole `aside`, `.log` has `flex: 1` but no `min-height: 0`/own overflow), and keep the newest text in view while streaming unless the user scrolled up; add a frontend test  
   - [x] Add a way to clear the conversation (a "Clear" / "New chat" button in the panel header, disabled while empty): abort any in-flight stream, empty messages, warnings, error and draft, keep the position checkbox off; test that the next question is sent with empty history  
+  - [ ] Eyeball the Ask AI panel in a real browser with a long answer (scroll, follow, New chat); on very short windows the log can shrink to nothing, so consider `.log` min-height with the panel scrolling as fallback #bug  
 - [ ] Portfolio value chart on Home, with SPY comparison and ranges #feat  
   - [ ] Chart of total portfolio value over time (reuse the lightweight-charts wrapper `components/price-chart` behind `CHART_FACTORY`), respecting the Home account selection  
   - [ ] Compare against SPY: toggle to overlay SPY rebased to the portfolio's starting value (or show both as % change from the start of the range); show the difference at the end of the range  
