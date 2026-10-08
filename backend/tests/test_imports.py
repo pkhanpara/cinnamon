@@ -12,6 +12,7 @@ SAMPLE = Path(__file__).resolve().parents[2] / "seed" / "sample"
 RH = (SAMPLE / "robinhood_positions.csv").read_bytes()
 M1 = (SAMPLE / "m1_positions.csv").read_bytes()
 M1_LOTS = (SAMPLE / "m1_open_tax_lots.csv").read_bytes()
+M1_HOLDINGS = (SAMPLE / "m1_holdings.csv").read_bytes()
 
 
 def upload(client, path, content: bytes, connector="snapshot", name="positions.csv"):
@@ -42,10 +43,28 @@ def test_connectors_for_account(alice):
     ]
 
 
-def test_m1_account_offers_tax_lots_first(alice):
+def test_m1_account_offers_m1_formats_first(alice):
     a = acct(alice, platform="m1")
     slugs = [c["slug"] for c in alice.get(f"/api/accounts/{a}/connectors").json()]
-    assert slugs == ["m1-tax-lots", "snapshot"]
+    assert slugs == ["m1-holdings", "m1-tax-lots", "snapshot"]
+
+
+def test_m1_holdings_preview_and_commit(alice):
+    a = acct(alice, platform="m1")
+    body = upload(alice, f"/api/accounts/{a}/imports/preview", M1_HOLDINGS, "m1-holdings").json()
+    assert body["errors"] == [] and len(body["rows"]) == 3
+    assert body["total_cost_basis"] == "14400.00" and body["total_market_value"] == "16200.00"
+    r = upload(alice, f"/api/accounts/{a}/imports", M1_HOLDINGS, "m1-holdings")
+    assert r.status_code == 201 and r.json()["row_count"] == 3
+    pos = {p["symbol"]: p for p in alice.get(f"/api/accounts/{a}/positions").json()}
+    assert pos["VTI"]["name"] == "Vanguard Total Stock Market ETF"
+    assert pos["SCHD"]["market_value"] == "6400.00"
+
+
+def test_m1_holdings_not_offered_to_other_platforms(alice):
+    a = acct(alice)
+    r = upload(alice, f"/api/accounts/{a}/imports/preview", M1_HOLDINGS, "m1-holdings")
+    assert r.status_code in (400, 422)
 
 
 def test_m1_tax_lots_preview_and_commit(alice):

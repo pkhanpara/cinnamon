@@ -68,7 +68,7 @@
 - [ ] Upgrade Angular 21 -> 22 (needs Node >= 24.15; machine has 24.4.1) #chore  
 - [x] Real Robinhood / M1 CSV parsers: M1 open tax lots connector done (ADR 0011, docs/log/20261007-192120-broker-csv-connectors.md); Robinhood deferred, see below #feat  
 - [ ] Robinhood import: Robinhood has no holdings CSV; needs an Account activity report CSV (Reports and statements > Reports) replayed into positions plus the cost-basis method (ADR 0007). The 1099 CSV has no holdings (ADR 0011) #feat  
-- [ ] Real-browser check of an M1 tax-lots import (default format for m1 accounts, preview totals vs M1's Holdings page) #test  
+- [ ] Real-browser check of an M1 import: Holdings CSV (now the default for m1 accounts, docs/log/20261007-222525-m1-holdings-connector.md) and tax lots, preview totals vs M1's Holdings page #test  
 - [ ] Transactions, cost basis (avg-cost; ADR 0005), watchlists #feat  
 - [ ] Daily snapshots, performance + allocation charts (the portfolio value chart above is the first, back-cast version) #feat  
 - [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  

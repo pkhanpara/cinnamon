@@ -45,3 +45,16 @@ Robinhood options considered:
 - M1's export filename contains the account number, and cinnamon stores and shows upload filenames (`imports.filename`).
 - Account platform matching is exact: an account created as `m1finance` does not see the connector.
 - Robinhood users still need the snapshot format until transactions exist.
+
+## Addendum (2026-10-07): M1 "Holdings" download
+The user's first real import attempt used M1's other download, Invest > Holdings > Download > *Holdings*: no preamble,
+header `Symbol, Name, Quantity, Avg. Price, Cost Basis, Unrealized Gain ($), Unrealized Gain (%), Value`, **one row per
+symbol**. It was run through `snapshot` and failed with "Missing required column(s): cost_basis".
+- New connector `m1-holdings` (same module), registered before `m1-tax-lots`, so it is the **default** for M1 accounts.
+  `Value` becomes `market_value`, `price` = value / quantity (4 dp), and `Name` is kept (cut to 200 chars). The avg-price and
+  gain columns are ignored because they can be derived. A repeated symbol is an error.
+- Each M1 connector refuses the other's file with a hint. The tax-lots header check (`Symbol/Quantity/Cost Basis`) also
+  matched the Holdings header and would have imported it with **no market value**. It now refuses a header that has
+  `Value` but no `Unrealized Gain/Loss`. `Unrealized Gain/Loss` stays optional for tax lots.
+- Trade-off: the Holdings file is simpler and carries names, but it has no per-lot detail. Nothing uses lots yet, so
+  nothing is lost today.
