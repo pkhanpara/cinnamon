@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
 
 /**
@@ -7,10 +8,42 @@ import { defineConfig, devices } from '@playwright/test';
  * deterministic (holdings fall back to imported values).
  *
  *   cd frontend && npm run e2e
+ *
+ * Ports and the work directory can be overridden so several runs (e.g. one per worktree) can go
+ * side by side; the dev server's /api proxy (e2e/proxy.e2e.mjs) follows the backend port:
+ *
+ *   CINNAMON_E2E_BACKEND_PORT=8337 CINNAMON_E2E_FRONTEND_PORT=4337 \
+ *     CINNAMON_E2E_DIR=/tmp/cinnamon-e2e-8337 npm run e2e
  */
-export const E2E_DIR = '/tmp/cinnamon-e2e';
-const BACKEND_PORT = 8310;
-const FRONTEND_PORT = 4310;
+function envPort(name: string, fallback: number): number {
+  const raw = process.env[name]?.trim();
+  if (!raw) return fallback;
+  const port = Number(raw);
+  if (!/^\d+$/.test(raw) || port < 1024 || port > 65535) {
+    throw new Error(`${name} must be an integer port from 1024 to 65535, got '${raw}'`);
+  }
+  return port;
+}
+
+/** The work directory is wiped with `rm -rf` every run, so only accept an obviously-ours path. */
+function envDir(name: string, fallback: string): string {
+  const raw = process.env[name]?.trim() || fallback;
+  const dir = path.normalize(raw).replace(/\/$/, ''); // resolve '..' before checking the name
+  if (!path.isAbsolute(dir) || !/^[\w/.-]+$/.test(dir) || !path.basename(dir).startsWith('cinnamon-e2e')) {
+    throw new Error(
+      `${name} must be an absolute path of [A-Za-z0-9_./-] whose last segment starts with ` +
+        `'cinnamon-e2e' (it is deleted every run), got '${raw}'`,
+    );
+  }
+  return dir;
+}
+
+export const E2E_DIR = envDir('CINNAMON_E2E_DIR', '/tmp/cinnamon-e2e');
+const BACKEND_PORT = envPort('CINNAMON_E2E_BACKEND_PORT', 8310);
+const FRONTEND_PORT = envPort('CINNAMON_E2E_FRONTEND_PORT', 4310);
+if (BACKEND_PORT === FRONTEND_PORT) {
+  throw new Error(`CINNAMON_E2E_BACKEND_PORT and CINNAMON_E2E_FRONTEND_PORT are both ${BACKEND_PORT}`);
+}
 
 export default defineConfig({
   testDir: './e2e',
@@ -39,8 +72,10 @@ export default defineConfig({
     },
     {
       command:
-        `exec npx ng serve --port ${FRONTEND_PORT} --proxy-config e2e/proxy.e2e.json ` +
+        `exec npx ng serve --port ${FRONTEND_PORT} --proxy-config e2e/proxy.e2e.mjs ` +
         `> ${E2E_DIR}/frontend.log 2>&1`,
+      // The resolved port, so the proxy never falls back to a default of its own.
+      env: { CINNAMON_E2E_BACKEND_PORT: String(BACKEND_PORT) },
       url: `http://localhost:${FRONTEND_PORT}`,
       reuseExistingServer: false,
       timeout: 120_000,
