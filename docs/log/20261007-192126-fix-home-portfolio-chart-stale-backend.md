@@ -52,6 +52,10 @@ None of them is a bare `Not Found`.
 - Manual: temporary `git worktree` at `0079db2` (pre-#13) in the scratchpad, backend on :8411, this branch's
   `ng serve` on :4410. Home showed the alert "This server doesn't know this request. The backend may be older than the
   app: restart it. Retry", with the chart host hidden. Servers stopped and the temp worktree removed afterwards.
+- Final run before the PR, after `git rebase origin/main` (already up to date): `uv run pytest` gave `315 passed`;
+  `ruff check .` printed "All checks passed!"; `ruff format --check .` printed "63 files already formatted"; `npm test`
+  gave `23 passed` files and `204 passed` tests; `npm run build` completed. e2e not run: no UI flow or e2e setup changed,
+  only an error message's text.
 
 ## Still to do
 - The user restarts their dev backend on :8000 with `--reload`. I left it alone because it runs from the main checkout.
