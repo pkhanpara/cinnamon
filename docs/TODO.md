@@ -16,6 +16,14 @@
   - [ ] Render answers as sanitized markdown (plain text today)  
   - [ ] More presets (earnings, risks, compare with sector); Playwright happy path with a fake OpenAI server in `e2e/support.ts` (current e2e only proves the app is unaffected with no LLM)  
   - [ ] Persist or export chats if wanted (today they live in the tab); move `LlmProvider` from `providers/llm.py` into `providers/base.py`  
+- [ ] AI chat panel fixes (found while testing the first build) #bug  
+  - [ ] Scrolling does not work in the Ask AI panel: the message log cannot be scrolled, so long answers are cut off; make the log the scroll area (panel is a flex column with `overflow-y: auto` on the whole `aside`, `.log` has `flex: 1` but no `min-height: 0`/own overflow), and keep the newest text in view while streaming unless the user scrolled up; add a frontend test  
+  - [ ] Add a way to clear the conversation (a "Clear" / "New chat" button in the panel header, disabled while empty): abort any in-flight stream, empty messages, warnings, error and draft, keep the position checkbox off; test that the next question is sent with empty history  
+- [ ] Portfolio value chart on Home, with SPY comparison and ranges #feat  
+  - [ ] Chart of total portfolio value over time (reuse the lightweight-charts wrapper `components/price-chart` behind `CHART_FACTORY`), respecting the Home account selection  
+  - [ ] Compare against SPY: toggle to overlay SPY rebased to the portfolio's starting value (or show both as % change from the start of the range); show the difference at the end of the range  
+  - [ ] Ranges 1D, 5D, 1M, 6M, YTD, 1Y, ALL (same set and labels as the ticker page, `RANGES` in `core/chart-data.ts`)  
+  - [ ] Open question for a design/ADR: we only store the current snapshot per account (no transactions yet), so history would be a back-cast of today's quantities x historical prices (yfinance, per symbol, cached) and ignores past buys/sells/cash; either label it clearly as "current holdings, past prices" or build it on the daily snapshots / transactions item below. 1D needs intraday bars; many symbols means many yfinance calls, so cache per symbol and cap the number  
 - [ ] Per-user rate limit on symbol search/lookups (Finnhub allows 60 calls/min for everyone) #sec  
 - [ ] Rebuild Docker image and check size/build with yfinance (pandas) #chore  
 - [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges #feat  
@@ -42,7 +50,7 @@
 - [ ] Upgrade Angular 21 -> 22 (needs Node >= 24.15; machine has 24.4.1) #chore  
 - [ ] Real Robinhood / M1 CSV parsers (need real sample exports from user) #feat  
 - [ ] Transactions, cost basis (avg-cost; ADR 0005), watchlists #feat  
-- [ ] Daily snapshots, performance + allocation charts #feat  
+- [ ] Daily snapshots, performance + allocation charts (the portfolio value chart above is the first, back-cast version) #feat  
 - [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  
 - [ ] ADR 0007 cost-basis method (when transactions are built) #docs  
 
