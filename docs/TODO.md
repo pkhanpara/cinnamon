@@ -28,12 +28,12 @@
   - [ ] Ranges 1D, 5D, 1M, 6M, YTD, 1Y, ALL (same set and labels as the ticker page, `RANGES` in `core/chart-data.ts`)  
   - [ ] Open question for a design/ADR: we only store the current snapshot per account (no transactions yet), so history would be a back-cast of today's quantities x historical prices (yfinance, per symbol, cached) and ignores past buys/sells/cash; either label it clearly as "current holdings, past prices" or build it on the daily snapshots / transactions item below. 1D needs intraday bars; many symbols means many yfinance calls, so cache per symbol and cap the number  
 - [ ] Per-user rate limit on symbol search/lookups (Finnhub allows 60 calls/min for everyone) #sec  
-- [ ] Rebuild Docker image and check size/build with yfinance (pandas) #chore  
+- [x] Rebuild Docker image and check size/build with yfinance (pandas) #chore  
 - [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges #feat  
 - [ ] Playwright coverage for the ticker page and symbol search (E2E suite lives in frontend/e2e) #test  
 - [ ] Ticker page: allow adding a symbol to a watchlist (when watchlists exist) #feat  
 - [ ] Force a password change for users an admin creates or resets #sec  
-- [ ] Verify `docker compose exec cinnamon python -m app.cli reset-password` against a built image #sec  
+- [x] Verify `docker compose exec cinnamon python -m app.cli reset-password` against a built image #sec  
 - [ ] Optional TOTP 2FA #feat  
 - [ ] Friendlier username-pattern 422 message on the Users form #ux  
 - [ ] Guard the startup migration/seed against two processes starting at once #chore  
@@ -45,11 +45,12 @@
 - [ ] Import: undo/restore previous snapshot if replace-and-discard proves too risky #feat  
 - [ ] Users page: allow deleting a user and show created_at / last login #feat  
 - [ ] Replace window.confirm in account delete with an in-app dialog #chore  
-- [ ] Rebuild/verify Docker image with auth + UI; add frontend tests and `npm run e2e` (needs `playwright install --with-deps chromium`, uv) to CI #chore  
+- [ ] Browser-check the Docker image UI (API/static verified, see 20261007-182000 log); add frontend tests and `npm run e2e` (needs `playwright install --with-deps chromium`, uv) to CI #chore  
 - [ ] E2E: more workflows (CSV error paths, account rename, M1 connector, live-quote holdings) #test  
 - [ ] Login rate limiting / lockout #sec  
 - [ ] Serialize timestamps as UTC (SQLite drops tzinfo; API shows naive created_at) #bug  
-- [ ] Pin the uv image tag in Dockerfile (currently :latest) #chore  
+- [x] Pin the uv image tag in Dockerfile (currently :latest) #chore  
+- [ ] Renovate/Dependabot for the pinned uv tag+digest; CI image build to catch lockfile/npm drift #chore
 - [ ] Upgrade Angular 21 -> 22 (needs Node >= 24.15; machine has 24.4.1) #chore  
 - [ ] Real Robinhood / M1 CSV parsers (need real sample exports from user) #feat  
 - [ ] Transactions, cost basis (avg-cost; ADR 0005), watchlists #feat  
