@@ -10,9 +10,9 @@ import {
 import { ChartPoint, formatCrosshairTime, formatIntradayTick } from '../../core/chart-data';
 import { ChartHandle } from './chart-factory';
 
-// Mid-tone colours that stay readable on both light and dark backgrounds.
-const GAIN = '#16a34a';
-const LOSS = '#dc2626';
+/** A colour token from styles.scss (`--gain`, ...), with a fallback for jsdom and missing tokens. */
+const token = (name: string, fallback: string): string =>
+  getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fallback;
 
 const alpha = (hex: string, a: number): string => {
   const n = parseInt(hex.slice(1), 16);
@@ -21,14 +21,18 @@ const alpha = (hex: string, a: number): string => {
 
 /** TradingView lightweight-charts (Apache-2.0). Its attribution logo is left on, as the licence asks. */
 export function createLightweightChart(el: HTMLElement): ChartHandle {
-  const gridColor = 'rgba(128, 128, 128, 0.15)';
+  const gridColor = 'rgba(16, 24, 40, 0.06)';
+  const crossColor = 'rgba(102, 112, 133, 0.5)';
+  const gain = token('--gain', '#0f8a4f');
+  const loss = token('--loss', '#d92d20');
   const chart = createChart(el, {
     autoSize: true, // follows the container's size (set in CSS)
     layout: {
       background: { type: ColorType.Solid, color: 'transparent' },
-      textColor: getComputedStyle(el).color,
+      textColor: token('--muted', getComputedStyle(el).color),
     },
     grid: { vertLines: { color: gridColor }, horzLines: { color: gridColor } },
+    crosshair: { vertLine: { color: crossColor }, horzLine: { color: crossColor } },
     rightPriceScale: { borderVisible: false },
     timeScale: { borderVisible: false },
     localization: {
@@ -49,7 +53,7 @@ export function createLightweightChart(el: HTMLElement): ChartHandle {
       }
       compare ??= chart.addSeries(LineSeries, {
         lineWidth: 2,
-        color: '#6b7280',
+        color: token('--muted', '#667085'),
         priceLineVisible: false,
         lastValueVisible: false,
       });
@@ -58,10 +62,10 @@ export function createLightweightChart(el: HTMLElement): ChartHandle {
       );
     },
     setData(points: ChartPoint[], { intraday, up }) {
-      const color = up ? GAIN : LOSS;
+      const color = up ? gain : loss;
       series.applyOptions({
         lineColor: color,
-        topColor: alpha(color, 0.28),
+        topColor: alpha(color, 0.2),
         bottomColor: alpha(color, 0),
       });
       chart.applyOptions({

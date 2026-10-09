@@ -143,7 +143,8 @@ test.describe('a returning user', () => {
   });
 
   test('signing out ends the session; the old password is dead, the new one works', async () => {
-    await page.getByRole('button', { name: 'Sign out' }).click();
+    await page.locator('button.who').click();
+    await page.getByRole('menuitem', { name: 'Sign out' }).click();
     await expect(page).toHaveURL(/\/login$/);
     expect((await page.request.get('/api/accounts')).status()).toBe(401);
     await page.goto('/settings/accounts');

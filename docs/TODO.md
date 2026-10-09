@@ -87,13 +87,19 @@
   - [ ] Split-adjust the 10-K EPS fallback (used when Finnhub has no EPS series, e.g. JPM) with the yfinance split history  
   - [ ] Remember the watchlist filter selection  
   - [ ] Real-browser check in the dev app (verified headless only)  
-- [ ] Header overflows at phone width (scrollWidth ~690 px at 390 px; symbol search + user name; the Watchlists link adds ~80 px) #ux  
+- [x] Header overflows at phone width: fixed by the wrapping Material toolbar (390/390 at 390 px, ADR 0014 log) #ux  
 - [ ] Daily snapshots, performance + allocation charts (the portfolio value chart above is the first, back-cast version) #feat  
 - [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  
 - [ ] ADR 0007 cost-basis method (when transactions are built) #docs  
 
 ### In Progress
 
+- [ ] UI refresh with Angular Material M3, clean fintech light (ADR 0014, docs/log/20261008-234210-material-ui-refresh.md) #ux  
+  - [x] Phase 1: theme, tokens, Inter, toolbar shell with user menu, chart/donut colours  
+  - [ ] Phase 2: Material forms (login, change-password, accounts, users, import), Settings tabs, ConfirmDialog, snackbars  
+  - [ ] Phase 3: Home (checkbox filter, cards around chart/donut, range button-toggle, SPY slide-toggle)  
+  - [ ] Phase 4: ticker page, Ask AI panel, principles chips, watchlists (10 px overflow at 390 px)  
+  - [ ] Follow-ups: dark theme (second `mat.theme` + dark tokens); optional `mat-table` for holdings  
 - [ ] Phase 1 scaffold (app features done through holdings; Docker image still needs rebuild + verify; browser E2E suite in progress in a parallel session)  
 
 ### Done ✓

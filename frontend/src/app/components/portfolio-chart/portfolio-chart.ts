@@ -73,7 +73,7 @@ import { CHART_FACTORY, ChartHandle } from '../price-chart/chart-factory';
     .legend { font-size: 0.85rem; opacity: 0.8; }
     .sw { display: inline-block; width: 0.8rem; height: 0.15rem; margin: 0 0.25rem 0.2rem 0.75rem; }
     .sw.me { background: currentColor; }
-    .sw.spy { background: #6b7280; }
+    .sw.spy { background: var(--muted); }
   `,
 })
 export class PortfolioChart {

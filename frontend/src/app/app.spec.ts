@@ -35,7 +35,13 @@ describe('App shell', () => {
     const el = f.nativeElement as HTMLElement;
     expect(el.querySelector('.who')?.textContent).toContain('poojan');
     expect(el.querySelector('.who')?.textContent).toContain('admin');
-    expect(el.querySelector('button')?.textContent).toContain('Sign out');
+    // Sign out lives in the user menu, which renders into the CDK overlay on open.
+    (el.querySelector('button.who') as HTMLButtonElement).click();
+    await f.whenStable();
+    const items = Array.from(document.querySelectorAll('[role=menuitem]')).map((i) =>
+      i.textContent?.trim(),
+    );
+    expect(items).toEqual(['Change password', 'Sign out']);
     expect(Array.from(el.querySelectorAll('nav a')).map((a) => a.textContent?.trim())).toEqual([
       'Home',
       'Watchlists',

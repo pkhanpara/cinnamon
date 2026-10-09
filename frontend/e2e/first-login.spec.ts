@@ -152,7 +152,8 @@ test.describe('first-time login on a fresh install', () => {
   });
 
   test('the default password no longer works; the new one does and is not forced again', async () => {
-    await page.getByRole('button', { name: 'Sign out' }).click();
+    await page.locator('button.who').click();
+    await page.getByRole('menuitem', { name: 'Sign out' }).click();
     await expect(page).toHaveURL(/\/login$/);
 
     await signIn(page, 'admin', DEFAULT_PASSWORD);

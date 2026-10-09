@@ -32,14 +32,19 @@ const SYMBOL_RE = /^[A-Za-z0-9][A-Za-z0-9.-]{0,14}$/;
     </div>
   `,
   styles: `
+    :host { display: block; }
     .search { position: relative; }
-    input { width: 15rem; max-width: 40vw; }
-    ul { position: absolute; z-index: 10; top: 100%; left: 0; min-width: 100%; margin: 2px 0 0; padding: 0; list-style: none;
-         background: Canvas; border: 1px solid var(--border); border-radius: 6px; box-shadow: 0 6px 18px rgba(0,0,0,.18); }
-    li { padding: 0.4rem 0.7rem; cursor: pointer; }
-    li.active, li:hover { background: color-mix(in srgb, CanvasText 8%, Canvas); }
+    input { width: 17rem; max-width: 100%; padding-left: 2rem !important;
+            background: var(--surface-2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%23667085' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='m14 14-3.5-3.5'/%3E%3C/svg%3E") no-repeat 0.65rem center !important; }
+    input:focus { background-color: var(--surface) !important; }
+    ul { position: absolute; z-index: 30; top: 100%; left: 0; min-width: 100%; width: max-content; max-width: min(28rem, 90vw);
+         margin: 4px 0 0; padding: 0.3rem; list-style: none; box-sizing: border-box;
+         background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); }
+    li { padding: 0.5rem 0.7rem; border-radius: 6px; cursor: pointer; }
+    li.active, li:hover { background: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
     li.msg { cursor: default; color: var(--muted); }
     .sub { color: var(--muted); font-size: 0.85rem; margin-left: 0.4rem; }
+    @media (max-width: 640px) { input { width: 100%; } }
   `,
 })
 export class SymbolSearch {
