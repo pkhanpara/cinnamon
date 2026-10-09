@@ -67,7 +67,10 @@
 - [ ] Renovate/Dependabot for the pinned uv tag+digest; CI image build to catch lockfile/npm drift #chore
 - [ ] Upgrade Angular 21 -> 22 (needs Node >= 24.15; machine has 24.4.1) #chore  
 - [x] Real Robinhood / M1 CSV parsers: M1 open tax lots connector done (ADR 0011, docs/log/20261007-192120-broker-csv-connectors.md); Robinhood deferred, see below #feat  
-- [ ] Robinhood import: Robinhood has no holdings CSV; needs an Account activity report CSV (Reports and statements > Reports) replayed into positions plus the cost-basis method (ADR 0007). The 1099 CSV has no holdings (ADR 0011) #feat  
+- [x] Robinhood import: hand-made `robinhood-positions` template (Symbol, Shares, Average cost from the app) is the default for robinhood accounts; the 1099 and activity CSVs are recognized and refused with a hint (ADR 0013, docs/log/20261008-225955-robinhood-positions-connector.md) #feat  
+- [ ] Robinhood activity-report replay into positions: needs the full history since account open; ACATI without basis = error on that symbol; average cost; skip options (ADR 0013, ADR 0007) #feat  
+- [ ] Import page: "Download template" link for the selected connector (e.g. seed/sample/robinhood_app_positions.csv) #ux  
+- [ ] Real-browser check of a Robinhood import with the template, totals vs the app #test  
 - [ ] Real-browser check of an M1 import: Holdings CSV (now the default for m1 accounts, docs/log/20261007-222525-m1-holdings-connector.md) and tax lots, preview totals vs M1's Holdings page #test  
 - [ ] Transactions, cost basis (avg-cost; ADR 0005) #feat  
 - [x] Watchlists + investing-principles scorecard with Finnhub-peer comparison, phase 1 (ADR 0012, docs/log/20261008-213725-watchlists-principles.md) #feat  

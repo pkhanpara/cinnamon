@@ -58,3 +58,7 @@ symbol**. It was run through `snapshot` and failed with "Missing required column
   `Value` but no `Unrealized Gain/Loss`. `Unrealized Gain/Loss` stays optional for tax lots.
 - Trade-off: the Holdings file is simpler and carries names, but it has no per-lot detail. Nothing uses lots yet, so
   nothing is lost today.
+
+## Addendum (2026-10-08): Robinhood
+Superseded for Robinhood by ADR 0013: a hand-made `robinhood-positions` template is now the default for robinhood
+accounts, and Robinhood's 1099 and activity CSVs are recognized and refused with an explanation.

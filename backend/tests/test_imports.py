@@ -33,7 +33,7 @@ def db_count(model) -> int:
 
 
 def test_connectors_for_account(alice):
-    a = acct(alice)
+    a = acct(alice, platform="schwab")  # no platform-specific connector
     assert alice.get(f"/api/accounts/{a}/connectors").json() == [
         {
             "slug": "snapshot",
@@ -41,6 +41,24 @@ def test_connectors_for_account(alice):
             "description": "symbol, quantity, cost_basis; optional name, market_value, price_used, as_of",
         }
     ]
+
+
+def test_robinhood_account_offers_the_app_template_first(alice):
+    a = acct(alice)
+    slugs = [c["slug"] for c in alice.get(f"/api/accounts/{a}/connectors").json()]
+    assert slugs == ["robinhood-positions", "snapshot"]
+
+
+def test_robinhood_tax_csv_preview_explains_itself(alice):
+    a = acct(alice)
+    body = b"1099-B,ACCOUNT NUMBER,TAX YEAR,DATE ACQUIRED\n1099-B,0,2025,01/02/2025\n"
+    r = alice.post(
+        f"/api/accounts/{a}/imports/preview",
+        data={"connector": "robinhood-positions"},
+        files={"file": ("tax.csv", body, "text/csv")},
+    )
+    assert r.status_code == 200
+    assert "1099 tax CSV" in r.json()["errors"][0]["message"]
 
 
 def test_m1_account_offers_m1_formats_first(alice):

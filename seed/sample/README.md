@@ -8,3 +8,7 @@ sum to the same per-symbol totals as `m1_positions.csv`.
 
 `m1_holdings.csv` is fabricated too, in the layout of M1's "Holdings" download (one row per symbol,
 quoted `"7,000.00"` numbers) for the `m1-holdings` connector. Same totals as `m1_positions.csv`.
+
+`robinhood_app_positions.csv` is the template for the `robinhood-positions` connector: the Shares,
+Average cost and Market value each position's screen in the Robinhood app shows (Robinhood has no
+holdings export). Same totals as `robinhood_positions.csv`.

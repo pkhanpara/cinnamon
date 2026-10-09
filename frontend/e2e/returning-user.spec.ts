@@ -77,6 +77,7 @@ test.describe('a returning user', () => {
     ] as const) {
       await page.goto('/settings/accounts');
       await page.getByRole('link', { name: 'Import' }).click();
+      await page.getByLabel('Format').selectOption('snapshot'); // not the robinhood default
       await page.locator('input[type=file]').setInputFiles(file);
       await page.getByRole('button', { name: 'Preview' }).click();
       await page.getByRole('button', { name: button, exact: true }).click();

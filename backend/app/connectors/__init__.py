@@ -1,5 +1,6 @@
 from app.connectors.base import Connector, ParsedPosition, ParseResult, RowIssue
 from app.connectors.m1 import M1HoldingsConnector, M1TaxLotsConnector
+from app.connectors.robinhood import RobinhoodPositionsConnector
 from app.connectors.snapshot import SnapshotConnector
 
 _REGISTRY: dict[str, Connector] = {}
@@ -25,6 +26,7 @@ def for_platform(platform: str) -> list[Connector]:
 register(SnapshotConnector())
 register(M1HoldingsConnector())
 register(M1TaxLotsConnector())
+register(RobinhoodPositionsConnector())
 
 __all__ = [
     "Connector",

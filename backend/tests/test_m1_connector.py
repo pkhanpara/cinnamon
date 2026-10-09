@@ -174,5 +174,8 @@ def test_row_limit_counts_lots():
 def test_registered_for_m1_only():
     slugs = [c.slug for c in connectors.for_platform("m1")]
     assert slugs == ["m1-holdings", "m1-tax-lots", "snapshot"]
-    assert [c.slug for c in connectors.for_platform("robinhood")] == ["snapshot"]
+    assert [c.slug for c in connectors.for_platform("robinhood")] == [
+        "robinhood-positions",
+        "snapshot",
+    ]
     assert connectors.get("m1-tax-lots") is not None
