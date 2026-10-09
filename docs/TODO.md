@@ -94,12 +94,13 @@
 
 ### In Progress
 
-- [ ] UI refresh with Angular Material M3, clean fintech light (ADR 0014, docs/log/20261008-234210-material-ui-refresh.md) #ux  
+- [x] UI refresh with Angular Material M3, clean fintech light (ADR 0014, docs/log/20261008-234210-material-ui-refresh.md) #ux  
   - [x] Phase 1: theme, tokens, Inter, toolbar shell with user menu, chart/donut colours  
   - [x] Phase 2: Material forms (login, change-password, accounts, users, import), Settings tabs, ConfirmDialog (snackbars skipped: inline `role=status` notices kept)  
   - [x] Phase 3: Home (checkbox filter, chart + allocation cards, range button-toggle, SPY slide-toggle); fixed the blank chart when switching range with SPY on (also broken on main)  
-  - [ ] Phase 4: ticker page, Ask AI panel, principles chips, watchlists (10 px overflow at 390 px)  
+  - [x] Phase 4: ticker page, Ask AI panel, principle status pills, watchlist cards and filter chips (390 px overflow fixed)  
   - [ ] Follow-ups: dark theme (second `mat.theme` + dark tokens); optional `mat-table` for holdings  
+  - [ ] Look in the dev app with a Finnhub key and the LLM: principle pills and table, watchlist scores, news list, chat bubbles with real answers #ux  
 - [ ] Phase 1 scaffold (app features done through holdings; Docker image still needs rebuild + verify; browser E2E suite in progress in a parallel session)  
 
 ### Done ✓

@@ -452,21 +452,6 @@ td .sub,
 .mat-button-toggle-group.seg .mat-button-toggle-label-content {
   padding: 0 0.7rem;
 }
-.ranges:not(.seg) button:not(.link) {
-  min-height: 2rem;
-  padding: 0 0.7rem;
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
-  color: var(--muted);
-}
-.ranges:not(.seg) button.on {
-  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
-  color: var(--accent);
-  &:hover {
-    background: color-mix(in srgb, var(--accent) 16%, var(--surface));
-  }
-}
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));

@@ -312,7 +312,7 @@ describe('Symbol page', () => {
     expect(m.el.querySelector('app-price-chart')).toBeNull();
   });
 
-  it('clicking a range refetches with that range and marks it pressed; clicking the active one does nothing', async () => {
+  it('clicking a range refetches with that range and marks it checked; clicking the active one does nothing', async () => {
     const m = await mount();
     m.one(OV).flush(overview());
     m.one(HI).flush(history());
@@ -320,9 +320,10 @@ describe('Symbol page', () => {
     await m.settle();
     const btn = (label: string) =>
       Array.from(m.el.querySelectorAll('.ranges button')).find(
-        (b) => b.textContent === label,
+        (b) => b.textContent?.trim() === label,
       ) as HTMLButtonElement;
-    expect(btn('6M').getAttribute('aria-pressed')).toBe('true');
+    // A single-select button-toggle group: each range is a radio, so the state is aria-checked.
+    expect(btn('6M').getAttribute('aria-checked')).toBe('true');
     btn('6M').click();
     expect(m.find(HI)).toHaveLength(0);
     btn('1D').click();
@@ -330,8 +331,8 @@ describe('Symbol page', () => {
     expect(r.request.params.get('range')).toBe('1d');
     r.flush(history('1d', { intraday: true }));
     await m.settle();
-    expect(btn('1D').getAttribute('aria-pressed')).toBe('true');
-    expect(btn('6M').getAttribute('aria-pressed')).toBe('false');
+    expect(btn('1D').getAttribute('aria-checked')).toBe('true');
+    expect(btn('6M').getAttribute('aria-checked')).toBe('false');
   });
 
   it('a slow answer for an earlier range never overwrites a newer one', async () => {

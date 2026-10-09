@@ -1,6 +1,6 @@
 # Material UI refresh (ADR 0014)
 
-Status: *in progress*. Phases 1 (theme and shell), 2 (forms, Settings tabs, confirm dialog) and 3 (Home) are done on branch `feat/material-ui`. Phase 4 is pending.
+Status: *done* (all four phases on branch `feat/material-ui`). Follow-ups are listed under Still to do.
 
 ## Why
 
@@ -171,16 +171,53 @@ npm run build          # 469.64 kB initial / 125.11 kB transfer
 
 Screenshots of Home at 1280 and 390 px, plus SPY on at 6M: 1280/1280 and 390/390.
 
+### Phase 4: ticker page, Ask AI, principles, watchlists (2026-10-09 00:08)
+
+Files changed:
+
+- `pages/symbol`:
+  - The name, price, a new delta pill (tinted green or red), add-to-watchlist, warnings, ranges and chart sit in one `.hero` card.
+  - Ranges become the same `mat-button-toggle-group.seg` as Home. Its buttons are radios, so the spec now checks `aria-checked` instead of `aria-pressed`.
+  - The principles panel and News are card blocks; news items get dividers and a small Refresh button.
+- `components/news-chat`:
+  - "Ask AI" is a floating `mat-flat-button` pill (✦).
+  - The panel gets the surface, shadow and header rule; presets are pill buttons; the log is a grey well with chat bubbles (the user's turns on the right in the accent colour).
+  - Native textarea, checkbox and buttons are kept: the 26 specs query them.
+- `components/principles-panel`: statuses become tinted pills (pass green, fail red, warn/unsure amber, others grey) built from the tokens; `details` sections become bordered boxes.
+- `components/add-to-watchlist`: spacing only. The native `select` + button are kept, because the spec queries `select`/`option`.
+- `pages/watchlists`:
+  - The create form wraps.
+  - Lists show as cards, the whole card being the link, with the symbols as tags.
+  - This fixes the 10 px overflow at 390 px: it was the unwrapped `Name` label + input + button row.
+- `pages/watchlists/watchlist`:
+  - Rename and Delete become real buttons (Delete in red) on the right of the title.
+  - The "Show only symbols that pass" checkboxes become toggle chips. The native checkbox is visually hidden inside each label, so `fieldset label` and the checkbox semantics stay.
+  - Status colours come from the tokens.
+- `styles.scss`: removed the now-unused `.ranges:not(.seg)` button rules.
+- e2e `watchlists.spec.ts`: the overview text `2 symbols · JNJ, KO` became `2 symbols` plus tags `JNJ`, `KO`.
+
+Deviation from the plan: no `mat-chip` or `mat-menu` here. The status pills are static labels and the filter chips are plain checkboxes. Material chips would add listbox/grid semantics, and spec churn, for no visual gain. Add-to-watchlist stayed a select, because its spec is built around it.
+
+Results:
+
+```
+npm run format:check   # All matched files use Prettier code style!
+npm run typecheck      # ok
+npm run test:ci        # 235 passed
+npm run e2e            # 20 passed (1 failed first: the watchlist overview text, updated as above)
+npm run build          # 469.29 kB initial / 125.08 kB transfer
+```
+
+Screenshots (throwaway stack started with `LLM_BASE_URL`/`LLM_MODEL` so Ask AI shows; no question was sent): `/symbol/ORCL`, `/watchlists`, `/watchlists/1` and the open Ask AI panel at 1280 and 390 px. 1280/1280 and 390/390 on every page.
+
 ## Still to do
 
 - Phase 2 leftovers:
   - Snackbars were **not** adopted. The transient notices (`Password changed.`, `Created bob…`, `Imported N position(s)`) are inline `role=status` text that 5 unit specs and the e2e suite assert on, and they read fine inline. Revisit if a toast is wanted.
   - The rename and reset-password inline inputs are still native inputs (styled).
-- Phase 4:
-  - Ticker page: header card and range toggle.
-  - The `Ask AI` floating button.
-  - News-chat panel, principles chips, watchlist cards and filter chips.
-  - Fix the 10 px overflow on watchlists at 390 px.
+- Chat bubbles were not seen with real messages: no question was sent to the model during the check. Look once in the dev app.
+- Principles table, watchlist scores and News were only seen in their no-Finnhub-key state. Check the pills and table with real data in the dev app (which has a key).
+- On the ticker page the floating Ask AI button can sit over the bottom-right of a card while scrolling. That is acceptable for a floating button; add bottom padding if it bothers.
 - Follow-ups: a dark theme (a second `mat.theme` block and dark tokens); optionally `mat-table` for holdings.
 
 ## Gotchas

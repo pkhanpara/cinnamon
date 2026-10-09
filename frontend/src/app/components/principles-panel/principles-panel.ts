@@ -228,16 +228,19 @@ import { PrinciplesService } from '../../core/principles.service';
   styles: `
     .principles-table select { font: inherit; }
     .principles-table tr.manual td:first-child { font-style: italic; }
-    .st { white-space: nowrap; }
-    .st-pass { color: #067647; }
-    .st-fail { color: var(--danger); }
-    .st-warn, .st-unsure { color: #b54708; }
-    .st-na, .st-manual, .st-info { color: var(--muted); }
-    .cmp-better { color: #067647; }
-    .cmp-worse { color: var(--danger); }
+    .st { display: inline-block; padding: 0.1rem 0.55rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600;
+          white-space: nowrap; background: var(--surface-2); color: var(--muted); }
+    .st-pass { color: var(--gain); background: color-mix(in srgb, var(--gain) 12%, var(--surface)); }
+    .st-fail { color: var(--loss); background: color-mix(in srgb, var(--loss) 10%, var(--surface)); }
+    .st-warn, .st-unsure { color: var(--warn); background: color-mix(in srgb, var(--warn) 12%, var(--surface)); }
+    .cmp-better { color: var(--gain); }
+    .cmp-worse { color: var(--loss); }
+    .news-head h3 { margin: 0.25rem auto 0.25rem 0; }
     textarea { font: inherit; width: 100%; max-width: 40rem; }
-    details { margin: 0.5rem 0; }
-    summary { cursor: pointer; }
+    details { margin: 0.5rem 0; padding: 0.6rem 0.9rem; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+    details[open] { background: var(--surface); }
+    summary { cursor: pointer; font-weight: 550; }
+    .table-x { box-shadow: none; }
     h4 { margin: 0.75rem 0 0.25rem; }
     h5 { margin: 0.5rem 0 0.25rem; }
     .insider-summary .span { white-space: nowrap; }
