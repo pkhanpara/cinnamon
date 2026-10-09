@@ -1,5 +1,7 @@
 import hashlib
+import json
 import re
+from decimal import Decimal
 from typing import Annotated
 
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
@@ -8,6 +10,7 @@ from sqlalchemy import delete, desc, func, select
 from app import connectors
 from app.api.deps import CurrentUser, DbDep, get_owned_account
 from app.connectors import ParseResult
+from app.connectors._csv import SYMBOL_RE, parse_decimal
 from app.models import Account, Import, Position
 from app.schemas import ConnectorOut, ImportOut, ImportPreview, IssueOut, PositionOut
 
@@ -17,6 +20,9 @@ MAX_UPLOAD_BYTES = 2 * 1024 * 1024
 
 FileDep = Annotated[UploadFile, File()]
 ConnectorForm = Annotated[str, Form()]
+# JSON object {"SYMBOL": "123.45"}: the user's average cost for symbols a connector listed in
+# `needs_average_cost` (e.g. Robinhood shares transferred in without a cost).
+AverageCostsForm = Annotated[str | None, Form()]
 
 
 def _read_upload(file: UploadFile) -> bytes:
@@ -44,10 +50,49 @@ def _connector_for(account: Account, slug: str):
     return connector
 
 
-def _parse(account: Account, slug: str, file: UploadFile) -> tuple[ParseResult, bytes, str]:
+def _average_costs(raw: str | None) -> dict[str, Decimal]:
+    if not raw or not raw.strip():
+        return {}
+    bad = HTTPException(
+        status.HTTP_422_UNPROCESSABLE_CONTENT,
+        "average_costs must be a JSON object of symbol to a positive number",
+    )
+    try:
+        parsed = json.loads(raw)
+    except ValueError:
+        raise bad from None
+    if not isinstance(parsed, dict) or len(parsed) > 500:
+        raise bad
+    costs: dict[str, Decimal] = {}
+    for symbol, value in parsed.items():
+        symbol = symbol.strip().upper()
+        if not SYMBOL_RE.match(symbol) or not isinstance(value, str | int | float):
+            raise bad
+        try:
+            cost = parse_decimal(str(value), "Average cost")
+        except ValueError:
+            raise bad from None
+        if cost <= 0:
+            raise bad
+        costs[symbol] = cost
+    return costs
+
+
+def _parse(
+    account: Account, slug: str, file: UploadFile, average_costs: str | None
+) -> tuple[ParseResult, bytes, str]:
     connector = _connector_for(account, slug)
+    costs = _average_costs(average_costs)
     data = _read_upload(file)
-    return connector.parse(data), data, _safe_filename(file.filename)
+    if getattr(connector, "accepts_average_costs", False):
+        result = connector.parse(data, average_costs=costs)
+    elif costs:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, f"Connector {slug!r} does not take average costs"
+        )
+    else:
+        result = connector.parse(data)
+    return result, data, _safe_filename(file.filename)
 
 
 @router.get("/connectors")
@@ -70,15 +115,20 @@ def list_positions(account_id: int, user: CurrentUser, db: DbDep) -> list[Positi
 
 @router.post("/imports/preview")
 def preview_import(
-    account_id: int, connector: ConnectorForm, file: FileDep, user: CurrentUser, db: DbDep
+    account_id: int,
+    connector: ConnectorForm,
+    file: FileDep,
+    user: CurrentUser,
+    db: DbDep,
+    average_costs: AverageCostsForm = None,
 ) -> ImportPreview:
     """Parse and validate only. Writes nothing."""
     account = get_owned_account(db, user, account_id)
-    result, data, filename = _parse(account, connector, file)
+    result, data, filename = _parse(account, connector, file, average_costs)
 
     current = db.scalar(select(func.count(Position.id)).where(Position.account_id == account_id))
     warnings: list[str] = []
-    if current:
+    if current and not result.errors:  # a file with errors can't replace anything
         warnings.append(f"Importing will replace this account's {current} current position(s).")
     last = db.scalar(
         select(Import).where(Import.account_id == account_id).order_by(desc(Import.id)).limit(1)
@@ -96,6 +146,7 @@ def preview_import(
         rows=[PositionOut.model_validate(p, from_attributes=True) for p in result.positions],
         errors=[IssueOut(row=e.row, message=e.message) for e in result.errors],
         warnings=warnings,
+        needs_average_cost=result.needs_average_cost,
         current_position_count=current or 0,
         total_cost_basis=sum((p.cost_basis for p in result.positions), start=0),
         total_market_value=sum(values, start=0) if values and None not in values else None,
@@ -104,12 +155,17 @@ def preview_import(
 
 @router.post("/imports", status_code=status.HTTP_201_CREATED)
 def commit_import(
-    account_id: int, connector: ConnectorForm, file: FileDep, user: CurrentUser, db: DbDep
+    account_id: int,
+    connector: ConnectorForm,
+    file: FileDep,
+    user: CurrentUser,
+    db: DbDep,
+    average_costs: AverageCostsForm = None,
 ) -> ImportOut:
     """Re-parses the uploaded file (nothing is trusted from the preview) and replaces the
     account's positions atomically. Refuses files with any error."""
     account = get_owned_account(db, user, account_id)
-    result, data, filename = _parse(account, connector, file)
+    result, data, filename = _parse(account, connector, file, average_costs)
     if result.errors:
         raise HTTPException(
             status.HTTP_422_UNPROCESSABLE_CONTENT,

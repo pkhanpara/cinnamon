@@ -128,7 +128,7 @@ def test_row_limit():
 
 
 def test_registry_lists_generic_connector_for_any_platform():
-    assert [c.slug for c in connectors.for_platform("robinhood")] == ["snapshot"]
+    assert connectors.for_platform("robinhood")[-1].slug == "snapshot"
     assert [c.slug for c in connectors.for_platform("some-new-broker")] == ["snapshot"]
     with pytest.raises(ValueError):
         connectors.register(SnapshotConnector())

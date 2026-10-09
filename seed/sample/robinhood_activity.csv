@@ -1,0 +1,17 @@
+"Activity Date","Process Date","Settle Date","Instrument","Description","Trans Code","Quantity","Price","Amount"
+"3/2/2026","3/2/2026","3/3/2026","DIS","Walt Disney
+CUSIP: 254687106","CDIV","","","$7.50"
+"2/10/2026","2/10/2026","2/11/2026","ORCL","Oracle
+CUSIP: 68389X105","Sell","10","$150.00","$1,500.00"
+"2/10/2026","2/10/2026","2/11/2026","KO","KO 3/20/2026 Call $70.00","BTO","1","$1.20","($120.00)"
+"1/15/2026","1/15/2026","1/16/2026","ORCL","Oracle
+CUSIP: 68389X105","Buy","20","$140.00","($2,800.00)"
+"1/5/2026","1/5/2026","1/6/2026","INTC","Intel
+CUSIP: 458140100","Buy","100","$31.00","($3,100.00)"
+"1/2/2026","1/2/2026","1/2/2026","ORCL","Oracle
+CUSIP: 68389X105","Buy","30","$120.00","($3,600.00)"
+"1/2/2026","1/2/2026","1/2/2026","DIS","Walt Disney
+CUSIP: 254687106","ACATI","25","",""
+"1/2/2026","1/2/2026","1/2/2026","","ACH Deposit","ACH","","","$10,000.00"
+
+"","","","","","","","","","The data provided is for informational purposes only. Please consult a professional."

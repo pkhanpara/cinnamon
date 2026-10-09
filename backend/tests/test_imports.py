@@ -13,6 +13,7 @@ RH = (SAMPLE / "robinhood_positions.csv").read_bytes()
 M1 = (SAMPLE / "m1_positions.csv").read_bytes()
 M1_LOTS = (SAMPLE / "m1_open_tax_lots.csv").read_bytes()
 M1_HOLDINGS = (SAMPLE / "m1_holdings.csv").read_bytes()
+RH_ACTIVITY = (SAMPLE / "robinhood_activity.csv").read_bytes()
 
 
 def upload(client, path, content: bytes, connector="snapshot", name="positions.csv"):
@@ -33,7 +34,7 @@ def db_count(model) -> int:
 
 
 def test_connectors_for_account(alice):
-    a = acct(alice)
+    a = acct(alice, platform="schwab")  # no platform-specific connector
     assert alice.get(f"/api/accounts/{a}/connectors").json() == [
         {
             "slug": "snapshot",
@@ -41,6 +42,24 @@ def test_connectors_for_account(alice):
             "description": "symbol, quantity, cost_basis; optional name, market_value, price_used, as_of",
         }
     ]
+
+
+def test_robinhood_account_offers_the_activity_report_first(alice):
+    a = acct(alice)
+    slugs = [c["slug"] for c in alice.get(f"/api/accounts/{a}/connectors").json()]
+    assert slugs == ["robinhood-activity", "robinhood-positions", "snapshot"]
+
+
+def test_robinhood_tax_csv_preview_explains_itself(alice):
+    a = acct(alice)
+    body = b"1099-B,ACCOUNT NUMBER,TAX YEAR,DATE ACQUIRED\n1099-B,0,2025,01/02/2025\n"
+    r = alice.post(
+        f"/api/accounts/{a}/imports/preview",
+        data={"connector": "robinhood-positions"},
+        files={"file": ("tax.csv", body, "text/csv")},
+    )
+    assert r.status_code == 200
+    assert "1099 tax CSV" in r.json()["errors"][0]["message"]
 
 
 def test_m1_account_offers_m1_formats_first(alice):
@@ -212,3 +231,52 @@ def test_stored_hash_matches_file(alice):
     upload(alice, f"/api/accounts/{a}/imports", RH)
     db = next(app.dependency_overrides[get_db]())
     assert db.scalar(select(Import.file_sha256)) == hashlib.sha256(RH).hexdigest()
+
+
+def activity(client, path, costs: str | None = None):
+    data = {"connector": "robinhood-activity"}
+    if costs is not None:
+        data["average_costs"] = costs
+    return client.post(path, data=data, files={"file": ("activity.csv", RH_ACTIVITY, "text/csv")})
+
+
+def test_activity_report_asks_for_transferred_costs_then_imports(alice):
+    a = acct(alice)
+    upload(alice, f"/api/accounts/{a}/imports", RH)  # 3 positions to replace
+    preview = f"/api/accounts/{a}/imports/preview"
+
+    first = activity(alice, preview).json()
+    assert first["needs_average_cost"] == ["DIS"]
+    assert [r["symbol"] for r in first["rows"]] == ["INTC", "ORCL"]
+    assert "DIS: shares were transferred in" in first["errors"][0]["message"]
+    assert first["warnings"] == []  # a file with errors can't replace anything
+    assert activity(alice, f"/api/accounts/{a}/imports").status_code == 422
+
+    second = activity(alice, preview, '{"dis": "$96.00"}').json()
+    assert second["errors"] == [] and second["total_cost_basis"] == "10620.00"
+    assert "replace this account's 3 current position(s)" in second["warnings"][0]
+
+    r = activity(alice, f"/api/accounts/{a}/imports", '{"DIS": 96}')
+    assert r.status_code == 201 and r.json()["row_count"] == 3
+    rows = {p["symbol"]: p for p in alice.get(f"/api/accounts/{a}/positions").json()}
+    assert rows["DIS"]["cost_basis"] == "2400.00" and rows["ORCL"]["cost_basis"] == "5120.00"
+
+
+def test_average_costs_must_be_valid(alice):
+    a = acct(alice)
+    preview = f"/api/accounts/{a}/imports/preview"
+    for bad in ("not json", "[1]", '{"DIS": 0}', '{"DIS": "abc"}', '{"$$": 1}', '{"DIS": null}'):
+        r = activity(alice, preview, bad)
+        assert r.status_code == 422, bad
+        assert "average_costs" in r.json()["detail"]
+    assert activity(alice, preview, "").status_code == 200  # empty = none
+
+
+def test_average_costs_refused_by_connectors_that_dont_take_them(alice):
+    a = acct(alice)
+    r = alice.post(
+        f"/api/accounts/{a}/imports/preview",
+        data={"connector": "snapshot", "average_costs": '{"KO": 1}'},
+        files={"file": ("p.csv", RH, "text/csv")},
+    )
+    assert r.status_code == 400 and "does not take average costs" in r.json()["detail"]

@@ -102,6 +102,8 @@ class ImportPreview(BaseModel):
     current_position_count: int
     total_cost_basis: Decimal
     total_market_value: Decimal | None  # None unless every row has a market_value
+    # Symbols the file holds without a cost; preview again with `average_costs` for them.
+    needs_average_cost: list[str] = []
 
 
 class ImportOut(BaseModel):

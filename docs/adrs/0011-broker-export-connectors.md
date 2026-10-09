@@ -58,3 +58,8 @@ symbol**. It was run through `snapshot` and failed with "Missing required column
   `Value` but no `Unrealized Gain/Loss`. `Unrealized Gain/Loss` stays optional for tax lots.
 - Trade-off: the Holdings file is simpler and carries names, but it has no per-lot detail. Nothing uses lots yet, so
   nothing is lost today.
+
+## Addendum (2026-10-08): Robinhood
+Superseded for Robinhood by ADR 0013: the Account activity report is replayed into positions (average cost; the
+user types the app's average cost for shares transferred in), with a hand-made `robinhood-positions` template as a
+fallback. The 1099 CSV is recognized and refused with an explanation.
