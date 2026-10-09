@@ -78,6 +78,10 @@ export function createLightweightChart(el: HTMLElement): ChartHandle {
             : () => null,
         },
       });
+      // Empty the overlay first: if it still holds the previous range's times when the area series
+      // gets new ones, lightweight-charts paints the area at indices it has no bar for and throws
+      // "Value is null" (seen switching 1M -> 6M with SPY on). The caller sets the overlay again next.
+      compare?.setData([]);
       series.setData(
         points.map((p) => ({ time: p.time as UTCTimestamp | string, value: p.value })) as never,
       );

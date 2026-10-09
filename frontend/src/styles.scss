@@ -43,6 +43,20 @@ html {
       container-color: #fff,
     )
   );
+  // Range pickers: a quiet segmented control, the selected range tinted with the accent.
+  @include mat.button-toggle-overrides(
+    (
+      shape: 8px,
+      height: 2rem,
+      divider-color: transparent,
+      text-color: #667085,
+      background-color: transparent,
+      selected-state-background-color: color-mix(in srgb, var(--mat-sys-primary) 12%, white),
+      selected-state-text-color: var(--mat-sys-primary),
+      label-text-weight: 550,
+      label-text-size: 0.85rem,
+    )
+  );
   @include mat.tabs-overrides(
     (
       divider-color: transparent,
@@ -222,6 +236,10 @@ label:not([class*='mdc-'], [class*='mat-']) {
 }
 .card > p {
   margin: 0;
+}
+
+.mat-mdc-slide-toggle .mdc-label {
+  padding-left: 0.6rem;
 }
 
 /* ---- Messages ---- */
@@ -423,7 +441,18 @@ td .sub,
   flex-wrap: wrap;
   align-items: center;
 }
-.ranges button:not(.link) {
+.mat-button-toggle-group.seg {
+  border: none;
+  gap: 0.15rem;
+  flex-wrap: wrap;
+}
+.mat-button-toggle-group.seg .mat-button-toggle {
+  border-radius: 8px;
+}
+.mat-button-toggle-group.seg .mat-button-toggle-label-content {
+  padding: 0 0.7rem;
+}
+.ranges:not(.seg) button:not(.link) {
   min-height: 2rem;
   padding: 0 0.7rem;
   border-color: transparent;
@@ -431,7 +460,7 @@ td .sub,
   box-shadow: none;
   color: var(--muted);
 }
-.ranges button.on {
+.ranges:not(.seg) button.on {
   background: color-mix(in srgb, var(--accent) 12%, var(--surface));
   color: var(--accent);
   &:hover {

@@ -1,6 +1,6 @@
 # Material UI refresh (ADR 0014)
 
-Status: *in progress*. Phases 1 (theme and shell) and 2 (forms, Settings tabs, confirm dialog) are done on branch `feat/material-ui`. Phases 3–4 are pending.
+Status: *in progress*. Phases 1 (theme and shell), 2 (forms, Settings tabs, confirm dialog) and 3 (Home) are done on branch `feat/material-ui`. Phase 4 is pending.
 
 ## Why
 
@@ -131,17 +131,51 @@ npm run build          # 468.54 kB initial, no budget warning
 
 Screenshots (same throwaway stack, port 4340) of login, accounts, users, change-password, import, the import preview and the delete dialog, at 1280 and 390 px: no horizontal scroll on any of them.
 
+### Phase 3: Home (2026-10-09 00:04)
+
+Files changed:
+
+- `pages/holdings`:
+  - The account filter uses `mat-checkbox`. Its `aria-label` input lands on the inner `<input type=checkbox>`, so the spec's `input[type=checkbox]` lookup and e2e `getByRole('checkbox', { name })` are unchanged. "All" keeps `indeterminate`.
+  - The chart and a new **Allocation** card (the donut) sit side by side in a `.dash` grid: 2fr / ≥16rem, one column below 56rem.
+  - The expand toggle becomes a small square icon button.
+  - The symbol column gets a 10rem minimum width, so phones scroll the table sideways instead of wrapping each name over 4–5 lines.
+- `components/portfolio-chart`:
+  - Ranges become a `mat-button-toggle-group.ranges.seg`. Its buttons have role `radio` (not `button`) and are found by `.ranges button`, as before.
+  - "Compare with SPY" becomes a `mat-slide-toggle` (`button[role=switch]`); the spec clicks `.spy button[role=switch]`.
+  - The title, hint and toggle share one header row.
+- `styles.scss`:
+  - `button-toggle-overrides` for a quiet segmented control (transparent, 8 px corners, selected = accent tint).
+  - The old `.ranges` rules are scoped to `:not(.seg)` (the ticker page still uses them until phase 4).
+  - Slide-toggle label gap.
+
+**Bug found and fixed (pre-existing on `main`).** With "Compare with SPY" on, switching range (1M → 6M) blanked the portfolio chart. The browser console showed `ERROR Error: Value is null` from lightweight-charts' `Area` style getter (`ensureNotNull(findBar(...))`).
+
+- Reproduced on `main` in a temporary worktree (`git worktree add <scratch>/wt-main main`, `ng serve --port 4341` against the same throwaway backend). Same two errors, so the restyle did not cause it.
+- The API returns identical times for the portfolio and SPY points, so the data is not the problem.
+- Cause: the overlay line series still held the previous range's times when the area series received the new ones.
+- Fix in `components/price-chart/lightweight.ts` `setData`: `compare?.setData([])` before `series.setData(...)`. The caller (`portfolio-chart`) sets the overlay again straight after.
+- Re-ran the repro: no console errors, and both lines draw at 6M.
+- The ticker page uses the same wrapper but never sets an overlay, so it is unaffected.
+- jsdom has no canvas, so this has no unit test. It belongs in the Playwright chart case still listed in TODO.
+
+Results:
+
+```
+npm run format:check   # All matched files use Prettier code style!
+npm run typecheck      # ok
+npm run test:ci        # 235 passed
+npm run e2e            # 20 passed
+npm run build          # 469.64 kB initial / 125.11 kB transfer
+```
+
+Screenshots of Home at 1280 and 390 px, plus SPY on at 6M: 1280/1280 and 390/390.
+
 ## Still to do
 
 - Phase 2 leftovers:
   - Snackbars were **not** adopted. The transient notices (`Password changed.`, `Created bob…`, `Imported N position(s)`) are inline `role=status` text that 5 unit specs and the e2e suite assert on, and they read fine inline. Revisit if a toast is wanted.
   - The rename and reset-password inline inputs are still native inputs (styled).
-- Phase 3 (Home):
-  - Account filter with `mat-checkbox`.
-  - Chart and donut in cards.
-  - Ranges as `mat-button-toggle-group`, and SPY as `mat-slide-toggle`.
-  - Expand toggle as an icon button.
-  - The holdings symbol column wraps a lot at 390 px.
 - Phase 4:
   - Ticker page: header card and range toggle.
   - The `Ask AI` floating button.
@@ -157,4 +191,6 @@ Screenshots (same throwaway stack, port 4340) of login, accounts, users, change-
 - ADR number clash: written as 0013, but #22 (Robinhood import) landed ADR 0013 on main first; renumbered to 0014 when rebasing.
 - Anything imported from `@angular/material/*` in `app.config.ts` (even just an InjectionToken) moves that entry point into the initial bundle. Provide Material config from lazy components instead (`core/material.ts`).
 - `mat-tab-nav-bar` stretches tabs by default (`mat-stretch-tabs="false"` turns it off) and paginates with arrows at 390 px unless the tab padding is reduced.
+- `mat-button-toggle` buttons have role `radio` in a single-select group: Playwright needs `getByRole('radio', { name: '6M' })`.
+- lightweight-charts: replacing an area series' data while a second series on the same chart still holds other times throws `Value is null` at paint time. Clear the other series first.
 - Without `FINNHUB_API_KEY`, `/symbol/<ticker>` only renders for symbols you hold. Use a held symbol (ORCL in the sample seed) for screenshots.
