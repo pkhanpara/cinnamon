@@ -12,7 +12,13 @@ from app.cache import clear_all_caches
 from app.db import Base, get_db
 from app.main import app
 from app.models import User
-from app.providers import get_company_provider, get_history_provider, get_quote_provider
+from app.providers import (
+    get_company_provider,
+    get_fundamentals_provider,
+    get_history_provider,
+    get_ownership_provider,
+    get_quote_provider,
+)
 from app.providers.llm import get_llm_provider
 from app.security import hash_password
 
@@ -24,6 +30,16 @@ class _no_network_history:
         raise AssertionError(
             "test reached the real history provider; override get_history_provider"
         )
+
+
+class _no_network_ownership:
+    """Default ownership provider in tests: any call is a bug (it would reach Yahoo)."""
+
+    def get_ownership(self, symbol):
+        raise AssertionError("test reached the real ownership provider; override it")
+
+    def get_splits(self, symbol):
+        raise AssertionError("test reached the real ownership provider; override it")
 
 
 ADMIN = {"username": "admin", "password": "correct-horse-battery"}
@@ -52,6 +68,8 @@ def client():
     app.dependency_overrides[get_quote_provider] = lambda: None
     app.dependency_overrides[get_company_provider] = lambda: None
     app.dependency_overrides[get_history_provider] = _no_network_history
+    app.dependency_overrides[get_fundamentals_provider] = lambda: None
+    app.dependency_overrides[get_ownership_provider] = _no_network_ownership
     app.dependency_overrides[get_llm_provider] = lambda: None  # the dev .env may name a real model
     clear_all_caches()
     with TestClient(app) as c:

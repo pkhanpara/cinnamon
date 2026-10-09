@@ -100,3 +100,74 @@ class CompanyDataProvider(Protocol):
     def get_news(self, symbol: str, days: int, limit: int) -> list[NewsItem]: ...
 
     def search(self, query: str) -> list[SearchHit]: ...
+
+
+# --- fundamentals (investing-principles scorecard, ADR 0012) ---
+
+
+@dataclass(frozen=True)
+class SeriesPoint:
+    period: date
+    value: Decimal
+
+
+@dataclass(frozen=True)
+class BasicFinancials:
+    metric: dict[str, Decimal]  # numeric entries of Finnhub's `metric` object only
+    annual: dict[str, list[SeriesPoint]]  # `series.annual`, newest first
+
+
+@dataclass(frozen=True)
+class AnnualReport:
+    """One 10-K as reported. Concepts are the standard (us-gaap) names without prefix."""
+
+    year: int
+    end_date: date | None
+    values: dict[str, Decimal]
+
+
+@dataclass(frozen=True)
+class InsiderTrade:
+    name: str
+    shares_change: int  # signed: negative is a sale
+    price: Decimal | None
+    code: str  # SEC Form 4 transaction code: P open-market buy, S open-market sale, ...
+    transaction_date: date
+    filing_date: date | None
+
+
+class FundamentalsProvider(Protocol):
+    def get_basic_financials(self, symbol: str) -> BasicFinancials | None:
+        """None when the provider has nothing for the symbol."""
+        ...
+
+    def get_reported_annual(self, symbol: str) -> list[AnnualReport]:
+        """Newest first; empty for funds and unknown symbols."""
+        ...
+
+    def get_peers(self, symbol: str) -> list[str]: ...
+
+    def get_insider_transactions(self, symbol: str) -> list[InsiderTrade]: ...
+
+
+@dataclass(frozen=True)
+class Ownership:
+    institutional_pct: Decimal | None  # 0..1
+    sector: str | None
+    industry: str | None
+    quote_type: str | None  # EQUITY, ETF, MUTUALFUND, ...
+    name: str | None
+
+
+@dataclass(frozen=True)
+class Split:
+    date: date
+    ratio: Decimal  # 4 means 4-for-1
+
+
+class OwnershipProvider(Protocol):
+    def get_ownership(self, symbol: str) -> Ownership | None: ...
+
+    def get_splits(self, symbol: str) -> list[Split]:
+        """Oldest first."""
+        ...

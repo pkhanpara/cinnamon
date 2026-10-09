@@ -36,7 +36,7 @@
 - [x] Rebuild Docker image and check size/build with yfinance (pandas) #chore  
 - [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges #feat  
 - [ ] Playwright coverage for the ticker page and symbol search (E2E suite lives in frontend/e2e) #test  
-- [ ] Ticker page: allow adding a symbol to a watchlist (when watchlists exist) #feat  
+- [x] Ticker page: allow adding a symbol to a watchlist (when watchlists exist) #feat  
 - [x] Force a password change for users an admin creates or resets #sec  
 - [x] Verify `docker compose exec cinnamon python -m app.cli reset-password` against a built image #sec  
 - [x] Make the e2e ports in playwright.config.ts configurable #chore  
@@ -69,7 +69,15 @@
 - [x] Real Robinhood / M1 CSV parsers: M1 open tax lots connector done (ADR 0011, docs/log/20261007-192120-broker-csv-connectors.md); Robinhood deferred, see below #feat  
 - [ ] Robinhood import: Robinhood has no holdings CSV; needs an Account activity report CSV (Reports and statements > Reports) replayed into positions plus the cost-basis method (ADR 0007). The 1099 CSV has no holdings (ADR 0011) #feat  
 - [ ] Real-browser check of an M1 import: Holdings CSV (now the default for m1 accounts, docs/log/20261007-222525-m1-holdings-connector.md) and tax lots, preview totals vs M1's Holdings page #test  
-- [ ] Transactions, cost basis (avg-cost; ADR 0005), watchlists #feat  
+- [ ] Transactions, cost basis (avg-cost; ADR 0005) #feat  
+- [x] Watchlists + investing-principles scorecard with Finnhub-peer comparison, phase 1 (ADR 0012, docs/log/20261008-213725-watchlists-principles.md) #feat  
+- [ ] Watchlists follow-ups (ADR 0012) #feat  
+  - [ ] Phase 2 screener: S&P 500 universe, nightly fill of `fundamentals_cache` at <= 55 Finnhub calls/min, saved filter sets with per-list threshold overrides  
+  - [ ] Owner earnings: subtract non-recurring items, pension income and unusual charges when reliably tagged (today NI + D&A - capex)  
+  - [ ] Split-adjust the 10-K EPS fallback (used when Finnhub has no EPS series, e.g. JPM) with the yfinance split history  
+  - [ ] Remember the watchlist filter selection  
+  - [ ] Real-browser check in the dev app (verified headless only)  
+- [ ] Header overflows at phone width (scrollWidth ~690 px at 390 px; symbol search + user name; the Watchlists link adds ~80 px) #ux  
 - [ ] Daily snapshots, performance + allocation charts (the portfolio value chart above is the first, back-cast version) #feat  
 - [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  
 - [ ] ADR 0007 cost-basis method (when transactions are built) #docs  

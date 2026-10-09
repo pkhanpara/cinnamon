@@ -202,3 +202,108 @@ export interface SearchHit {
   description: string;
   type: string;
 }
+
+// ---- watchlists and investing principles (ADR 0012) ----
+
+export interface Watchlist {
+  id: number;
+  name: string;
+  created_at: string;
+  symbols: string[];
+}
+
+export interface WatchlistDetail {
+  id: number;
+  name: string;
+  created_at: string;
+  items: { symbol: string; added_at: string }[];
+}
+
+export type Verdict = 'pass' | 'fail' | 'unsure';
+export type PrincipleStatus = 'pass' | 'fail' | 'warn' | 'info' | 'na' | 'manual';
+
+export interface PrincipleCheck {
+  verdict: Verdict;
+  note: string;
+  updated_at: string;
+}
+
+export interface Principle {
+  key: string;
+  label: string;
+  description: string;
+  kind: 'computed' | 'manual';
+  rule: string;
+  unit: 'pct' | 'ratio' | 'usd' | null;
+  better: 'lower' | 'higher' | null;
+  value: string | null;
+  status: PrincipleStatus;
+  note: string;
+  years: number | null;
+  check: PrincipleCheck | null; // the user's verdict; overrides `status` when set
+}
+
+export interface InsiderTrade {
+  name: string;
+  shares_change: number;
+  price: string | null;
+  code: string;
+  transaction_date: string;
+  filing_date: string | null;
+}
+
+export interface BuybackYear {
+  year: number;
+  amount: string;
+  avg_price: string | null;
+  high_5y: string | null;
+  near_high: boolean;
+}
+
+export interface CashYear {
+  year: number;
+  net_income: string | null;
+  owner_earnings: string | null;
+  cfo: string | null;
+  cff: string | null;
+  acquisitions: string | null;
+  buybacks: string | null;
+  rnd: string | null;
+  revenue: string | null;
+}
+
+export interface Evidence {
+  insider_trades: InsiderTrade[];
+  insider_net_value: string | null;
+  buybacks: BuybackYear[];
+  years: CashYear[];
+  splits: { date: string; ratio: string }[];
+}
+
+export interface Scorecard {
+  symbol: string;
+  name: string | null;
+  sector: string | null;
+  industry: string | null;
+  applicable: boolean;
+  principles: Principle[];
+  evidence: Evidence | null;
+  warnings: string[];
+  as_of: string | null;
+  stale: boolean;
+}
+
+export interface PeerStat {
+  key: string;
+  mean: string | null;
+  median: string | null;
+  n: number;
+}
+
+export interface Peers {
+  symbol: string;
+  peers: { symbol: string; name: string | null }[];
+  failed: string[];
+  stats: PeerStat[];
+  stale: boolean;
+}

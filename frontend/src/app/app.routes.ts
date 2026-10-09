@@ -18,6 +18,16 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/symbol/symbol').then((m) => m.SymbolPage),
   },
   {
+    path: 'watchlists',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/watchlists/watchlists').then((m) => m.Watchlists),
+  },
+  {
+    path: 'watchlists/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./pages/watchlists/watchlist').then((m) => m.WatchlistPage),
+  },
+  {
     path: 'settings',
     canActivate: [sessionGuard], // the shell is reachable during a forced password change; its children are not
     loadComponent: () => import('./pages/settings/settings').then((m) => m.Settings),
