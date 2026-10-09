@@ -226,6 +226,10 @@ Screenshots (throwaway stack started with `LLM_BASE_URL`/`LLM_MODEL` so Ask AI s
 - The global `input:not(...)` selector has the same specificity as component-scoped `input[_ngcontent]`, so `symbol-search` uses `!important` for its padding and icon background.
 - A brand link whose accessible name contains "Home" breaks `getByRole('link', { name: 'Home' })` (substring match). Keep the brand's name "Cinnamon".
 - ADR number clash: written as 0013, but #22 (Robinhood import) landed ADR 0013 on main first; renumbered to 0014 when rebasing.
+- **Lockfile and npm versions.** The first CI run of PR #23 failed `npm ci` in seconds on both frontend jobs: `Missing: @emnapi/core@1.11.3 from lock file`, `Missing: @emnapi/runtime@1.11.3`. The lockfile came from local `npm i` with **npm 11.6.2** (Node 24.4.1), which dropped those two optional peer entries that `main`'s lockfile had. CI runs Node 22 / **npm 10**, which requires them.
+  - Fix: restore `main`'s lockfile, then `npx -y npm@10 install --package-lock-only --ignore-scripts` (+45/−2 lines; only cdk, material and fontsource added).
+  - Verified with `npm@10 ci` and `npm@11 ci` in clean scratch copies: both `added 480 packages`.
+  - Next time, add dependencies with `npx npm@10 install …` or check with `npx npm@10 ci` before pushing.
 - Anything imported from `@angular/material/*` in `app.config.ts` (even just an InjectionToken) moves that entry point into the initial bundle. Provide Material config from lazy components instead (`core/material.ts`).
 - `mat-tab-nav-bar` stretches tabs by default (`mat-stretch-tabs="false"` turns it off) and paginates with arrows at 390 px unless the tab padding is reduced.
 - `mat-button-toggle` buttons have role `radio` in a single-select group: Playwright needs `getByRole('radio', { name: '6M' })`.
