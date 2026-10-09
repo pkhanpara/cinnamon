@@ -58,6 +58,21 @@ const scorecard = (over: Partial<Scorecard> = {}): Scorecard => ({
       },
     ],
     insider_net_value: '-27631.00',
+    insider_summary: {
+      sellers: [
+        {
+          name: 'Woods',
+          trades: 2,
+          shares: 150,
+          value: '27631.00',
+          avg_price: '276.31',
+          first_date: '2026-03-02',
+          last_date: '2026-09-08',
+          unpriced: 1,
+        },
+      ],
+      buyers: [],
+    },
     buybacks: [
       { year: 2025, amount: '5953000000', avg_price: '250', high_5y: '260', near_high: true },
     ],
@@ -117,6 +132,20 @@ describe('PrinciplesPanel', () => {
     expect(rowOf(el, 'Wide moat').textContent).toContain('Not checked');
     expect(el.textContent).toContain('Woods');
     expect(el.textContent).toContain('-$27,631.00');
+  });
+
+  it('summarises the top insider sellers and buyers', async () => {
+    const { http, el, settle } = await mount();
+    http.expectOne('/api/principles/JNJ?evidence=true').flush(scorecard());
+    await settle();
+    expect(el.textContent).toContain('Insider trades summary');
+    const row = el.querySelector('table.insider-summary tbody tr') as HTMLElement;
+    expect(row.textContent).toContain('Woods');
+    expect(row.textContent).toContain('Mar 2, 2026 – Sep 8, 2026');
+    expect(row.textContent).toContain('$27,631.00*');
+    expect(row.textContent).toContain('$276.31');
+    expect(el.textContent).toContain('No open-market buys.');
+    expect(el.textContent).toContain('Some trades had no price');
   });
 
   it('a verdict overrides the computed result and can be cleared', async () => {

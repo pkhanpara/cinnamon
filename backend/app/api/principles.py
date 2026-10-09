@@ -26,6 +26,8 @@ from app.schemas import (
     CheckIn,
     CheckOut,
     EvidenceOut,
+    InsiderSideOut,
+    InsiderSummaryOut,
     InsiderTradeOut,
     PeerOut,
     PeersOut,
@@ -169,11 +171,16 @@ def scorecard(
             ).value
         except ProviderError as e:
             warnings.append(f"Stock splits unavailable ({e}).")
+        sellers, buyers = F.insider_summary(trades)
         ev = EvidenceOut(
             insider_trades=[
                 InsiderTradeOut.model_validate(t, from_attributes=True) for t in trades
             ],
             insider_net_value=None if all_trades is None else F.net_insider_value(trades),
+            insider_summary=InsiderSummaryOut(
+                sellers=[InsiderSideOut.model_validate(x, from_attributes=True) for x in sellers],
+                buyers=[InsiderSideOut.model_validate(x, from_attributes=True) for x in buyers],
+            ),
             buybacks=[
                 BuybackYearOut.model_validate(b, from_attributes=True)
                 for b in (F.buyback_years(core, bars) if bars else [])

@@ -252,6 +252,18 @@ export interface InsiderTrade {
   filing_date: string | null;
 }
 
+/** One insider's open-market sales (or buys). `value` is proceeds, not profit; priced trades only. */
+export interface InsiderSide {
+  name: string;
+  trades: number;
+  shares: number;
+  value: string;
+  avg_price: string | null;
+  first_date: string;
+  last_date: string;
+  unpriced: number; // trades without a price, left out of value and avg_price
+}
+
 export interface BuybackYear {
   year: number;
   amount: string;
@@ -275,6 +287,7 @@ export interface CashYear {
 export interface Evidence {
   insider_trades: InsiderTrade[];
   insider_net_value: string | null;
+  insider_summary: { sellers: InsiderSide[]; buyers: InsiderSide[] }; // top 10 each, by value
   buybacks: BuybackYear[];
   years: CashYear[];
   splits: { date: string; ratio: string }[];

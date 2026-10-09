@@ -4,7 +4,7 @@ import { Component, computed, effect, inject, input, signal, untracked } from '@
 import { firstValueFrom } from 'rxjs';
 import { apiError } from '../../core/errors';
 import { fmtCompactMoney, fmtMoney, fmtQty, fmtSigned, tone } from '../../core/format';
-import { Peers, PeerStat, Principle, Scorecard, Verdict } from '../../core/models';
+import { Evidence, Peers, PeerStat, Principle, Scorecard, Verdict } from '../../core/models';
 import {
   effectiveStatus,
   fmtPrincipleValue,
@@ -114,6 +114,39 @@ import { PrinciplesService } from '../../core/principles.service';
               @if (ev.insider_trades.length === 0) {
                 <p class="hint">No open-market insider buys or sales in the last 12 months.</p>
               } @else {
+                <h4>Insider trades summary</h4>
+                <p class="hint">Dollar amounts are sale proceeds or purchase cost, not profit: Form 4 has no cost basis.</p>
+                @for (side of [
+                  { title: 'Top 10 sellers', rows: ev.insider_summary.sellers, value: 'Sold for', none: 'No open-market sales.' },
+                  { title: 'Top 10 buyers', rows: ev.insider_summary.buyers, value: 'Bought for', none: 'No open-market buys.' },
+                ]; track side.title) {
+                  <h5>{{ side.title }}</h5>
+                  @if (side.rows.length === 0) {
+                    <p class="hint">{{ side.none }}</p>
+                  } @else {
+                    <div class="table-x">
+                      <table class="lines insider-summary">
+                        <thead><tr><th class="num">#</th><th>Insider</th><th>Span</th><th class="num">Trades</th><th class="num">Shares</th>
+                          <th class="num">{{ side.value }}</th><th class="num">Avg price</th></tr></thead>
+                        <tbody>
+                          @for (r of side.rows; track r.name; let i = $index) {
+                            <tr>
+                              <td class="num">{{ i + 1 }}</td>
+                              <td>{{ r.name }}</td>
+                              <td class="span">{{ r.first_date | date: 'mediumDate' }}@if (r.last_date !== r.first_date) { – {{ r.last_date | date: 'mediumDate' }} }</td>
+                              <td class="num">{{ r.trades }}</td>
+                              <td class="num">{{ qty(r.shares.toString()) }}</td>
+                              <td class="num">{{ money(r.value) }}@if (r.unpriced) {<span title="{{ r.unpriced }} trade(s) had no price and are left out">*</span>}</td>
+                              <td class="num">{{ r.avg_price ? money(r.avg_price) : '—' }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
+                }
+                @if (hasUnpriced(ev)) { <p class="sub">* Some trades had no price; amounts and averages leave them out.</p> }
+                <h4>All trades</h4>
                 <p class="hint">Net: <span [class]="tone(ev.insider_net_value)">{{ ev.insider_net_value !== null ? signed(ev.insider_net_value) : '—' }}</span>.
                   Finnhub does not say which insiders are officers; check the names against the 10-K.</p>
                 <div class="table-x">
@@ -205,6 +238,9 @@ import { PrinciplesService } from '../../core/principles.service';
     textarea { font: inherit; width: 100%; max-width: 40rem; }
     details { margin: 0.5rem 0; }
     summary { cursor: pointer; }
+    h4 { margin: 0.75rem 0 0.25rem; }
+    h5 { margin: 0.5rem 0 0.25rem; }
+    .insider-summary .span { white-space: nowrap; }
   `,
 })
 export class PrinciplesPanel {
@@ -236,6 +272,11 @@ export class PrinciplesPanel {
   protected readonly compact = fmtCompactMoney;
   protected readonly qty = fmtQty;
   protected readonly tone = tone;
+
+  protected hasUnpriced(ev: Evidence): boolean {
+    const s = ev.insider_summary;
+    return [...s.sellers, ...s.buyers].some((r) => r.unpriced > 0);
+  }
 
   constructor() {
     effect(() => {

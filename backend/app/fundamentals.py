@@ -522,3 +522,54 @@ def recent_open_market(trades: Sequence[InsiderTrade], today: date) -> list[Insi
 
 def net_insider_value(trades: Sequence[InsiderTrade]) -> Decimal:
     return _q(sum((t.shares_change * t.price for t in trades if t.price), Decimal(0)))
+
+
+INSIDER_TOP = 10
+
+
+@dataclass(frozen=True)
+class InsiderSide:
+    """One insider's open-market sales (or buys): what they moved, for how much, and when."""
+
+    name: str
+    trades: int
+    shares: int  # unsigned, including unpriced trades
+    value: Decimal  # USD over priced trades only; sale proceeds, not profit (Form 4 has no basis)
+    avg_price: Decimal | None  # value / priced shares
+    first_date: date
+    last_date: date
+    unpriced: int  # trades without a price, left out of value and avg_price
+
+
+def _side(name: str, trades: list[InsiderTrade]) -> InsiderSide:
+    priced = [t for t in trades if t.price]
+    priced_shares = sum(abs(t.shares_change) for t in priced)
+    value = sum((abs(t.shares_change) * t.price for t in priced), Decimal(0))
+    dates = [t.transaction_date for t in trades]
+    return InsiderSide(
+        name=name,
+        trades=len(trades),
+        shares=sum(abs(t.shares_change) for t in trades),
+        value=_q(value),
+        avg_price=_q(value / priced_shares) if priced_shares else None,
+        first_date=min(dates),
+        last_date=max(dates),
+        unpriced=len(trades) - len(priced),
+    )
+
+
+def insider_summary(
+    trades: Sequence[InsiderTrade], top: int = INSIDER_TOP
+) -> tuple[list[InsiderSide], list[InsiderSide]]:
+    """Top sellers and top buyers by dollar value, from already-filtered open-market trades."""
+
+    def rank(code: str) -> list[InsiderSide]:
+        by_name: dict[str, list[InsiderTrade]] = {}
+        for t in trades:
+            if t.code == code:
+                by_name.setdefault(t.name, []).append(t)
+        sides = [_side(n, ts) for n, ts in by_name.items()]
+        sides.sort(key=lambda s: (-s.value, s.name))
+        return sides[:top]
+
+    return rank("S"), rank("P")

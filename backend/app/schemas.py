@@ -312,6 +312,22 @@ class InsiderTradeOut(BaseModel):
     filing_date: date | None
 
 
+class InsiderSideOut(BaseModel):
+    name: str
+    trades: int
+    shares: int
+    value: Decimal  # USD, priced trades only; sale proceeds, not profit
+    avg_price: Decimal | None
+    first_date: date
+    last_date: date
+    unpriced: int
+
+
+class InsiderSummaryOut(BaseModel):
+    sellers: list[InsiderSideOut]  # top 10 by value
+    buyers: list[InsiderSideOut]  # top 10 by value
+
+
 class BuybackYearOut(BaseModel):
     year: int
     amount: Decimal
@@ -340,6 +356,7 @@ class SplitOut(BaseModel):
 class EvidenceOut(BaseModel):
     insider_trades: list[InsiderTradeOut]  # open-market buys and sales, last 12 months
     insider_net_value: Decimal | None  # USD, positive = net buying
+    insider_summary: InsiderSummaryOut
     buybacks: list[BuybackYearOut]
     years: list[CashYearOut]  # last 10 fiscal years, newest first
     splits: list[SplitOut]  # newest first

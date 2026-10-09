@@ -172,6 +172,9 @@ def test_scorecard_values_statuses_and_evidence(alice):
     ev = body["evidence"]
     assert [t["name"] for t in ev["insider_trades"]] == ["CEO"]  # the grant is not open market
     assert ev["insider_net_value"] == "-50000.00"
+    [ceo] = ev["insider_summary"]["sellers"]
+    assert (ceo["name"], ceo["value"], ceo["avg_price"]) == ("CEO", "50000.00", "50.00")
+    assert ev["insider_summary"]["buyers"] == []
     assert [s["ratio"] for s in ev["splits"]] == ["4", "2"]  # newest first
     assert len(ev["years"]) == 10 and ev["years"][0]["owner_earnings"] == "200"
     assert body["warnings"] == [] and body["stale"] is False

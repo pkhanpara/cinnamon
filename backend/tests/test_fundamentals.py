@@ -239,6 +239,46 @@ def test_insider_evidence_keeps_open_market_trades_of_the_last_year():
     assert F.net_insider_value(recent) == D("-600.00")
 
 
+def _trade(name, code, change, price, when):
+    return InsiderTrade(name, change, price, code, when, None)
+
+
+def test_insider_summary_ranks_sellers_and_buyers_by_dollar_value():
+    trades = [
+        _trade("Cook", "S", -100, D(200), date(2026, 9, 1)),
+        _trade("Cook", "S", -300, D(100), date(2026, 3, 1)),
+        _trade("Cook", "S", -50, None, date(2026, 5, 1)),  # unpriced: shares only
+        _trade("Adams", "S", -1000, D(60), date(2026, 6, 1)),
+        _trade("Adams", "P", 10, D(55), date(2026, 7, 1)),  # bought too: in both lists
+        _trade("Zed", "P", 100, D(20), date(2026, 2, 1)),
+    ]
+    sellers, buyers = F.insider_summary(trades)
+
+    assert [s.name for s in sellers] == ["Adams", "Cook"]
+    cook = sellers[1]
+    assert (cook.trades, cook.shares, cook.unpriced) == (3, 450, 1)
+    assert cook.value == D("50000.00")
+    assert cook.avg_price == D("125.00")  # 50000 / 400 priced shares
+    assert (cook.first_date, cook.last_date) == (date(2026, 3, 1), date(2026, 9, 1))
+
+    assert [b.name for b in buyers] == ["Zed", "Adams"]
+    adams = buyers[1]
+    assert (adams.value, adams.avg_price, adams.first_date) == (
+        D("550.00"),
+        D("55.00"),
+        date(2026, 7, 1),
+    )
+
+
+def test_insider_summary_caps_each_list_and_handles_no_prices():
+    trades = [_trade(f"S{i:02}", "S", -1, D(i + 1), date(2026, 1, 1)) for i in range(12)]
+    trades.append(_trade("NoPrice", "P", 5, None, date(2026, 1, 1)))
+    sellers, buyers = F.insider_summary(trades)
+    assert len(sellers) == 10 and sellers[0].name == "S11" and sellers[-1].name == "S02"
+    assert buyers[0].value == D("0.00") and buyers[0].avg_price is None
+    assert F.insider_summary([]) == ([], [])
+
+
 def test_without_an_eps_series_the_10k_eps_is_used_and_flagged():
     jpm = real_core("JPM", industry="Banks - Diversified")
     assert jpm.eps_as_reported
