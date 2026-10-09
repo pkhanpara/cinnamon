@@ -33,6 +33,9 @@ class RowIssue:
 class ParseResult:
     positions: list[ParsedPosition] = field(default_factory=list)
     errors: list[RowIssue] = field(default_factory=list)
+    # Symbols the file holds without a cost (e.g. shares transferred in); the user supplies their
+    # average cost and the file is parsed again with `average_costs`.
+    needs_average_cost: list[str] = field(default_factory=list)
 
 
 class Connector(Protocol):
@@ -43,3 +46,8 @@ class Connector(Protocol):
     platforms: frozenset[str]
 
     def parse(self, data: bytes) -> ParseResult: ...
+
+
+# A connector that sets `accepts_average_costs = True` also takes
+#     parse(data, average_costs: Mapping[str, Decimal] | None)
+# with the user's average cost per symbol, for the symbols it listed in `needs_average_cost`.

@@ -37,6 +37,7 @@ const PREVIEW = {
   current_position_count: 0,
   total_cost_basis: '5200.00',
   total_market_value: '6800.00',
+  needs_average_cost: [] as string[],
 };
 const file = (name = 'a.csv') =>
   new File(['symbol,quantity,cost_basis\nORCL,40,5200\n'], name, { type: 'text/csv' });
@@ -162,6 +163,65 @@ describe('Import page', () => {
     m.f.detectChanges();
     expect(m.el.querySelector('[role=alert]')?.textContent).toContain('nothing was imported');
     expect(m.c['result']()).toBeNull();
+  });
+
+  it('asks for the average cost of transferred symbols, then imports with the applied costs', async () => {
+    const m = await mount();
+    const fl = file('activity.csv');
+    await previewWith(
+      m,
+      {
+        ...PREVIEW,
+        needs_average_cost: ['DIS'],
+        errors: [{ row: 0, message: 'DIS: shares were transferred in without a cost.' }],
+      },
+      fl,
+    );
+    expect(m.el.querySelector('[role=alert]')?.textContent).toContain(
+      'DIS: shares were transferred',
+    );
+    expect(m.btn('Import')?.disabled).toBe(true);
+    const box = m.el.querySelector('input[aria-label="Average cost for DIS"]') as HTMLInputElement;
+    expect(box).toBeTruthy();
+    expect(m.el.querySelector('form')).toBeNull(); // plain buttons, nothing submits by itself
+    box.value = ' 96.00 ';
+    box.dispatchEvent(new Event('input'));
+
+    const p = m.c['runPreview']();
+    const req = m.http.expectOne('/api/accounts/7/imports/preview');
+    expect((req.request.body as FormData).get('average_costs')).toBe('{"DIS":"96.00"}');
+    req.flush({ ...PREVIEW, needs_average_cost: ['DIS'] });
+    await p;
+    m.f.detectChanges();
+    expect(m.btn('Import')?.disabled).toBe(false);
+
+    box.value = '1'; // edited after applying: the import still sends what was previewed
+    box.dispatchEvent(new Event('input'));
+    const c = m.c['confirm']();
+    const commit = m.http.expectOne('/api/accounts/7/imports');
+    expect((commit.request.body as FormData).get('average_costs')).toBe('{"DIS":"96.00"}');
+    commit.flush({
+      id: 1,
+      connector: 'robinhood-activity',
+      filename: 'a.csv',
+      row_count: 2,
+      created_at: '',
+    });
+    await c;
+  });
+
+  it('sends no average_costs field when none were entered, and forgets them for a new file', async () => {
+    const m = await mount();
+    m.c['setCost']('DIS', '  ');
+    m.c['file'].set(file());
+    const p = m.c['runPreview']();
+    const req = m.http.expectOne('/api/accounts/7/imports/preview');
+    expect((req.request.body as FormData).has('average_costs')).toBe(false);
+    req.flush(PREVIEW);
+    await p;
+    m.c['setCost']('DIS', '5');
+    m.c['onFile']({ item: () => file('other.csv') } as unknown as FileList);
+    expect(m.c['costs']()).toEqual({});
   });
 
   it('discards a stale preview when a different file is chosen', async () => {

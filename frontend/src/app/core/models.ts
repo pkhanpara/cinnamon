@@ -41,6 +41,8 @@ export interface ImportPreview {
   current_position_count: number;
   total_cost_basis: string;
   total_market_value: string | null;
+  /** Symbols held without a cost (e.g. Robinhood transfers); preview again with their average cost. */
+  needs_average_cost: string[];
 }
 
 export interface ImportResult {

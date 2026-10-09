@@ -39,6 +39,22 @@ import { Account, Connector, ImportPreview, ImportResult } from '../../core/mode
       @if (preview(); as p) {
         <h3>Preview: {{ p.filename }}</h3>
         @for (w of p.warnings; track w) { <p class="warn" role="note">{{ w }}</p> }
+        @if (p.needs_average_cost.length) {
+          <fieldset class="card wide">
+            <legend>Average cost for transferred shares</legend>
+            <p class="hint">
+              The report has no cost for shares transferred in from another broker. Enter the average cost
+              the Robinhood app shows for each, then apply.
+            </p>
+            @for (s of p.needs_average_cost; track s) {
+              <label>{{ s }}
+                <input type="text" inputmode="decimal" [attr.aria-label]="'Average cost for ' + s"
+                       [value]="costs()[s] || ''" (input)="setCost(s, $any($event.target).value)" />
+              </label>
+            }
+            <button type="button" (click)="runPreview()" [disabled]="busy()">Apply costs</button>
+          </fieldset>
+        }
         @if (p.errors.length) {
           <div class="error" role="alert">
             <strong>{{ p.errors.length }} problem(s). Fix the file and preview again:</strong>
@@ -96,6 +112,9 @@ export class Import {
   protected readonly file = signal<File | null>(null);
   protected readonly preview = signal<ImportPreview | null>(null);
   protected readonly result = signal<ImportResult | null>(null);
+  /** Average costs being typed, and the ones the current preview was made with (sent on import). */
+  protected readonly costs = signal<Record<string, string>>({});
+  private appliedCosts: Record<string, string> = {};
   protected readonly busy = signal(false);
   protected readonly error = signal('');
   protected readonly canConfirm = computed(() => {
@@ -135,7 +154,13 @@ export class Import {
 
   protected clearPreview(): void {
     this.preview.set(null);
+    this.costs.set({});
+    this.appliedCosts = {};
     this.error.set('');
+  }
+
+  protected setCost(symbol: string, value: string): void {
+    this.costs.update((c) => ({ ...c, [symbol]: value }));
   }
 
   protected async runPreview(): Promise<void> {
@@ -143,10 +168,16 @@ export class Import {
     if (!file) return;
     this.busy.set(true);
     this.error.set('');
+    const costs = Object.fromEntries(
+      Object.entries(this.costs())
+        .map(([s, v]) => [s, v.trim()] as const)
+        .filter(([, v]) => v),
+    );
     try {
       this.preview.set(
-        await firstValueFrom(this.api.preview(this.accountId, this.connector(), file)),
+        await firstValueFrom(this.api.preview(this.accountId, this.connector(), file, costs)),
       );
+      this.appliedCosts = costs;
     } catch (e) {
       this.preview.set(null);
       this.error.set(apiError(e, 'Could not read the file'));
@@ -162,7 +193,9 @@ export class Import {
     this.error.set('');
     try {
       this.result.set(
-        await firstValueFrom(this.api.commit(this.accountId, this.connector(), file)),
+        await firstValueFrom(
+          this.api.commit(this.accountId, this.connector(), file, this.appliedCosts),
+        ),
       );
     } catch (e) {
       this.error.set(apiError(e, 'Import failed'));

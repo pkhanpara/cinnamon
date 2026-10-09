@@ -21,7 +21,7 @@ import { ADMIN_PASSWORD, DEFAULT_PASSWORD, signIn } from './support';
  */
 
 const NEW_PASSWORD = ADMIN_PASSWORD;
-const SAMPLE_CSV = path.resolve(__dirname, '../../seed/sample/robinhood_app_positions.csv'); // robinhood-positions, the default
+const SAMPLE_CSV = path.resolve(__dirname, '../../seed/sample/robinhood_app_positions.csv'); // robinhood-positions
 
 // Non-2xx responses the scenarios provoke on purpose. Anything else is a failure.
 const EXPECTED_ERROR_RESPONSES: { status: number; url: RegExp; why: string }[] = [
@@ -172,7 +172,8 @@ test.describe('first-time login on a fresh install', () => {
 
     await page.getByRole('link', { name: 'Import' }).click();
     await expect(page).toHaveURL(/\/settings\/accounts\/\d+\/import$/);
-    await expect(page.getByLabel('Format')).toHaveValue('robinhood-positions');
+    await expect(page.getByLabel('Format')).toHaveValue('robinhood-activity'); // the default
+    await page.getByLabel('Format').selectOption('robinhood-positions');
     await page.locator('input[type=file]').setInputFiles(SAMPLE_CSV);
     await page.getByRole('button', { name: 'Preview' }).click();
     await expect(page.getByText('3 valid row(s)')).toBeVisible();

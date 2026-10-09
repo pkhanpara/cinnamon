@@ -1,16 +1,16 @@
 """Robinhood positions, typed in from the app (ADR 0013).
 
 Robinhood has no holdings export (ADR 0011): its CSVs are the 1099 tax CSV (realized sales, dividends and
-interest for one tax year) and the Account activity report (transactions over a date range). This connector
-reads a small hand-made file with the numbers each position's screen in the Robinhood app shows:
+interest for one tax year) and the Account activity report (transactions, replayed by `robinhood_activity`).
+This connector reads a small hand-made file with the numbers each position's screen in the Robinhood app shows:
 
 Required columns: Symbol, Shares, Average cost
 Optional columns: Name, Market value, As of (ISO 8601; naive values are taken as UTC)
 Headers are case-insensitive. Numbers may contain "$" and ",". One row per symbol.
 
 Cost basis is shares x average cost, rounded to cents; the app shows the average cost rounded to cents, so the
-basis can be off by up to half a cent per share. The two Robinhood exports are recognized and refused with a
-message saying why, instead of a missing-column error.
+basis can be off by up to half a cent per share. Robinhood's own exports are recognized and refused with a
+message saying why (and, for the activity report, which format to pick), instead of a missing-column error.
 """
 
 import csv
@@ -28,13 +28,12 @@ CENTS, PRICE_PLACES = Decimal("0.01"), Decimal("0.0001")
 
 TAX_CSV_HINT = (
     "This is Robinhood's 1099 tax CSV: one tax year of realized sales, dividends and interest, "
-    "with no current holdings. Fill in the Robinhood positions template instead "
-    "(Symbol, Shares, Average cost from each position in the app)."
+    "with no current holdings. Import the Account activity report (Account > Reports and "
+    "statements > Reports) or fill in the Robinhood positions template instead."
 )
 ACTIVITY_HINT = (
-    "This is a Robinhood Account activity report. Turning transactions into positions is not "
-    "supported yet; fill in the Robinhood positions template instead "
-    "(Symbol, Shares, Average cost from each position in the app)."
+    "This is a Robinhood Account activity report. Choose the format "
+    '"Robinhood account activity report" to import it.'
 )
 
 
@@ -55,8 +54,8 @@ class RobinhoodPositionsConnector:
     slug = "robinhood-positions"
     label = "Robinhood positions (from the app)"
     description = (
-        "Symbol, Shares, Average cost as the Robinhood app shows them; optional Name, Market value, "
-        "As of. Robinhood's 1099 and activity CSVs have no holdings."
+        "A file you fill in: Symbol, Shares, Average cost as the Robinhood app shows them; optional "
+        "Name, Market value, As of."
     )
     platforms: frozenset[str] = frozenset({"robinhood"})
 

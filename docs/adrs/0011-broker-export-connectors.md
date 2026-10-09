@@ -60,5 +60,6 @@ symbol**. It was run through `snapshot` and failed with "Missing required column
   nothing is lost today.
 
 ## Addendum (2026-10-08): Robinhood
-Superseded for Robinhood by ADR 0013: a hand-made `robinhood-positions` template is now the default for robinhood
-accounts, and Robinhood's 1099 and activity CSVs are recognized and refused with an explanation.
+Superseded for Robinhood by ADR 0013: the Account activity report is replayed into positions (average cost; the
+user types the app's average cost for shares transferred in), with a hand-made `robinhood-positions` template as a
+fallback. The 1099 CSV is recognized and refused with an explanation.

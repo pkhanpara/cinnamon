@@ -15,6 +15,7 @@ const PASSWORD = 'dave-password-1';
 const NEW_PASSWORD = 'dave-password-2';
 const FIRST_CSV = path.resolve(__dirname, '../../seed/sample/robinhood_positions.csv'); // ORCL, INTC, DIS
 const SECOND_CSV = `${E2E_DIR}/second-snapshot.csv`; // a different, smaller snapshot
+const ACTIVITY_CSV = path.resolve(__dirname, '../../seed/sample/robinhood_activity.csv'); // DIS transferred in
 
 test.describe.configure({ mode: 'serial' });
 
@@ -87,6 +88,27 @@ test.describe('a returning user', () => {
     await page.getByRole('link', { name: 'Home' }).click();
     await expect(page.locator('tbody tr strong')).toHaveText(['VTI']); // the old three are gone
     await expect(page.locator('.tile', { hasText: 'Total value' })).toContainText('$2,700.00');
+  });
+
+  test('imports a Robinhood activity report, entering the cost of transferred shares', async () => {
+    await page.goto('/settings/accounts');
+    await page.getByRole('link', { name: 'Import' }).click();
+    await expect(page.getByLabel('Format')).toHaveValue('robinhood-activity');
+    await page.locator('input[type=file]').setInputFiles(ACTIVITY_CSV);
+    await page.getByRole('button', { name: 'Preview' }).click();
+    await expect(page.getByRole('alert')).toContainText('DIS: shares were transferred in');
+    await expect(page.getByRole('button', { name: /import$/ })).toBeDisabled();
+
+    await page.getByLabel('Average cost for DIS').fill('96.00');
+    await page.getByRole('button', { name: 'Apply costs' }).click();
+    await expect(page.getByText('3 valid row(s) · cost basis 10,620.00')).toBeVisible();
+    await page
+      .getByRole('button', { name: 'Replace 1 position(s) and import', exact: true })
+      .click();
+    await expect(page.getByRole('status')).toContainText('Imported 3 position(s)');
+
+    await page.getByRole('link', { name: 'Home' }).click();
+    await expect(page.locator('.tile', { hasText: 'Cost basis' })).toContainText('$10,620.00');
   });
 
   test('deleting the account removes its holdings', async () => {

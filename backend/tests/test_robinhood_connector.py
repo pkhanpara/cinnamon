@@ -127,14 +127,13 @@ ACTIVITY_CSV = (
         (TAX_CSV, "1099 tax CSV"),
         (TAX_CSV.replace(b"1099-DIV", b"1099-B", 2), "1099 tax CSV"),
         (b"1099-INT,ACCOUNT NUMBER\n1099-INT,0\n", "1099 tax CSV"),
-        (ACTIVITY_CSV, "Account activity report"),
+        (ACTIVITY_CSV, 'Choose the format "Robinhood account activity report"'),
     ],
 )
 def test_robinhood_exports_are_recognized(data, fragment):
     r = parse(data)
     assert r.positions == [] and len(r.errors) == 1
     assert r.errors[0].row == 0 and fragment in r.errors[0].message
-    assert "positions template" in r.errors[0].message
 
 
 def test_row_limit():
