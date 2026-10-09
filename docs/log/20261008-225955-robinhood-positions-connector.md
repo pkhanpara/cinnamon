@@ -53,12 +53,23 @@ Results:
 - Frontend: `npm run format:check` clean; `npm run test:ci` → 231 passed; `npm run e2e` (ports 8337/4337,
   `/tmp/cinnamon-e2e-8337`) → 19 passed.
 
+Real-browser check (2026-10-08, agent-browser, worktree stack on :8338/:4338, fresh SQLite in the scratchpad, no
+Finnhub key): admin first login → password change → add a `robinhood` account → Import. Format defaults to
+"Robinhood positions (from the app)". The real 1099 file previews as `File: This is Robinhood's 1099 tax CSV: …` with
+Import **disabled**. `seed/sample/robinhood_app_positions.csv` previews `3 valid row(s) · cost basis 10,700.00 · market
+value 12,050.00`, then "Imported 3 position(s)". Home: total $12,050.00, cost $10,700.00, gain +$1,350.00 +12.62%, rows ORCL
+40 @ $170.00 / DIS 25 @ $110.00 / INTC 100 @ $25.00. No browser console errors; the only 4xx in the backend log is the
+expected pre-login `GET /api/auth/me 401`. (The Portfolio-value chart shows ~$18.8k: that's current holdings at real
+yfinance prices vs the sample's made-up prices, not a connector issue.)
+
 ## Still to do
 - Activity-report replay (ADR 0013 rules, ADR 0007) – TODO.
 - "Download template" link on the import page – TODO.
-- Real-browser Robinhood import, totals vs the app – TODO.
+- Real-browser import with the user's own positions, totals vs the Robinhood app (needs their numbers) – TODO.
 
 ## Gotchas
 - The user's "1099tax_activity" file is the 1099 CSV, not the activity report; the name suggests both.
 - I nearly used a quantity from the private seed as a test value. Test numbers must be fabricated (public repo).
 - A new platform-specific connector changes the UI default for that platform, so check the e2e specs.
+- `pkill -f "uvicorn ... --port 8338"` inside a compound Bash command matches that shell's own command line and kills it
+  (exit 144). Stop dev servers by PID from `ss -ltnp` instead.

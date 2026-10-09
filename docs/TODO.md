@@ -71,6 +71,8 @@
 - [ ] Robinhood activity-report replay into positions: needs the full history since account open; ACATI without basis = error on that symbol; average cost; skip options (ADR 0013, ADR 0007) #feat  
 - [ ] Import page: "Download template" link for the selected connector (e.g. seed/sample/robinhood_app_positions.csv) #ux  
 - [ ] Real-browser check of a Robinhood import with the template, totals vs the app #test  
+  - [x] Sample template + real 1099 refusal in a real browser (see the 20261008-225955 log)  
+  - [ ] With the user's own positions, totals vs the Robinhood app  
 - [ ] Real-browser check of an M1 import: Holdings CSV (now the default for m1 accounts, docs/log/20261007-222525-m1-holdings-connector.md) and tax lots, preview totals vs M1's Holdings page #test  
 - [ ] Transactions, cost basis (avg-cost; ADR 0005) #feat  
 - [x] Watchlists + investing-principles scorecard with Finnhub-peer comparison, phase 1 (ADR 0012, docs/log/20261008-213725-watchlists-principles.md) #feat  
