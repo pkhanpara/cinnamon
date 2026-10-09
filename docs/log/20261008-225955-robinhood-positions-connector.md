@@ -12,8 +12,8 @@ All private files were read in place, and only counts and shapes were printed.
 - `seed/private/robinhood_1099tax_activity.csv` = `~/Downloads/robinhood_1099tax_activity.csv` (md5 `14741f91…`), and
   `cmp` says it is **byte-identical** to `~/Downloads/54c18471-…csv`, the 1099 file analyzed in ADR 0011. It has 30 rows:
   1099-B 26 rows/40 cols, 1099-DIV 2/35, 1099-INT 2/31. Each section has its own header row. No BOM.
-  **Exactly 8192 bytes**, ends with `\n` on a complete row. A size that round suggests the download may be
-  truncated. Worth re-downloading if more 1099-B sales are expected.
+  Exactly 8192 bytes, ends with `\n` on a complete row. The round size looked like truncation, but the user
+  confirmed (2026-10-08) that it is the complete file.
 - `~/Downloads/95ad2726-…csv` = **Account activity report**: 17123 bytes, 140 records (138 x 9 cols, a 1-cell blank,
   and a 10-cell disclaimer footer), dates 2025-06-04 .. 2026-10-01 newest first, 93 multi-line descriptions. Codes:
   Buy 56, Sell 34, CDIV 27, SLIP 5, ACATI 5 (shares with qty but no price; also cash residuals), DTAX 4, BTO 2, STC 2,
