@@ -7,6 +7,10 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../core/auth.service';
 import { apiError } from '../../core/errors';
@@ -30,7 +34,13 @@ function isUsernameRejected(e: unknown): boolean {
 
 @Component({
   selector: 'app-users',
-  imports: [ReactiveFormsModule],
+  imports: [
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatCheckboxModule,
+  ],
   template: `
     <h3>User setup</h3>
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
@@ -49,19 +59,21 @@ function isUsernameRejected(e: unknown): boolean {
               @if (u.must_change_password) { · must set a new password at next sign-in }
             </span>
             @if (resettingId() === u.id) {
-              <input #pw type="password" aria-label="Temporary password" placeholder="Temporary password (10+ chars)"
+              <input #pw class="grow" type="password" aria-label="Temporary password" placeholder="Temporary password (10+ chars)"
                      autocomplete="new-password" (keyup.enter)="resetPassword(u, pw.value)"
                      (keyup.escape)="resettingId.set(null)" />
-              <button type="button" (click)="resetPassword(u, pw.value)">Save</button>
-              <button type="button" (click)="resettingId.set(null)">Cancel</button>
+              <button mat-flat-button type="button" (click)="resetPassword(u, pw.value)">Save</button>
+              <button mat-button type="button" (click)="resettingId.set(null)">Cancel</button>
             } @else {
-              <button type="button" (click)="resettingId.set(u.id)">Reset password</button>
-              @if (u.id !== me()?.id) {
-                <button type="button" (click)="patch(u, { is_admin: !u.is_admin })">
-                  {{ u.is_admin ? 'Remove admin' : 'Make admin' }}</button>
-                <button type="button" (click)="patch(u, { is_active: !u.is_active })">
-                  {{ u.is_active ? 'Deactivate' : 'Activate' }}</button>
-              }
+              <span class="actions">
+                <button mat-stroked-button type="button" (click)="resettingId.set(u.id)">Reset password</button>
+                @if (u.id !== me()?.id) {
+                  <button mat-stroked-button type="button" (click)="patch(u, { is_admin: !u.is_admin })">
+                    {{ u.is_admin ? 'Remove admin' : 'Make admin' }}</button>
+                  <button mat-button type="button" [class.del]="u.is_active" (click)="patch(u, { is_active: !u.is_active })">
+                    {{ u.is_active ? 'Deactivate' : 'Activate' }}</button>
+                }
+              </span>
             }
           </li>
         }
@@ -70,15 +82,24 @@ function isUsernameRejected(e: unknown): boolean {
 
     <form class="card" [formGroup]="form" (ngSubmit)="add()">
       <h3>Add user</h3>
-      <label>Username <input formControlName="username" autocomplete="off" /></label>
-      <label>Temporary password
-        <input type="password" formControlName="password" autocomplete="new-password" />
-      </label>
-      <label class="check"><input type="checkbox" formControlName="is_admin" /> Administrator</label>
+      <mat-form-field>
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" autocomplete="off" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Temporary password</mat-label>
+        <input matInput type="password" formControlName="password" autocomplete="new-password" />
+      </mat-form-field>
+      <mat-checkbox formControlName="is_admin">Administrator</mat-checkbox>
       <p class="hint" [class.error]="usernameInvalid()">{{ USERNAME_HINT }}</p>
       <p class="hint">They will be asked to choose their own password at first sign-in.</p>
-      <button type="submit" [disabled]="form.invalid || busy()">Add user</button>
+      <button mat-flat-button type="submit" [disabled]="form.invalid || busy()">Add user</button>
     </form>
+  `,
+  styles: `
+    .actions { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-left: auto; }
+    .del { --mat-button-text-label-text-color: var(--loss); }
+    .grow { flex: 1; }
   `,
 })
 export class Users {

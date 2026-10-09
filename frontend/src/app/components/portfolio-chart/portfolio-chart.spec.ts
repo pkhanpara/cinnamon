@@ -104,7 +104,7 @@ describe('PortfolioChart', () => {
     expect(labels).toEqual(['1D', '5D', '1M', '6M', 'YTD', '1Y', 'All']);
     (
       Array.from(m.el.querySelectorAll('.ranges button')).find(
-        (b) => b.textContent === 'YTD',
+        (b) => b.textContent?.trim() === 'YTD',
       ) as HTMLButtonElement
     ).click();
     m.f.detectChanges();
@@ -114,7 +114,7 @@ describe('PortfolioChart', () => {
   it('overlays SPY and shows the gap when the toggle is on', async () => {
     const m = setup();
     await m.next(body());
-    (m.el.querySelector('.spy input') as HTMLInputElement).click();
+    (m.el.querySelector('.spy button[role=switch]') as HTMLButtonElement).click();
     m.f.detectChanges();
     await m.next(withSpy(), (p) => expect(p.get('compare')).toBe('spy'));
     expect(m.handle.setCompare).toHaveBeenLastCalledWith([

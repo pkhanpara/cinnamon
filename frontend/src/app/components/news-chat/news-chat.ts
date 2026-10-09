@@ -12,6 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { MatButtonModule } from '@angular/material/button';
 import { catchError, of } from 'rxjs';
 import { ChatRequest, ChatTurn, LlmService, Preset } from '../../core/llm.service';
 
@@ -32,10 +33,11 @@ const BOTTOM_SLACK = 24; // px from the bottom of the log that still counts as "
 /** Ask-AI side panel for the ticker page (ADR 0008). Renders nothing unless the server has a model configured. */
 @Component({
   selector: 'app-news-chat',
+  imports: [MatButtonModule],
   template: `
     @if (status()?.enabled) {
       @if (!open()) {
-        <button type="button" class="ask" (click)="openPanel()">Ask AI</button>
+        <button mat-flat-button type="button" class="ask" (click)="openPanel()">✦ Ask AI</button>
       } @else {
         <aside class="panel" role="complementary" aria-label="Ask AI" (keydown.escape)="close()">
           <header>
@@ -87,22 +89,32 @@ const BOTTOM_SLACK = 24; // px from the bottom of the log that still counts as "
     }
   `,
   styles: `
-    .ask { position: fixed; right: 1rem; bottom: 1rem; z-index: 10; }
-    .panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(26rem, 100vw); z-index: 20; display: flex; flex-direction: column;
-      gap: 0.5rem; padding: 0.75rem 1rem; overflow-y: hidden; background: Canvas; color: CanvasText; border-left: 1px solid var(--border, #ccc); }
+    .ask { position: fixed; right: 1.25rem; bottom: 1.25rem; z-index: 10; box-shadow: var(--shadow-lg);
+      --mat-button-filled-container-shape: 999px; --mat-button-filled-container-height: 2.75rem;
+      --mat-button-filled-horizontal-padding: 1.25rem; }
+    .panel { position: fixed; top: 0; right: 0; bottom: 0; width: min(28rem, 100vw); box-sizing: border-box; z-index: 25;
+      display: flex; flex-direction: column; gap: 0.6rem; padding: 1rem 1.25rem; overflow-y: hidden;
+      background: var(--surface); color: var(--text); border-left: 1px solid var(--border); box-shadow: var(--shadow-lg); }
     .panel > :not(.log) { flex: none; }
-    header { display: flex; justify-content: space-between; align-items: baseline; }
+    header { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
     h3 { margin: 0; }
     .actions { display: flex; gap: 0.75rem; }
+    .actions .link { color: var(--accent); font-weight: 550; font-size: 0.875rem; }
+    .actions .link:disabled { color: var(--muted); cursor: default; }
+    .hint { margin: 0; font-size: 0.8rem; }
     .presets { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-    .opt { display: flex; gap: 0.4rem; align-items: center; }
-    .sent { margin: 0; font-size: 0.85em; }
-    .log { flex: 1 1 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 0.5rem; }
-    .msg { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
-    .msg.user { font-weight: 600; }
+    .presets button { min-height: 1.9rem; padding: 0 0.75rem; border-radius: 999px; font-size: 0.8rem; }
+    .opt { display: flex; gap: 0.5rem; align-items: center; font-weight: 450; }
+    .sent { margin: 0; font-size: 0.8rem; }
+    .log { flex: 1 1 0; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 0.6rem;
+      padding: 0.75rem; background: var(--bg); border-radius: var(--radius-sm); }
+    .msg { margin: 0; padding: 0.6rem 0.8rem; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.9rem;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px 12px 12px 4px; }
+    .msg.user { align-self: flex-end; max-width: 85%; font-weight: 500; color: var(--mat-sys-on-primary);
+      background: var(--accent); border-color: var(--accent); border-radius: 12px 12px 4px 12px; }
     .cursor { opacity: 0.5; }
-    textarea { width: 100%; box-sizing: border-box; font: inherit; }
-    .row { display: flex; justify-content: space-between; align-items: center; }
+    textarea { width: 100%; box-sizing: border-box; font: inherit; resize: vertical; }
+    .row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
   `,
 })
 export class NewsChat {

@@ -1,5 +1,8 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AccountsService } from '../../core/accounts.service';
@@ -9,9 +12,9 @@ import { Account, Connector, ImportPreview, ImportResult } from '../../core/mode
 
 @Component({
   selector: 'app-import',
-  imports: [DecimalPipe, RouterLink],
+  imports: [DecimalPipe, RouterLink, MatFormFieldModule, MatInputModule, MatButtonModule],
   template: `
-    <p><a routerLink="/settings/accounts">← Accounts</a></p>
+    <p><a class="back" routerLink="/settings/accounts">← Accounts</a></p>
     <h3>Import into {{ account()?.nickname ?? '…' }}</h3>
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
 
@@ -22,18 +25,21 @@ import { Account, Connector, ImportPreview, ImportResult } from '../../core/mode
       </p>
     } @else if (account()) {
       <div class="card wide">
-        <label>Format
-          <select (change)="connector.set($any($event.target).value); clearPreview()" aria-label="Format">
+        <mat-form-field>
+          <mat-label>Format</mat-label>
+          <select matNativeControl (change)="connector.set($any($event.target).value); clearPreview()" aria-label="Format">
             @for (c of connectors(); track c.slug) {
               <option [value]="c.slug" [selected]="c.slug === connector()">{{ c.label }}</option>
             }
           </select>
-        </label>
-        @if (selectedConnector(); as c) { <p class="hint">{{ c.description }}</p> }
-        <label>File
+          @if (selectedConnector(); as c) { <mat-hint>{{ c.description }}</mat-hint> }
+        </mat-form-field>
+        <label class="drop">
+          <span class="drop-title">{{ file()?.name ?? 'Choose a CSV file' }}</span>
+          <span class="hint">Exported from your broker, or cinnamon's own snapshot format.</span>
           <input type="file" accept=".csv,text/csv" aria-label="File" (change)="onFile($any($event.target).files)" />
         </label>
-        <button type="button" (click)="runPreview()" [disabled]="!file() || busy()">Preview</button>
+        <button mat-flat-button type="button" (click)="runPreview()" [disabled]="!file() || busy()">Preview</button>
       </div>
 
       @if (preview(); as p) {
@@ -47,12 +53,14 @@ import { Account, Connector, ImportPreview, ImportResult } from '../../core/mode
               the Robinhood app shows for each, then apply.
             </p>
             @for (s of p.needs_average_cost; track s) {
-              <label>{{ s }}
-                <input type="text" inputmode="decimal" [attr.aria-label]="'Average cost for ' + s"
+              <mat-form-field>
+                <mat-label>{{ s }}</mat-label>
+                <span matTextPrefix>$&nbsp;</span>
+                <input matInput type="text" inputmode="decimal" [attr.aria-label]="'Average cost for ' + s"
                        [value]="costs()[s] || ''" (input)="setCost(s, $any($event.target).value)" />
-              </label>
+              </mat-form-field>
             }
-            <button type="button" (click)="runPreview()" [disabled]="busy()">Apply costs</button>
+            <button mat-stroked-button type="button" (click)="runPreview()" [disabled]="busy()">Apply costs</button>
           </fieldset>
         }
         @if (p.errors.length) {
@@ -86,14 +94,25 @@ import { Account, Connector, ImportPreview, ImportResult } from '../../core/mode
             </table>
           </div>
         }
-        <p>
-          <button type="button" (click)="confirm()" [disabled]="!canConfirm() || busy()">
+        <p class="bar">
+          <button mat-flat-button type="button" (click)="confirm()" [disabled]="!canConfirm() || busy()">
             {{ p.current_position_count ? 'Replace ' + p.current_position_count + ' position(s) and import' : 'Import' }}
           </button>
-          <button type="button" (click)="clearPreview()">Cancel</button>
+          <button mat-button type="button" (click)="clearPreview()">Cancel</button>
         </p>
       }
     }
+  `,
+  styles: `
+    .back { text-decoration: none; font-size: 0.875rem; font-weight: 550; }
+    .drop { position: relative; display: grid; gap: 0.2rem; padding: 1.25rem; text-align: center; cursor: pointer;
+            border: 1.5px dashed var(--border-strong); border-radius: var(--radius-sm); background: var(--surface-2); }
+    .drop:hover, .drop:focus-within { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 5%, var(--surface)); }
+    .drop-title { font-weight: 600; color: var(--text); }
+    .drop .hint { font-weight: 400; }
+    .drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .bar { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    fieldset legend { font-weight: 600; }
   `,
 })
 export class Import {

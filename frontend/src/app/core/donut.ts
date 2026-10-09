@@ -7,15 +7,16 @@ export interface Slice {
   color: string;
 }
 
+// Distinct hues led by the app accent (azure); `Other` stays grey.
 const COLORS = [
-  '#2563eb',
-  '#d97706',
-  '#059669',
-  '#db2777',
-  '#7c3aed',
-  '#0891b2',
-  '#65a30d',
-  '#dc2626',
+  '#1570ef',
+  '#f79009',
+  '#12b76a',
+  '#ee46bc',
+  '#7a5af8',
+  '#06aed4',
+  '#66c61c',
+  '#f04438',
 ];
 const OTHER = '#9ca3af';
 

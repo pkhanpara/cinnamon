@@ -76,7 +76,8 @@ test.describe('watchlists', () => {
     await expect(page.locator('tbody a.sym')).toHaveText(['JNJ', 'KO']);
     await page.getByRole('link', { name: '← Watchlists' }).click();
     await expect(page.getByRole('listitem')).toContainText(['Deep value']);
-    await expect(page.getByText('2 symbols · JNJ, KO')).toBeVisible();
+    await expect(page.getByText('2 symbols')).toBeVisible();
+    await expect(page.locator('.lists .tag')).toHaveText(['JNJ', 'KO']);
     await page.getByRole('link', { name: 'Deep value' }).click();
   });
 
@@ -89,8 +90,8 @@ test.describe('watchlists', () => {
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByRole('heading', { name: 'Value ideas' })).toBeVisible();
 
-    page.once('dialog', (d) => d.accept());
     await page.getByRole('button', { name: 'Delete' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click(); // in-app confirm
     await expect(page).toHaveURL(/\/watchlists$/);
     await expect(page.getByText('No watchlists yet.')).toBeVisible();
   });

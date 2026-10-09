@@ -51,7 +51,7 @@
 - [ ] Show positions of one account (read-only table) on the accounts page #feat  
 - [ ] Import: undo/restore previous snapshot if replace-and-discard proves too risky #feat  
 - [ ] Users page: allow deleting a user and show created_at / last login #feat  
-- [ ] Replace window.confirm in account delete with an in-app dialog #chore  
+- [x] Replace window.confirm in account delete with an in-app dialog (`ConfirmService`, also on watchlist delete) #chore  
 - [ ] Browser-check the Docker image UI (API/static verified, see 20261007-182000 log) #chore  
 - [x] GitHub Actions CI: ruff, pytest, prettier, tsc, vitest, ng build, Playwright e2e (see 20261007-194816 log) #chore  
 - [ ] CI follow-ups (see 20261007-194816 log) #chore  
@@ -87,13 +87,20 @@
   - [ ] Split-adjust the 10-K EPS fallback (used when Finnhub has no EPS series, e.g. JPM) with the yfinance split history  
   - [ ] Remember the watchlist filter selection  
   - [ ] Real-browser check in the dev app (verified headless only)  
-- [ ] Header overflows at phone width (scrollWidth ~690 px at 390 px; symbol search + user name; the Watchlists link adds ~80 px) #ux  
+- [x] Header overflows at phone width: fixed by the wrapping Material toolbar (390/390 at 390 px, ADR 0014 log) #ux  
 - [ ] Daily snapshots, performance + allocation charts (the portfolio value chart above is the first, back-cast version) #feat  
 - [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  
 - [ ] ADR 0007 cost-basis method (when transactions are built) #docs  
 
 ### In Progress
 
+- [x] UI refresh with Angular Material M3, clean fintech light (ADR 0014, docs/log/20261008-234210-material-ui-refresh.md) #ux  
+  - [x] Phase 1: theme, tokens, Inter, toolbar shell with user menu, chart/donut colours  
+  - [x] Phase 2: Material forms (login, change-password, accounts, users, import), Settings tabs, ConfirmDialog (snackbars skipped: inline `role=status` notices kept)  
+  - [x] Phase 3: Home (checkbox filter, chart + allocation cards, range button-toggle, SPY slide-toggle); fixed the blank chart when switching range with SPY on (also broken on main)  
+  - [x] Phase 4: ticker page, Ask AI panel, principle status pills, watchlist cards and filter chips (390 px overflow fixed)  
+  - [ ] Follow-ups: dark theme (second `mat.theme` + dark tokens); optional `mat-table` for holdings  
+  - [ ] Look in the dev app with a Finnhub key and the LLM: principle pills and table, watchlist scores, news list, chat bubbles with real answers #ux  
 - [ ] Phase 1 scaffold (app features done through holdings; Docker image still needs rebuild + verify; browser E2E suite in progress in a parallel session)  
 
 ### Done ✓

@@ -3,6 +3,7 @@ import { Component, computed, effect, inject, signal, untracked } from '@angular
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom, map } from 'rxjs';
+import { ConfirmService } from '../../components/confirm-dialog/confirm-dialog';
 import { apiError } from '../../core/errors';
 import { Principle, Scorecard, WatchlistDetail } from '../../core/models';
 import {
@@ -28,7 +29,7 @@ const CONCURRENCY = 3;
   selector: 'app-watchlist',
   imports: [RouterLink],
   template: `
-    <p><a routerLink="/watchlists">← Watchlists</a></p>
+    <p><a class="back" routerLink="/watchlists">← Watchlists</a></p>
     @if (loadError()) {
       <p class="error" role="alert">{{ loadError() }}</p>
     } @else if (list(); as wl) {
@@ -41,12 +42,14 @@ const CONCURRENCY = 3;
           </form>
         } @else {
           <h2>{{ wl.name }}</h2>
-          <button type="button" class="link" (click)="startRename()">Rename</button>
-          <button type="button" class="link" (click)="remove()">Delete</button>
+          <span class="head-actions">
+            <button type="button" (click)="startRename()">Rename</button>
+            <button type="button" class="danger" (click)="remove()">Delete</button>
+          </span>
         }
       </header>
 
-      <form class="check" (submit)="$event.preventDefault(); add()">
+      <form class="check add" (submit)="$event.preventDefault(); add()">
         <input aria-label="Symbol to add" placeholder="Symbol, e.g. JNJ" maxlength="15"
                [value]="symbolDraft()" (input)="symbolDraft.set($any($event.target).value)" />
         <button type="submit" [disabled]="busy() || !symbolDraft().trim()">Add</button>
@@ -60,7 +63,7 @@ const CONCURRENCY = 3;
         <fieldset class="accounts-filter">
           <legend>Show only symbols that pass</legend>
           @for (p of filterable(); track p.key) {
-            <label class="check"><input type="checkbox" [checked]="filters().has(p.key)" (change)="toggleFilter(p.key)" />{{ p.label }}</label>
+            <label class="chip" [class.on]="filters().has(p.key)"><input type="checkbox" [checked]="filters().has(p.key)" (change)="toggleFilter(p.key)" />{{ p.label }}</label>
           }
           @if (filters().size) { <button type="button" class="link" (click)="clearFilters()">Clear</button> }
         </fieldset>
@@ -113,9 +116,23 @@ const CONCURRENCY = 3;
     .wl-table th { vertical-align: bottom; min-width: 5.5rem; }
     .wl-table td.num { white-space: nowrap; }
     .wl-table td:first-child { min-width: 8rem; }
-    .st-pass { color: #067647; }
-    .st-fail { color: var(--danger); }
-    .st-warn, .st-unsure { color: #b54708; }
+    .back { text-decoration: none; font-size: 0.875rem; font-weight: 550; }
+    .wl-head { align-items: center; }
+    .wl-head h2 { margin: 0; }
+    .head-actions { display: flex; gap: 0.4rem; margin-left: auto; }
+    .danger { color: var(--loss) !important; }
+    .add { flex-wrap: wrap; margin: 1rem 0; }
+    .chip { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.75rem; border-radius: 999px;
+            border: 1px solid var(--border-strong); background: var(--surface); font-size: 0.8rem; font-weight: 550; cursor: pointer; }
+    .chip input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+    .chip.on { color: var(--accent); border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+    .chip.on::before { content: '✓'; }
+    .chip:focus-within { box-shadow: var(--focus); }
+    .accounts-filter { align-items: center; }
+    .st { font-weight: 700; }
+    .st-pass { color: var(--gain); }
+    .st-fail { color: var(--loss); }
+    .st-warn, .st-unsure { color: var(--warn); }
     .st-na, .st-manual, .st-info { color: var(--muted); }
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   `,
@@ -124,6 +141,7 @@ export class WatchlistPage {
   private readonly api = inject(WatchlistsService);
   private readonly principles = inject(PrinciplesService);
   private readonly router = inject(Router);
+  private readonly confirm = inject(ConfirmService);
   protected readonly id = toSignal(
     inject(ActivatedRoute).paramMap.pipe(map((p) => Number(p.get('id')))),
     { initialValue: 0 },
@@ -274,7 +292,15 @@ export class WatchlistPage {
 
   protected async remove(): Promise<void> {
     const wl = this.list();
-    if (!wl || !window.confirm(`Delete the watchlist "${wl.name}"? Your verdicts are kept.`))
+    if (
+      !wl ||
+      !(await this.confirm.ask({
+        title: `Delete "${wl.name}"?`,
+        message: 'The watchlist is removed. Your verdicts on its symbols are kept.',
+        confirm: 'Delete',
+        danger: true,
+      }))
+    )
       return;
     try {
       await firstValueFrom(this.api.remove(wl.id));

@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { firstValueFrom } from 'rxjs';
 import { AccountsService } from '../../core/accounts.service';
 import {
@@ -34,7 +35,7 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
 
 @Component({
   selector: 'app-holdings',
-  imports: [DatePipe, RouterLink, Donut, PortfolioChart],
+  imports: [DatePipe, RouterLink, Donut, PortfolioChart, MatCheckboxModule],
   template: `
     <h2>Home</h2>
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
@@ -46,16 +47,13 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
     } @else {
       <fieldset class="accounts-filter">
         <legend>Accounts</legend>
-        <label class="check">
-          <input type="checkbox" aria-label="All accounts" [checked]="allSelected()"
-                 [indeterminate]="someSelected()" (change)="toggleAll()" /> All
-        </label>
+        <mat-checkbox aria-label="All accounts" [checked]="allSelected()" [indeterminate]="someSelected()"
+                      (change)="toggleAll()">All</mat-checkbox>
         @for (a of accounts(); track a.id) {
-          <label class="check">
-            <input type="checkbox" [attr.aria-label]="a.nickname" [checked]="selected().includes(a.id)"
-                   (change)="toggle(a.id)" /> {{ a.nickname }}
+          <mat-checkbox [aria-label]="a.nickname" [checked]="selected().includes(a.id)" (change)="toggle(a.id)">
+            {{ a.nickname }}
             @if (showPlatform(a.nickname, a.platform)) { <span class="platform">{{ a.platform }}</span> }
-          </label>
+          </mat-checkbox>
         }
       </fieldset>
 
@@ -82,9 +80,13 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
             <div class="tile"><span class="k">Cost basis</span><strong>{{ fmt(d.summary.total_cost_basis) }}</strong></div>
           </div>
 
-          <app-portfolio-chart [accountIds]="selected()" />
-
-          <app-donut [holdings]="d.holdings" />
+          <div class="dash">
+            <app-portfolio-chart class="card-block" [accountIds]="selected()" />
+            <section class="card-block alloc" aria-labelledby="alloc-h">
+              <h3 id="alloc-h">Allocation</h3>
+              <app-donut [holdings]="d.holdings" />
+            </section>
+          </div>
 
           <div class="table-x">
             <table>
@@ -105,7 +107,7 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
                   <tr>
                     <td>
                       @if (h.lines.length > 1) {
-                        <button type="button" class="link" [attr.aria-expanded]="expanded().has(h.symbol)"
+                        <button type="button" class="link expand" [attr.aria-expanded]="expanded().has(h.symbol)"
                                 [attr.aria-label]="'Show accounts for ' + h.symbol" (click)="toggleRow(h.symbol)">
                           {{ expanded().has(h.symbol) ? '▾' : '▸' }}</button>
                       }
@@ -158,6 +160,20 @@ const COLUMNS: { key: SortKey; label: string; numeric: boolean }[] = [
         }
       }
     }
+  `,
+  styles: `
+    .accounts-filter { gap: 0 0.5rem; padding: 0.5rem 1rem 0.5rem 0.5rem; }
+    .accounts-filter legend { padding-left: 0.5rem; margin-top: 0.25rem; }
+    .platform { margin-left: 0.35rem; font-size: 0.8rem; }
+    .dash { display: grid; grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr); gap: 1rem; margin: 1rem 0; align-items: start; }
+    .dash .card-block { display: block; padding: 1.25rem; }
+    .alloc h3 { margin: 0 0 1rem; }
+    @media (max-width: 56rem) { .dash { grid-template-columns: minmax(0, 1fr); } }
+    .expand { display: inline-grid; place-items: center; width: 1.75rem; height: 1.75rem; border-radius: 6px; color: var(--muted); }
+    .expand:hover { background: var(--surface-2); color: var(--text); }
+    .expand[aria-expanded='true'] { color: var(--accent); }
+    td:first-child, th:first-child { width: 1.75rem; padding-right: 0; }
+    tbody tr:not(.subrow) td:nth-child(2) { min-width: 10rem; }
   `,
 })
 export class Holdings {

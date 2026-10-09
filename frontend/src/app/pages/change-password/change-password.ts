@@ -6,6 +6,9 @@ import {
   ValidationErrors,
   Validators,
 } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
 import { HOME } from '../../core/auth.guard';
@@ -16,7 +19,7 @@ const matches = (group: AbstractControl): ValidationErrors | null =>
 
 @Component({
   selector: 'app-change-password',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule],
   template: `
     <h3>Change password</h3>
     @if (forced) {
@@ -24,23 +27,26 @@ const matches = (group: AbstractControl): ValidationErrors | null =>
         This account still has the default password. Choose a new one to continue.
       </p>
     }
-    <form class="card" [formGroup]="form" (ngSubmit)="submit()">
-      <label>Current password
-        <input type="password" formControlName="current" autocomplete="current-password" />
-      </label>
-      <label>New password
-        <input type="password" formControlName="next" autocomplete="new-password" />
-      </label>
-      <label>Confirm new password
-        <input type="password" formControlName="confirm" autocomplete="new-password" />
-      </label>
+    <form class="card form" [formGroup]="form" (ngSubmit)="submit()">
+      <mat-form-field>
+        <mat-label>Current password</mat-label>
+        <input matInput type="password" formControlName="current" autocomplete="current-password" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>New password</mat-label>
+        <input matInput type="password" formControlName="next" autocomplete="new-password" />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Confirm new password</mat-label>
+        <input matInput type="password" formControlName="confirm" autocomplete="new-password" />
+      </mat-form-field>
       <p class="hint">At least 10 characters. Other devices will be signed out.</p>
       @if (form.hasError('mismatch') && form.controls.confirm.dirty) {
         <p class="error" role="alert">The new passwords don't match.</p>
       }
       @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
       @if (done()) { <p class="notice" role="status">Password changed.</p> }
-      <button type="submit" [disabled]="form.invalid || busy()">Change password</button>
+      <button mat-flat-button type="submit" [disabled]="form.invalid || busy()">Change password</button>
     </form>
   `,
 })

@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
+import { ConfirmService } from '../../components/confirm-dialog/confirm-dialog';
 import { Accounts } from './accounts';
 
 const A = {
@@ -81,11 +82,12 @@ describe('Accounts page', () => {
 
   it('deletes only after confirmation', async () => {
     const { f, http, el } = await mount([A]);
-    vi.spyOn(window, 'confirm').mockReturnValueOnce(false);
+    const ask = vi.spyOn(TestBed.inject(ConfirmService), 'ask').mockResolvedValueOnce(false);
     await f.componentInstance['remove'](A);
     http.expectNone('/api/accounts/1');
-    vi.spyOn(window, 'confirm').mockReturnValueOnce(true);
+    ask.mockResolvedValueOnce(true);
     const p = f.componentInstance['remove'](A);
+    await Promise.resolve();
     http.expectOne('/api/accounts/1').flush(null, { status: 204, statusText: 'No Content' });
     await p;
     f.detectChanges();

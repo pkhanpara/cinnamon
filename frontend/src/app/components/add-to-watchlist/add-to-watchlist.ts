@@ -32,8 +32,9 @@ import { WatchlistsService } from '../../core/watchlists.service';
     </div>
   `,
   styles: `
-    .add-wl { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.5rem 0; }
-    select { font: inherit; padding: 0.35rem; }
+    .add-wl { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; margin: 0.75rem 0 0.25rem; }
+    select { max-width: 14rem; }
+    a { font-weight: 550; text-decoration: none; }
   `,
 })
 export class AddToWatchlist {

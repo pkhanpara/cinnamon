@@ -1,17 +1,30 @@
-<header>
-  <h1>Cinnamon</h1>
-  @if (auth.user(); as user) {
-    <nav>
-      <a routerLink="/home" routerLinkActive="active">Home</a>
-      <a routerLink="/watchlists" routerLinkActive="active">Watchlists</a>
-      <a routerLink="/settings" routerLinkActive="active">Settings</a>
-    </nav>
-    @if (!user.must_change_password) { <app-symbol-search /> }
-    <span class="spacer"></span>
-    <span class="who">{{ user.username }}
-      @if (user.is_admin) { <small>(admin)</small> }</span>
-    <button type="button" (click)="logout()">Sign out</button>
-  }
+<header class="bar-wrap">
+<mat-toolbar class="bar">
+  <div class="bar-in">
+    <a class="brand" routerLink="/home">
+      <span class="logo" aria-hidden="true"></span>
+      <h1>Cinnamon</h1>
+    </a>
+    @if (auth.user(); as user) {
+      <nav>
+        <a routerLink="/home" routerLinkActive="active">Home</a>
+        <a routerLink="/watchlists" routerLinkActive="active">Watchlists</a>
+        <a routerLink="/settings" routerLinkActive="active">Settings</a>
+      </nav>
+      <span class="spacer"></span>
+      @if (!user.must_change_password) { <app-symbol-search class="search" /> }
+      <button mat-button type="button" class="who" [matMenuTriggerFor]="userMenu">
+        <span class="avatar" aria-hidden="true">{{ user.username.charAt(0).toUpperCase() }}</span>
+        <span class="name">{{ user.username }}</span>
+        @if (user.is_admin) { <small class="badge">admin</small> }
+      </button>
+      <mat-menu #userMenu="matMenu" xPosition="before">
+        <a mat-menu-item routerLink="/settings/change-password">Change password</a>
+        <button mat-menu-item type="button" (click)="logout()">Sign out</button>
+      </mat-menu>
+    }
+  </div>
+</mat-toolbar>
 </header>
 <main>
   <router-outlet />

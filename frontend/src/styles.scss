@@ -1,43 +1,270 @@
-:root {
-  --border: #d0d7de;
-  --muted: #667085;
-  --danger: #b42318;
-  color-scheme: light dark;
+@use '@angular/material' as mat;
+
+/* Angular Material M3, light only for now (ADR 0014). App tokens below build on the --mat-sys-* ones. */
+html {
+  color-scheme: light;
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$azure-palette,
+        tertiary: mat.$blue-palette,
+        theme-type: light,
+      ),
+      typography: (
+        plain-family: 'Inter Variable',
+        brand-family: 'Inter Variable',
+      ),
+      density: -1,
+    )
+  );
+  // Rounded-rectangle controls (fintech look) instead of M3's pill buttons.
+  @include mat.button-overrides(
+    (
+      filled-container-shape: 8px,
+      outlined-container-shape: 8px,
+      text-container-shape: 8px,
+      protected-container-shape: 8px,
+      tonal-container-shape: 8px,
+      filled-container-height: 2.5rem,
+      outlined-container-height: 2.5rem,
+      outlined-outline-color: #d0d5dd,
+      tonal-container-height: 2.5rem,
+    )
+  );
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: 8px,
+      outlined-outline-color: #d0d5dd,
+    )
+  );
+  @include mat.dialog-overrides(
+    (
+      container-shape: 16px,
+      container-color: #fff,
+    )
+  );
+  // Range pickers: a quiet segmented control, the selected range tinted with the accent.
+  @include mat.button-toggle-overrides(
+    (
+      shape: 8px,
+      height: 2rem,
+      divider-color: transparent,
+      text-color: #667085,
+      background-color: transparent,
+      selected-state-background-color: color-mix(in srgb, var(--mat-sys-primary) 12%, white),
+      selected-state-text-color: var(--mat-sys-primary),
+      label-text-weight: 550,
+      label-text-size: 0.85rem,
+    )
+  );
+  @include mat.tabs-overrides(
+    (
+      divider-color: transparent,
+    )
+  );
 }
+
+:root {
+  --bg: #f6f7f9;
+  --surface: var(--mat-sys-surface-container-lowest);
+  --surface-2: #f2f4f7;
+  --border: #e4e7ec;
+  --border-strong: #d0d5dd;
+  --text: #101828;
+  --muted: #667085;
+  --accent: var(--mat-sys-primary);
+  --gain: #0f8a4f;
+  --loss: #d92d20;
+  --warn: #b54708;
+  --danger: var(--loss);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.05), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --shadow-lg: 0 12px 24px -6px rgba(16, 24, 40, 0.14), 0 4px 8px -2px rgba(16, 24, 40, 0.06);
+  --focus: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font: var(--mat-sys-body-large);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h2 {
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  margin: 0.5rem 0 1rem;
+}
+h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+a {
+  color: var(--accent);
+}
+
+/* ---- Native controls, styled to sit beside Material ones. Material's own elements carry mat-/mdc- classes. ---- */
+:is(button, a.button):not([class*='mat-'], [class*='mdc-'], .link) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2.25rem;
+  padding: 0 0.9rem;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 550;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s;
+  &:hover:not(:disabled) {
+    background: var(--surface-2);
+  }
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--focus);
+    border-color: var(--accent);
+  }
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  &[type='submit'] {
+    color: var(--mat-sys-on-primary);
+    background: var(--accent);
+    border-color: var(--accent);
+    &:hover:not(:disabled) {
+      background: color-mix(in srgb, var(--accent) 88%, black);
+    }
+  }
+}
+input:not([type='checkbox'], [type='radio'], [type='file'], [class*='mat-'], [class*='mdc-']),
+select:not([class*='mat-']),
+textarea:not([class*='mat-']) {
+  min-height: 2.25rem;
+  box-sizing: border-box;
+  padding: 0.4rem 0.7rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+  transition:
+    border-color 0.15s,
+    box-shadow 0.15s;
+  &:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: var(--focus);
+  }
+}
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--accent);
+  width: 1rem;
+  height: 1rem;
+}
+input[type='file'] {
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+/* ---- Surfaces ---- */
+.card,
+.card-block,
+.tile,
+.accounts-filter {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 .card {
   display: grid;
-  gap: 0.75rem;
-  max-width: 22rem;
-  padding: 1rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  gap: 0.9rem;
+  max-width: 24rem;
+  padding: 1.5rem;
   margin-top: 1.5rem;
 }
-label {
+.card.wide {
+  max-width: 34rem;
+}
+.card-block {
+  padding: 0.75rem 1.25rem 1.25rem;
+}
+.card-block h3,
+section > h3 {
+  margin: 0.5rem 0 0.75rem;
+}
+label:not([class*='mdc-'], [class*='mat-']) {
   display: grid;
-  gap: 0.25rem;
+  gap: 0.3rem;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
-input {
-  padding: 0.4rem;
-  font: inherit;
+.check {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  font-weight: 450;
 }
-button {
-  padding: 0.4rem 0.8rem;
-  font: inherit;
-  cursor: pointer;
+
+/* Material form fields fill their card; the card's grid gap does the spacing. */
+.card .mat-mdc-form-field {
+  width: 100%;
 }
+.mat-mdc-form-field-hint {
+  color: var(--muted);
+}
+.card > :is(h2, h3):first-child {
+  margin-top: 0;
+}
+.card > p {
+  margin: 0;
+}
+
+.mat-mdc-slide-toggle .mdc-label {
+  padding-left: 0.6rem;
+}
+
+/* ---- Messages ---- */
 .error {
   color: var(--danger);
   margin: 0;
 }
+.notice {
+  color: var(--gain);
+  margin: 0;
+}
+.warn {
+  color: var(--warn);
+  margin: 0.25rem 0;
+}
 .hint,
-.platform {
+.platform,
+.muted {
   color: var(--muted);
 }
+.hint {
+  font-size: 0.875rem;
+}
+
+/* ---- Accounts list ---- */
 ul.accounts {
   list-style: none;
   padding: 0;
@@ -46,123 +273,71 @@ ul.accounts {
 }
 ul.accounts li {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
-  padding: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 ul.accounts li .platform {
   flex: 1;
 }
-.notice {
-  color: #067647;
-  margin: 0;
-}
-.check {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-ul.accounts li {
-  flex-wrap: wrap;
-}
 ul.accounts li.inactive {
   opacity: 0.6;
 }
-.card.wide {
-  max-width: 32rem;
-}
-.warn {
-  color: #b54708;
-  margin: 0.25rem 0;
-}
+
+/* ---- Tables ---- */
 .scroll {
   max-height: 22rem;
   overflow: auto;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
 }
 table {
   border-collapse: collapse;
   width: 100%;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
 }
 th,
 td {
-  padding: 0.35rem 0.6rem;
+  padding: 0.6rem 0.75rem;
   border-bottom: 1px solid var(--border);
   text-align: left;
 }
 th {
   position: sticky;
   top: 0;
-  background: Canvas;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+tbody tr:hover > td {
+  background: color-mix(in srgb, var(--accent) 4%, var(--surface));
+}
+tbody tr:last-child > td {
+  border-bottom: none;
+}
+tr.subrow td {
+  background: var(--surface-2);
 }
 .num {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
-a.button {
-  padding: 0.4rem 0.8rem;
-  border: 1px solid ButtonBorder;
-  border-radius: 4px;
-  color: inherit;
-  text-decoration: none;
-  background: ButtonFace;
-}
-.accounts-filter {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  margin: 0 0 1rem;
-  padding: 0.5rem 1rem;
-}
-.tiles {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
-  gap: 0.75rem;
-  margin: 1rem 0;
-}
-.tile {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
-  display: grid;
-  gap: 0.25rem;
-}
-.tile .k {
-  color: var(--muted);
-  font-size: 0.85rem;
-}
-.tile strong {
-  font-size: 1.25rem;
-  font-variant-numeric: tabular-nums;
-}
-.tile small,
-td .sub,
-.sub {
-  font-size: 0.8rem;
-  font-weight: normal;
-  color: var(--muted);
-}
-.gain,
-.gain .sub {
-  color: #067647;
-}
-.loss,
-.loss .sub {
-  color: var(--danger);
-}
-.muted {
-  color: var(--muted);
-}
 /* The page is the only vertical scroller; this wrapper has no max-height and only scrolls sideways on narrow screens. */
 .table-x {
   overflow-x: auto;
   margin-top: 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
 }
 button.link {
   background: none;
@@ -176,9 +351,65 @@ button.link {
 .foot {
   margin-top: 0.75rem;
 }
-tr.subrow td {
-  background: color-mix(in srgb, CanvasText 4%, Canvas);
+
+/* ---- Home ---- */
+.accounts-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 0 0 1rem;
+  padding: 0.75rem 1.25rem;
 }
+.accounts-filter legend {
+  float: left;
+  width: 100%;
+  padding: 0;
+  margin-bottom: 0.4rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(11rem, 40%), 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.tile {
+  padding: 1rem 1.25rem;
+  display: grid;
+  gap: 0.3rem;
+}
+.tile .k {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+.tile strong {
+  font-size: clamp(1.1rem, 4vw, 1.5rem);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.tile small,
+td .sub,
+.sub {
+  font-size: 0.8rem;
+  font-weight: normal;
+  color: var(--muted);
+}
+.gain,
+.gain .sub {
+  color: var(--gain);
+}
+.loss,
+.loss .sub {
+  color: var(--loss);
+}
+
+/* ---- Ticker page ---- */
 .sym-head {
   display: flex;
   justify-content: space-between;
@@ -197,18 +428,29 @@ tr.subrow td {
   flex-wrap: wrap;
 }
 .price strong {
-  font-size: 1.8rem;
+  font-size: 2rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
+/* Range picker: a segmented control. */
 .ranges {
   display: flex;
   gap: 0.25rem;
   margin: 1rem 0 0.5rem;
   flex-wrap: wrap;
+  align-items: center;
 }
-.ranges button.on {
-  background: CanvasText;
-  color: Canvas;
+.mat-button-toggle-group.seg {
+  border: none;
+  gap: 0.15rem;
+  flex-wrap: wrap;
+}
+.mat-button-toggle-group.seg .mat-button-toggle {
+  border-radius: 8px;
+}
+.mat-button-toggle-group.seg .mat-button-toggle-label-content {
+  padding: 0 0.7rem;
 }
 .cards {
   display: grid;
@@ -216,20 +458,12 @@ tr.subrow td {
   gap: 1rem;
   margin: 1rem 0;
 }
-.card-block {
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.5rem 1rem 1rem;
-}
-.card-block h3,
-section > h3 {
-  margin: 0.5rem 0;
-}
 dl {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.35rem 1rem;
+  gap: 0.45rem 1rem;
   margin: 0;
+  font-size: 0.9rem;
 }
 dt {
   color: var(--muted);
@@ -242,11 +476,11 @@ dd {
 }
 p.pos-scope {
   margin: 0.5rem 0 0;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
 }
 table.lines {
   margin-top: 0.5rem;
-  font-size: 0.85rem;
+  font-size: 0.825rem;
 }
 .hidden-tag {
   display: block;
@@ -264,15 +498,20 @@ ul.news {
   list-style: none;
   padding: 0;
   display: grid;
-  gap: 0.9rem;
+  gap: 1rem;
 }
 ul.news a {
   font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+  &:hover {
+    color: var(--accent);
+  }
 }
 ul.news .summary {
   margin: 0.2rem 0 0;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -283,5 +522,5 @@ a.sym {
   text-decoration: none;
 }
 a.sym:hover {
-  text-decoration: underline;
+  color: var(--accent);
 }

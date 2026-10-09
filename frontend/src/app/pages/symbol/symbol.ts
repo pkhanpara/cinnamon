@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { map } from 'rxjs';
 import { AddToWatchlist } from '../../components/add-to-watchlist/add-to-watchlist';
 import { NewsChat } from '../../components/news-chat/news-chat';
@@ -29,7 +30,15 @@ import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-symbol',
-  imports: [DatePipe, RouterLink, PriceChart, NewsChat, AddToWatchlist, PrinciplesPanel],
+  imports: [
+    DatePipe,
+    RouterLink,
+    PriceChart,
+    NewsChat,
+    AddToWatchlist,
+    PrinciplesPanel,
+    MatButtonToggleModule,
+  ],
   template: `
     @if (overviewLoading()) {
       <p>Loading {{ ticker() }}…</p>
@@ -37,6 +46,7 @@ import { firstValueFrom } from 'rxjs';
       <p class="error" role="alert">{{ overviewError() }}</p>
       <p><a routerLink="/home">← Home</a></p>
     } @else if (overview(); as o) {
+      <section class="card-block hero" aria-label="Price">
       <header class="sym-head">
         <div>
           <h2>{{ o.name ?? o.symbol }}</h2>
@@ -49,7 +59,7 @@ import { firstValueFrom } from 'rxjs';
           <div class="price">
             <strong>{{ fmt(q.price) }}</strong>
             @if (q.change !== null) {
-              <span [class]="tone(q.change)">{{ signed(q.change) }} ({{ pct(q.change_pct) }})</span>
+              <span [class]="'delta ' + tone(q.change)">{{ signed(q.change) }} ({{ pct(q.change_pct) }})</span>
             }
             @if (q.stale) {
               <span class="warn">Last known price, {{ q.as_of | date: 'medium' }}</span>
@@ -63,12 +73,12 @@ import { firstValueFrom } from 'rxjs';
       <app-add-to-watchlist [symbol]="o.symbol" />
       @for (w of o.warnings; track w) { <p class="warn" role="note">{{ w }}</p> }
 
-      <div class="ranges" role="group" aria-label="Chart range">
+      <mat-button-toggle-group class="ranges seg" aria-label="Chart range" hideSingleSelectionIndicator
+                               [value]="range()" (change)="setRange($event.value)">
         @for (r of ranges; track r.value) {
-          <button type="button" [class.on]="range() === r.value" [attr.aria-pressed]="range() === r.value"
-                  (click)="setRange(r.value)">{{ r.label }}</button>
+          <mat-button-toggle [value]="r.value">{{ r.label }}</mat-button-toggle>
         }
-      </div>
+      </mat-button-toggle-group>
 
       @if (historyError()) {
         <p class="error" role="alert">{{ historyError() }}
@@ -79,6 +89,7 @@ import { firstValueFrom } from 'rxjs';
       } @else {
         <p class="hint">Loading chart…</p>
       }
+      </section>
 
       <div class="cards">
         <section class="card-block" aria-labelledby="stats-h">
@@ -142,16 +153,16 @@ import { firstValueFrom } from 'rxjs';
         </section>
       </div>
 
-      <app-principles-panel [symbol]="o.symbol" />
+      <app-principles-panel class="card-block block" [symbol]="o.symbol" />
 
-      <section aria-labelledby="news-h">
+      <section class="card-block block" aria-labelledby="news-h">
         <div class="news-head">
           <h3 id="news-h">News</h3>
           @if (news(); as n) {
             <span class="sub">Updated <time [attr.datetime]="n.as_of">{{ newsAge() }}</time></span>
           }
           @if (!newsNoKey()) {
-            <button type="button" (click)="refreshNews()" [disabled]="newsRefreshing() || retryIn() > 0 || (!news() && !newsError())">
+            <button type="button" class="small" (click)="refreshNews()" [disabled]="newsRefreshing() || retryIn() > 0 || (!news() && !newsError())">
               {{ newsRefreshing() ? 'Refreshing…' : 'Refresh' }}
             </button>
           }
@@ -182,6 +193,19 @@ import { firstValueFrom } from 'rxjs';
 
       <app-news-chat [symbol]="o.symbol" />
     }
+  `,
+  styles: `
+    .hero { padding: 1.25rem 1.25rem 1rem; margin-bottom: 1rem; }
+    .hero h2 { margin: 0; }
+    .delta { padding: 0.15rem 0.55rem; border-radius: 999px; font-weight: 600; font-size: 0.9rem;
+             background: var(--surface-2); font-variant-numeric: tabular-nums; }
+    .delta.gain { background: color-mix(in srgb, var(--gain) 12%, var(--surface)); }
+    .delta.loss { background: color-mix(in srgb, var(--loss) 12%, var(--surface)); }
+    .block { display: block; margin: 1rem 0; padding: 1rem 1.25rem; }
+    .news-head h3 { margin: 0.25rem auto 0.25rem 0; }
+    button.small { min-height: 1.9rem; padding: 0 0.7rem; font-size: 0.8rem; }
+    ul.news li { padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    ul.news li:last-child { padding-bottom: 0; border-bottom: none; }
   `,
 })
 export class SymbolPage {

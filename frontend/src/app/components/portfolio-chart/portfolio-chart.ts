@@ -11,6 +11,8 @@ import {
   untracked,
   viewChild,
 } from '@angular/core';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { firstValueFrom } from 'rxjs';
 import { RANGES } from '../../core/chart-data';
 import { apiError } from '../../core/errors';
@@ -23,19 +25,24 @@ import { CHART_FACTORY, ChartHandle } from '../price-chart/chart-factory';
 /** Portfolio value over a range for the given accounts. A back-cast, and says so (ADR 0010). */
 @Component({
   selector: 'app-portfolio-chart',
-  imports: [DatePipe],
+  imports: [DatePipe, MatButtonToggleModule, MatSlideToggleModule],
   template: `
     <section class="pv" aria-labelledby="pv-h">
-      <h3 id="pv-h">Portfolio value</h3>
-      <p class="hint">Current holdings at past prices. Ignores past buys, sells and cash.</p>
-
-      <div class="ranges" role="group" aria-label="Portfolio chart range">
-        @for (r of ranges; track r.value) {
-          <button type="button" [class.on]="range() === r.value" [attr.aria-pressed]="range() === r.value"
-                  (click)="range.set(r.value)">{{ r.label }}</button>
-        }
-        <label class="check spy"><input type="checkbox" [checked]="compare()" (change)="compare.set(!compare())" /> Compare with SPY</label>
+      <div class="head">
+        <div>
+          <h3 id="pv-h">Portfolio value</h3>
+          <p class="hint">Current holdings at past prices. Ignores past buys, sells and cash.</p>
+        </div>
+        <mat-slide-toggle class="spy" [checked]="compare()" (change)="compare.set($event.checked)">
+          Compare with SPY</mat-slide-toggle>
       </div>
+
+      <mat-button-toggle-group class="ranges seg" aria-label="Portfolio chart range" hideSingleSelectionIndicator
+                               [value]="range()" (change)="range.set($event.value)">
+        @for (r of ranges; track r.value) {
+          <mat-button-toggle [value]="r.value">{{ r.label }}</mat-button-toggle>
+        }
+      </mat-button-toggle-group>
 
       @if (error()) {
         <p class="error" role="alert">{{ error() }} <button type="button" class="link" (click)="reload()">Retry</button></p>
@@ -67,13 +74,16 @@ import { CHART_FACTORY, ChartHandle } from '../price-chart/chart-factory';
     </section>
   `,
   styles: `
+    .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem 1rem; flex-wrap: wrap; }
+    .head h3 { margin: 0 0 0.15rem; }
+    .head .hint { margin: 0; }
+    .ranges { margin: 1rem 0 0.5rem; }
     .chart { height: 18rem; width: 100%; }
-    .summary { margin: 0.25rem 0; }
-    .spy { margin-left: auto; align-self: center; }
+    .summary { margin: 0.5rem 0 0.25rem; }
     .legend { font-size: 0.85rem; opacity: 0.8; }
     .sw { display: inline-block; width: 0.8rem; height: 0.15rem; margin: 0 0.25rem 0.2rem 0.75rem; }
     .sw.me { background: currentColor; }
-    .sw.spy { background: #6b7280; }
+    .sw.spy { background: var(--muted); }
   `,
 })
 export class PortfolioChart {
