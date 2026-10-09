@@ -1,16 +1,40 @@
 import re
+import threading
+import time
+from collections.abc import Callable
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, date, datetime, timedelta
 from decimal import Decimal, InvalidOperation
 
 import httpx
 
-from app.providers.base import Metrics, NewsItem, Profile, ProviderError, Quote, SearchHit
+from app.providers.base import (
+    AnnualReport,
+    BasicFinancials,
+    InsiderTrade,
+    Metrics,
+    NewsItem,
+    Profile,
+    ProviderError,
+    Quote,
+    SearchHit,
+    SeriesPoint,
+)
+from app.ratelimit import SlidingWindowLimiter
 
 # Authenticated with a header, not ?token=, so the key never lands in URLs, httpx logs or proxies.
 _TOKEN_HEADER = "X-Finnhub-Token"
 
 _CLASS_SHARE = re.compile(r"^[A-Z]{1,5}\.[A-Z]$")  # BRK.B yes, NVDA.MX (a foreign listing) no
+
+# Free tier: 60 calls/min for the whole key. Keep a little headroom for other clients of the key.
+CALLS_PER_MINUTE = 55
+# A request waits this long at most for budget; beyond that it fails fast rather than hanging a page.
+MAX_BUDGET_WAIT = 20.0
+
+# As-reported concepts: "us-gaap_NetIncomeLoss", "us-gaap:...", or plain "NetIncomeLoss" in old filings.
+# Company extensions ("jnj_...") are dropped so they can never shadow a standard name.
+_CONCEPT = re.compile(r"^(?:us-gaap[_:])?([A-Z][A-Za-z0-9]+)$")
 
 
 def _text(value: object, limit: int) -> str | None:
@@ -40,6 +64,8 @@ class FinnhubProvider:
         base_url: str = "https://finnhub.io/api/v1",
         transport: httpx.BaseTransport | None = None,  # tests inject a MockTransport
         max_workers: int = 5,
+        calls_per_minute: int = CALLS_PER_MINUTE,
+        sleep: Callable[[float], None] = time.sleep,
     ) -> None:
         self._client = httpx.Client(
             base_url=base_url,
@@ -48,6 +74,24 @@ class FinnhubProvider:
             transport=transport or httpx.HTTPTransport(retries=2),  # retries connect failures only
         )
         self._max_workers = max_workers
+        # One instance per process (see providers/__init__.py), so this budget is process-wide.
+        self._budget = SlidingWindowLimiter(limit=calls_per_minute, window=60)
+        self._budget_lock = threading.Lock()
+        self._sleep = sleep
+
+    def _throttle(self) -> None:
+        """Block until the per-minute budget allows a call; ProviderError if that would take too long."""
+        waited = 0.0
+        while True:
+            with self._budget_lock:
+                wait = self._budget.retry_after("finnhub")
+                if not wait:
+                    self._budget.hit("finnhub")
+                    return
+            if waited + wait > MAX_BUDGET_WAIT:
+                raise ProviderError("Finnhub call budget for this minute is used up")
+            self._sleep(wait)
+            waited += wait
 
     def get_quotes(self, symbols: list[str]) -> dict[str, Quote]:
         if not symbols:
@@ -66,6 +110,10 @@ class FinnhubProvider:
         return quotes
 
     def _one(self, symbol: str) -> Quote | ProviderError | None:
+        try:
+            self._throttle()
+        except ProviderError as e:
+            return e
         try:
             resp = self._client.get("/quote", params={"symbol": symbol})
         except httpx.HTTPError as e:
@@ -99,6 +147,7 @@ class FinnhubProvider:
     # --- company data (profile, metrics, news, search) ---
 
     def _json(self, path: str, params: dict[str, str]) -> object:
+        self._throttle()
         try:
             resp = self._client.get(path, params=params)
         except httpx.HTTPError as e:
@@ -193,6 +242,118 @@ class FinnhubProvider:
             if len(hits) == 8:
                 break
         return hits
+
+    # --- fundamentals (ADR 0012) ---
+
+    def get_basic_financials(self, symbol: str) -> BasicFinancials | None:
+        data = self._json("/stock/metric", {"symbol": symbol, "metric": "all"})
+        if not isinstance(data, dict):
+            return None
+        raw_metric = data.get("metric")
+        metric = {}
+        if isinstance(raw_metric, dict):
+            metric = {k: v for k, raw in raw_metric.items() if (v := _num(raw)) is not None}
+        annual: dict[str, list[SeriesPoint]] = {}
+        series = data.get("series")
+        raw_annual = series.get("annual") if isinstance(series, dict) else None
+        if isinstance(raw_annual, dict):
+            for name, points in raw_annual.items():
+                if not isinstance(points, list):
+                    continue
+                parsed = [
+                    SeriesPoint(d, v)
+                    for p in points
+                    if isinstance(p, dict)
+                    and (d := _date(p.get("period"))) is not None
+                    and (v := _num(p.get("v"))) is not None
+                ]
+                if parsed:
+                    annual[name] = sorted(parsed, key=lambda sp: sp.period, reverse=True)
+        if not metric and not annual:
+            return None
+        return BasicFinancials(metric=metric, annual=annual)
+
+    def get_reported_annual(self, symbol: str) -> list[AnnualReport]:
+        data = self._json("/stock/financials-reported", {"symbol": symbol, "freq": "annual"})
+        filings = data.get("data") if isinstance(data, dict) else None
+        if not isinstance(filings, list):
+            return []
+        by_year: dict[int, AnnualReport] = {}
+        originals: set[int] = set()
+        for f in filings:
+            if not isinstance(f, dict) or not isinstance(f.get("report"), dict):
+                continue
+            year = f.get("year")
+            if not isinstance(year, int) or isinstance(year, bool):
+                continue
+            values: dict[str, Decimal] = {}
+            for section in f["report"].values():
+                if not isinstance(section, list):
+                    continue
+                for item in section:
+                    if not isinstance(item, dict) or not isinstance(item.get("concept"), str):
+                        continue
+                    m = _CONCEPT.match(item["concept"])
+                    v = _num(item.get("value"))
+                    if m and v is not None:
+                        values.setdefault(m.group(1), v)  # first occurrence wins
+            # Prefer the original 10-K over a partial 10-K/A for the same year.
+            original = f.get("form") == "10-K"
+            if year not in by_year or (original and year not in originals):
+                by_year[year] = AnnualReport(year, _date(f.get("endDate")), values)
+                if original:
+                    originals.add(year)
+        return [by_year[y] for y in sorted(by_year, reverse=True)]
+
+    def get_peers(self, symbol: str) -> list[str]:
+        data = self._json("/stock/peers", {"symbol": symbol})
+        if not isinstance(data, list):
+            return []
+        peers: list[str] = []
+        for p in data:
+            valid = isinstance(p, str) and (p.isalnum() or _CLASS_SHARE.match(p))
+            if valid and p != symbol and p not in peers:
+                peers.append(p)
+        return peers
+
+    def get_insider_transactions(self, symbol: str) -> list[InsiderTrade]:
+        data = self._json("/stock/insider-transactions", {"symbol": symbol})
+        rows = data.get("data") if isinstance(data, dict) else None
+        if not isinstance(rows, list):
+            return []
+        trades: list[InsiderTrade] = []
+        for r in rows:
+            if not isinstance(r, dict):
+                continue
+            name, code = _text(r.get("name"), 120), _text(r.get("transactionCode"), 4)
+            when, change = _date(r.get("transactionDate")), r.get("change")
+            if not name or not code or when is None:
+                continue
+            if not isinstance(change, int) or isinstance(change, bool):
+                continue
+            price = _num(r.get("transactionPrice"))
+            trades.append(
+                InsiderTrade(
+                    name=name,
+                    shares_change=change,
+                    price=price if price and price > 0 else None,
+                    code=code,
+                    transaction_date=when,
+                    filing_date=_date(r.get("filingDate")),
+                )
+            )
+        trades.sort(key=lambda t: t.transaction_date, reverse=True)
+        return trades
+
+
+def _date(value: object) -> date | None:
+    """'2025-12-28' or '2025-12-28 00:00:00'."""
+    if not isinstance(value, str) or len(value) < 10:
+        return None
+    try:
+        return date.fromisoformat(value[:10])
+    except ValueError:
+        return None
 
 
 def _iso(d: date) -> str:

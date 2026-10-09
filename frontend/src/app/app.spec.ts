@@ -38,6 +38,7 @@ describe('App shell', () => {
     expect(el.querySelector('button')?.textContent).toContain('Sign out');
     expect(Array.from(el.querySelectorAll('nav a')).map((a) => a.textContent?.trim())).toEqual([
       'Home',
+      'Watchlists',
       'Settings',
     ]);
     expect(el.querySelector('input[role=combobox]')).not.toBeNull(); // symbol search

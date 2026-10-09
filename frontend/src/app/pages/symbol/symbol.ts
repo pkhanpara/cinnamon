@@ -3,7 +3,9 @@ import { Component, DestroyRef, computed, effect, inject, signal, untracked } fr
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { map } from 'rxjs';
+import { AddToWatchlist } from '../../components/add-to-watchlist/add-to-watchlist';
 import { NewsChat } from '../../components/news-chat/news-chat';
+import { PrinciplesPanel } from '../../components/principles-panel/principles-panel';
 import { PriceChart } from '../../components/price-chart/price-chart';
 import { RANGES } from '../../core/chart-data';
 import { loadSelection } from '../../core/account-selection';
@@ -27,7 +29,7 @@ import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-symbol',
-  imports: [DatePipe, RouterLink, PriceChart, NewsChat],
+  imports: [DatePipe, RouterLink, PriceChart, NewsChat, AddToWatchlist, PrinciplesPanel],
   template: `
     @if (overviewLoading()) {
       <p>Loading {{ ticker() }}…</p>
@@ -58,6 +60,7 @@ import { firstValueFrom } from 'rxjs';
         }
       </header>
 
+      <app-add-to-watchlist [symbol]="o.symbol" />
       @for (w of o.warnings; track w) { <p class="warn" role="note">{{ w }}</p> }
 
       <div class="ranges" role="group" aria-label="Chart range">
@@ -138,6 +141,8 @@ import { firstValueFrom } from 'rxjs';
           }
         </section>
       </div>
+
+      <app-principles-panel [symbol]="o.symbol" />
 
       <section aria-labelledby="news-h">
         <div class="news-head">

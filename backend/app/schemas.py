@@ -1,6 +1,6 @@
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, BeforeValidator, ConfigDict, StringConstraints
 
@@ -233,3 +233,163 @@ class SearchHitOut(BaseModel):
     symbol: str
     description: str
     type: str
+
+
+# --- watchlists and investing principles (ADR 0012) ---
+
+WatchlistName = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)
+]
+Verdict = Literal["pass", "fail", "unsure"]
+
+
+class WatchlistCreate(BaseModel):
+    name: WatchlistName
+
+
+class WatchlistUpdate(BaseModel):
+    name: WatchlistName
+
+
+class WatchlistItemCreate(BaseModel):
+    symbol: Annotated[
+        str, StringConstraints(strip_whitespace=True, pattern=r"^[A-Za-z0-9][A-Za-z0-9.\-]{0,14}$")
+    ]
+
+
+class WatchlistItemOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    symbol: str
+    added_at: datetime
+
+
+class WatchlistOut(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+    symbols: list[str]  # in the order they were added
+
+
+class WatchlistDetail(BaseModel):
+    id: int
+    name: str
+    created_at: datetime
+    items: list[WatchlistItemOut]
+
+
+class CheckIn(BaseModel):
+    verdict: Verdict
+    note: Annotated[str, StringConstraints(max_length=2000)] = ""
+
+
+class CheckOut(BaseModel):
+    verdict: Verdict
+    note: str
+    updated_at: datetime
+
+
+class PrincipleOut(BaseModel):
+    key: str
+    label: str
+    description: str
+    kind: Literal["computed", "manual"]
+    rule: str
+    unit: str | None
+    better: Literal["lower", "higher"] | None
+    value: Decimal | None
+    status: Literal["pass", "fail", "warn", "info", "na", "manual"]
+    note: str
+    years: int | None
+    check: CheckOut | None  # the user's own verdict, which overrides `status` when set
+
+
+class InsiderTradeOut(BaseModel):
+    name: str
+    shares_change: int
+    price: Decimal | None
+    code: str
+    transaction_date: date
+    filing_date: date | None
+
+
+class InsiderSideOut(BaseModel):
+    name: str
+    trades: int
+    shares: int
+    value: Decimal  # USD, priced trades only; sale proceeds, not profit
+    avg_price: Decimal | None
+    first_date: date
+    last_date: date
+    unpriced: int
+
+
+class InsiderSummaryOut(BaseModel):
+    sellers: list[InsiderSideOut]  # top 10 by value
+    buyers: list[InsiderSideOut]  # top 10 by value
+
+
+class BuybackYearOut(BaseModel):
+    year: int
+    amount: Decimal
+    avg_price: Decimal | None
+    high_5y: Decimal | None
+    near_high: bool
+
+
+class CashYearOut(BaseModel):
+    year: int
+    net_income: Decimal | None
+    owner_earnings: Decimal | None
+    cfo: Decimal | None
+    cff: Decimal | None
+    acquisitions: Decimal | None
+    buybacks: Decimal | None
+    rnd: Decimal | None
+    revenue: Decimal | None
+
+
+class SplitOut(BaseModel):
+    date: date
+    ratio: Decimal
+
+
+class EvidenceOut(BaseModel):
+    insider_trades: list[InsiderTradeOut]  # open-market buys and sales, last 12 months
+    insider_net_value: Decimal | None  # USD, positive = net buying
+    insider_summary: InsiderSummaryOut
+    buybacks: list[BuybackYearOut]
+    years: list[CashYearOut]  # last 10 fiscal years, newest first
+    splits: list[SplitOut]  # newest first
+
+
+class ScorecardOut(BaseModel):
+    symbol: str
+    name: str | None
+    sector: str | None
+    industry: str | None
+    applicable: bool  # False for funds: the principles are about companies
+    principles: list[PrincipleOut]
+    evidence: EvidenceOut | None
+    warnings: list[str]
+    as_of: datetime | None
+    stale: bool
+
+
+class PeerStatOut(BaseModel):
+    key: str
+    mean: Decimal | None
+    median: Decimal | None
+    n: int
+
+
+class PeerOut(BaseModel):
+    symbol: str
+    name: str | None
+
+
+class PeersOut(BaseModel):
+    symbol: str
+    peers: list[PeerOut]  # those with data
+    failed: list[str]  # peers that could not be fetched
+    stats: list[PeerStatOut]
+    stale: bool

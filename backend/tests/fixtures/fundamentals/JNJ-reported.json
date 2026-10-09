@@ -1,0 +1,1452 @@
+{
+"cik": "200406",
+"data": [
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2025,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2025-12-28 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_RevenueFromContractWithCustomerExcludingAssessedTax",
+"unit": "usd",
+"label": "Sales to customers",
+"value": 94193000000.0
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 14665000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 26804000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic (in dollars per share)",
+"value": 11.13
+},
+{
+"concept": "us-gaap_IncomeLossFromContinuingOperationsPerDilutedShare",
+"unit": "usd/share",
+"label": "Diluted net earnings per share from continuing operations (in dollars per share)",
+"value": 11.03
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted (in dollars per share)",
+"value": 11.03
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 26804000000.0
+},
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and amortization of property and intangibles",
+"value": 7503000000.0
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpense",
+"unit": "usd",
+"label": "Charges for acquired in-process research and development",
+"value": 109000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 24530000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 4832000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Acquisitions, net of cash acquired",
+"value": 17500000000.0
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 5953000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -5539000000
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2024,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2024-12-29 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_RevenueFromContractWithCustomerExcludingAssessedTax",
+"unit": "usd",
+"label": "Sales to customers",
+"value": 88821000000.0
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 17232000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 14066000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic (in dollars per share)",
+"value": 5.84
+},
+{
+"concept": "us-gaap_IncomeLossFromContinuingOperationsPerDilutedShare",
+"unit": "usd/share",
+"label": "Diluted net earnings per share from continuing operations (in dollars per share)",
+"value": 5.79
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted (in dollars per share)",
+"value": 5.79
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 14066000000.0
+},
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and amortization of property and intangibles",
+"value": 7339000000.0
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpense",
+"unit": "usd",
+"label": "Charges for acquired in-process research and development assets",
+"value": 1841000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 24266000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 4424000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Acquisitions, net of cash acquired",
+"value": 15146000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 2432000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -3132000000
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2023,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2023-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_RevenueFromContractWithCustomerExcludingAssessedTax",
+"unit": "usd",
+"label": "Sales to customers",
+"value": 85159000000.0
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 15085000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 35153000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic (in dollars per share)",
+"value": 13.88
+},
+{
+"concept": "us-gaap_IncomeLossFromContinuingOperationsPerDilutedShare",
+"unit": "usd/share",
+"label": "Diluted net earnings per share from continuing operations (in dollars per share)",
+"value": 5.2
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted (in dollars per share)",
+"value": 13.72
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 35153000000.0
+},
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and amortization of property and intangibles",
+"value": 7486000000.0
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpense",
+"unit": "usd",
+"label": "Charge for purchase of in-process research and development assets",
+"value": 483000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 22791000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 4543000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Acquisitions, net of cash acquired",
+"value": 0
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 5054000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -15825000000
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2022,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2023-01-01 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_RevenueFromContractWithCustomerExcludingAssessedTax",
+"unit": "usd",
+"label": "Sales to customers",
+"value": 94943000000.0
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 14603000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 17941000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic (in dollars per share)",
+"value": 6.83
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted (in dollars per share)",
+"value": 6.73
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 17941000000.0
+},
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and amortization of property and intangibles",
+"value": 6970000000.0
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 21194000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 4009000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Acquisitions, net of cash acquired (Note\u00a018)",
+"value": 17652000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 6035000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -8871000000
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2021,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2022-01-02 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_RevenueFromContractWithCustomerExcludingAssessedTax",
+"unit": "usd",
+"label": "Sales to customers",
+"value": 93775000000.0
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 14714000000.0
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 20878000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic (in dollars per share)",
+"value": 7.93
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted (in dollars per share)",
+"value": 7.81
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 20878000000.0
+},
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and amortization of property and intangibles",
+"value": 7390000000.0
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 23410000000.0
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 3652000000.0
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Acquisitions, net of cash acquired (Note\u00a018)",
+"value": 60000000.0
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 3456000000.0
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -14047000000.0
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2020,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2021-01-03 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_RevenueFromContractWithCustomerExcludingAssessedTax",
+"unit": "usd",
+"label": "Sales to customers",
+"value": 82584000000.0
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 12159000000.0
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 14714000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic (in dollars per share)",
+"value": 5.59
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted (in dollars per share)",
+"value": 5.51
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 14714000000.0
+},
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and amortization of property and intangibles",
+"value": 7231000000.0
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 23536000000.0
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 3347000000.0
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Acquisitions, net of cash acquired (Note\u00a018)",
+"value": 7323000000.0
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 3221000000.0
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -6120000000.0
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2019,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2019-12-29 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_RevenueFromContractWithCustomerExcludingAssessedTax",
+"unit": "usd",
+"label": "Sales to customers",
+"value": 82059000000.0
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 11355000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 15119000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic net earnings per share (in dollars per share)",
+"value": 5.72
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted net earnings per share (in dollars per share)",
+"value": 5.63
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 15119000000.0
+},
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and amortization of property and intangibles",
+"value": 7009000000.0
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 23416000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 3498000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Acquisitions, net of cash acquired (Note 20)",
+"value": 5800000000.0
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Payments for Repurchase of Common Stock",
+"value": 6746000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -18015000000
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2018,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2018-12-30 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic (in dollars per share)",
+"value": 5
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted (in dollars per share)",
+"value": 5
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 15297000000
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 10775000000
+},
+{
+"concept": "us-gaap_RevenueFromContractWithCustomerExcludingAssessedTax",
+"unit": "usd",
+"label": "Sales to customers",
+"value": 81581000000
+}
+],
+"cf": [
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and Amortization",
+"value": 6929000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -18510000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 22201000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 15297000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 5868000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Acquisition payments",
+"value": 900000000.0
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 3670000000
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2017,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2017-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic net earnings per share",
+"value": 0
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted net earnings per share",
+"value": 0
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 1300000000
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 10554000000
+},
+{
+"concept": "us-gaap_SalesRevenueGoodsNet",
+"unit": "usd",
+"label": "Sales to Customers",
+"value": 76450000000
+}
+],
+"cf": [
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and Amortization",
+"value": 5642000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -7673000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 21056000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 1300000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 6358000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Acquisition payments",
+"value": 35151000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 3279000000
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2016,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2017-01-01 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic (in dollars per share)",
+"value": 6
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted (in dollars per share)",
+"value": 5
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 16540000000
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 9095000000
+},
+{
+"concept": "us-gaap_SalesRevenueGoodsNet",
+"unit": "usd",
+"label": "Sales to customers",
+"value": 71890000000
+}
+],
+"cf": [
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and amortization of property and intangibles",
+"value": 3754000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -8551000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 18767000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 16540000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 8979000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Acquisitions, net of cash acquired (Note 20)",
+"value": 4509000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 3226000000
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2015,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2016-01-03 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic net earnings per share",
+"value": 5
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted net earnings per share",
+"value": 5
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 15409000000
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 9046000000
+},
+{
+"concept": "us-gaap_SalesRevenueGoodsNet",
+"unit": "usd",
+"label": "Sales Revenue, Goods, Net",
+"value": 70074000000
+}
+],
+"cf": [
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and amortization of property and intangibles",
+"value": 3746000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -10846000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 19279000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings",
+"value": 15409000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 5290000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Acquisitions, net of cash acquired (Note 20)",
+"value": 954000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 3463000000
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2014,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2014-12-28 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic net earnings per share attributable to parent",
+"value": 5
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted net earnings per share attributable to parent",
+"value": 5
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net earnings attributable to Johnson & Johnson",
+"value": 16323000000
+},
+{
+"concept": "us-gaap_ProfitLoss",
+"unit": "usd",
+"label": "Net Earnings",
+"value": 16323000000
+},
+{
+"concept": "us-gaap_ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost",
+"unit": "usd",
+"label": "Research and development expense",
+"value": 8494000000
+},
+{
+"concept": "us-gaap_SalesRevenueGoodsNet",
+"unit": "usd",
+"label": "Total",
+"value": 74331000000
+}
+],
+"cf": [
+{
+"concept": "us-gaap_DepreciationDepletionAndAmortization",
+"unit": "usd",
+"label": "Depreciation and Amortization by Segment",
+"value": 3895000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash used by financing activities",
+"value": -12260000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash flows from operating activities",
+"value": 18471000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Payments for Repurchase of Common Stock",
+"value": 7124000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Net cash paid for aquisitions",
+"value": 2129000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquirePropertyPlantAndEquipment",
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 3714000000
+},
+{
+"concept": "us-gaap_ProfitLoss",
+"unit": "usd",
+"label": "Net Earnings",
+"value": 16323000000
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2013,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2013-12-29 00:00:00",
+"report": {
+"bs": [],
+"cf": [
+{
+"unit": "usd",
+"label": "Synthes Net earnings",
+"value": 13831000000,
+"concept": "ProfitLoss"
+},
+{
+"unit": "usd",
+"label": "Depreciation and Amortization by Segment",
+"value": 4104000000,
+"concept": "DepreciationDepletionAndAmortization"
+},
+{
+"unit": "usd",
+"label": "CASH FLOW FROM OPERATING ACTIVITIES",
+"value": 17414000000,
+"concept": "NetCashProvidedByUsedInOperatingActivities"
+},
+{
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 3595000000,
+"concept": "PaymentsToAcquirePropertyPlantAndEquipment"
+},
+{
+"unit": "usd",
+"label": "Payments to Acquire Businesses, Net of Cash Acquired",
+"value": 835000000,
+"concept": "PaymentsToAcquireBusinessesNetOfCashAcquired"
+},
+{
+"unit": "usd",
+"label": "Payments for Repurchase of Common Stock",
+"value": 3538000000,
+"concept": "PaymentsForRepurchaseOfCommonStock"
+},
+{
+"unit": "usd",
+"label": "CASH FLOWS FROM FINANCING ACTIVITIES",
+"value": -6091000000,
+"concept": "NetCashProvidedByUsedInFinancingActivities"
+}
+],
+"ic": [
+{
+"unit": "usd",
+"label": "Synthes Net earnings",
+"value": 13831000000,
+"concept": "ProfitLoss"
+},
+{
+"unit": "usd",
+"label": "Total",
+"value": 71312000000,
+"concept": "SalesRevenueGoodsNet"
+},
+{
+"unit": "usd",
+"label": "Research and development expense",
+"value": 8183000000,
+"concept": "ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost"
+},
+{
+"unit": "usd",
+"label": "Net earnings",
+"value": 13831000000,
+"concept": "NetIncomeLoss"
+},
+{
+"unit": "usd/shares",
+"label": "Basic",
+"value": 4.92,
+"concept": "EarningsPerShareBasic"
+},
+{
+"unit": "usd/shares",
+"label": "Diluted",
+"value": 4.81,
+"concept": "EarningsPerShareDiluted"
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2012,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2012-12-30 00:00:00",
+"report": {
+"bs": [],
+"cf": [
+{
+"unit": "usd",
+"label": "Net Earnings",
+"value": 10514000000,
+"concept": "ProfitLoss"
+},
+{
+"unit": "usd",
+"label": "Depreciation and Amortization by Segment",
+"value": 3666000000,
+"concept": "DepreciationDepletionAndAmortization"
+},
+{
+"unit": "usd",
+"label": "CASH FLOW FROM OPERATING ACTIVITIES",
+"value": 15396000000,
+"concept": "NetCashProvidedByUsedInOperatingActivities"
+},
+{
+"unit": "usd",
+"label": "Additions to property, plant and equipment",
+"value": 2934000000,
+"concept": "PaymentsToAcquirePropertyPlantAndEquipment"
+},
+{
+"unit": "usd",
+"label": "Acquisitions, net of cash acquired",
+"value": 4486000000,
+"concept": "PaymentsToAcquireBusinessesNetOfCashAcquired"
+},
+{
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 12919000000,
+"concept": "PaymentsForRepurchaseOfCommonStock"
+},
+{
+"unit": "usd",
+"label": "CASH FLOWS FROM FINANCING ACTIVITIES",
+"value": -20562000000,
+"concept": "NetCashProvidedByUsedInFinancingActivities"
+}
+],
+"ic": [
+{
+"unit": "usd",
+"label": "Net Earnings",
+"value": 10514000000,
+"concept": "ProfitLoss"
+},
+{
+"unit": "usd",
+"label": "Total",
+"value": 67224000000,
+"concept": "SalesRevenueGoodsNet"
+},
+{
+"unit": "usd",
+"label": "Research and development expense",
+"value": 7665000000,
+"concept": "ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost"
+},
+{
+"unit": "usd",
+"label": "Net earnings attributable to Johnson & Johnson",
+"value": 10853000000,
+"concept": "NetIncomeLoss"
+},
+{
+"unit": "usd/shares",
+"label": "Basic",
+"value": 3.94,
+"concept": "EarningsPerShareBasic"
+},
+{
+"unit": "usd/shares",
+"label": "Diluted",
+"value": 3.86,
+"concept": "EarningsPerShareDiluted"
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2011,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2012-01-01 00:00:00",
+"report": {
+"bs": [],
+"cf": [
+{
+"unit": "usd",
+"label": "Net Income (Loss), Including Portion Attributable to Noncontrolling Interest",
+"value": 9672000000,
+"concept": "ProfitLoss"
+},
+{
+"unit": "usd",
+"label": "Depreciation, Depletion and Amortization",
+"value": 3158000000,
+"concept": "DepreciationDepletionAndAmortization"
+},
+{
+"unit": "usd",
+"label": "Net Cash Provided by (Used in) Operating Activities [Abstract]",
+"value": 14298000000,
+"concept": "NetCashProvidedByUsedInOperatingActivities"
+},
+{
+"unit": "usd",
+"label": "Payments to Acquire Property, Plant, and Equipment",
+"value": 2893000000,
+"concept": "PaymentsToAcquirePropertyPlantAndEquipment"
+},
+{
+"unit": "usd",
+"label": "Acquisitions, net of cash acquired (Note 20)",
+"value": 2797000000,
+"concept": "PaymentsToAcquireBusinessesNetOfCashAcquired"
+},
+{
+"unit": "usd",
+"label": "Repurchase of common stock",
+"value": 2525000000,
+"concept": "PaymentsForRepurchaseOfCommonStock"
+},
+{
+"unit": "usd",
+"label": "Net Cash Provided by (Used in) Financing Activities [Abstract]",
+"value": -4452000000,
+"concept": "NetCashProvidedByUsedInFinancingActivities"
+}
+],
+"ic": [
+{
+"unit": "usd",
+"label": "Sales Revenue, Goods, Net",
+"value": 65030000000,
+"concept": "SalesRevenueGoodsNet"
+},
+{
+"unit": "usd",
+"label": "Research and development expense",
+"value": 7548000000,
+"concept": "ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost"
+},
+{
+"unit": "usd",
+"label": "Net Income (Loss), Including Portion Attributable to Noncontrolling Interest",
+"value": 9672000000,
+"concept": "ProfitLoss"
+},
+{
+"unit": "usd/shares",
+"label": "Basic net earnings per share (Notes 1 and 15)",
+"value": 3.54,
+"concept": "EarningsPerShareBasic"
+},
+{
+"unit": "usd/shares",
+"label": "Diluted net earnings per share (Notes 1 and 15)",
+"value": 3.49,
+"concept": "EarningsPerShareDiluted"
+}
+]
+}
+},
+{
+"symbol": "JNJ",
+"cik": "200406",
+"year": 2010,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2011-01-02 00:00:00",
+"report": {
+"bs": [],
+"cf": [
+{
+"unit": "usd",
+"label": "",
+"value": 2939000000,
+"concept": "DepreciationDepletionAndAmortization"
+},
+{
+"unit": "usd",
+"label": "",
+"value": 16385000000,
+"concept": "NetCashProvidedByUsedInOperatingActivities"
+},
+{
+"unit": "usd",
+"label": "",
+"value": 13334000000,
+"concept": "ProfitLoss"
+},
+{
+"unit": "usd",
+"label": "",
+"value": 1269000000,
+"concept": "PaymentsToAcquireBusinessesNetOfCashAcquired"
+},
+{
+"unit": "usd",
+"label": "",
+"value": 2384000000,
+"concept": "PaymentsToAcquirePropertyPlantAndEquipment"
+},
+{
+"unit": "usd",
+"label": "",
+"value": -4980000000,
+"concept": "NetCashProvidedByUsedInFinancingActivities"
+},
+{
+"unit": "usd",
+"label": "",
+"value": 2797000000,
+"concept": "PaymentsForRepurchaseOfCommonStock"
+}
+],
+"ic": [
+{
+"unit": "usd",
+"label": "",
+"value": 13334000000,
+"concept": "ProfitLoss"
+},
+{
+"unit": "usd",
+"label": "",
+"value": 6844000000,
+"concept": "ResearchAndDevelopmentExpenseExcludingAcquiredInProcessCost"
+},
+{
+"unit": "usd",
+"label": "",
+"value": 61587000000,
+"concept": "SalesRevenueGoodsNet"
+},
+{
+"unit": "usd/shares",
+"label": "",
+"value": 4.85,
+"concept": "EarningsPerShareBasic"
+},
+{
+"unit": "usd/shares",
+"label": "",
+"value": 4.78,
+"concept": "EarningsPerShareDiluted"
+}
+]
+}
+}
+],
+"symbol": "JNJ"
+}

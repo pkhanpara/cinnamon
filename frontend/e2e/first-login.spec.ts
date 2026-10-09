@@ -98,7 +98,7 @@ test.describe('first-time login on a fresh install', () => {
     await expect(page).toHaveURL(/\/settings\/change-password$/);
     await expect(page.getByRole('note')).toContainText('default password');
     await expectSettingsLinks(page, ['Change password']); // nothing else is offered yet
-    await expect(page.locator('header nav a')).toHaveText(['Home', 'Settings']);
+    await expect(page.locator('header nav a')).toHaveText(['Home', 'Watchlists', 'Settings']);
     await expect(page.locator('.who')).toContainText('admin');
   });
 

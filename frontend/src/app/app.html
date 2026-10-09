@@ -3,6 +3,7 @@
   @if (auth.user(); as user) {
     <nav>
       <a routerLink="/home" routerLinkActive="active">Home</a>
+      <a routerLink="/watchlists" routerLinkActive="active">Watchlists</a>
       <a routerLink="/settings" routerLinkActive="active">Settings</a>
     </nav>
     @if (!user.must_change_password) { <app-symbol-search /> }

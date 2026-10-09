@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from decimal import Decimal
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, UniqueConstraint
+from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -99,4 +99,62 @@ class QuoteCache(Base):
     price: Mapped[Decimal] = mapped_column(DecimalText)
     prev_close: Mapped[Decimal | None] = mapped_column(DecimalText)
     quote_time: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # last trade time
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class Watchlist(Base):
+    """A user's private list of symbols to watch (ADR 0012)."""
+
+    __tablename__ = "watchlists"
+    __table_args__ = (UniqueConstraint("user_id", "name"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    name: Mapped[str] = mapped_column(String(100))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    items: Mapped[list["WatchlistItem"]] = relationship(
+        back_populates="watchlist", cascade="all, delete-orphan", order_by="WatchlistItem.id"
+    )
+
+
+class WatchlistItem(Base):
+    __tablename__ = "watchlist_items"
+    __table_args__ = (UniqueConstraint("watchlist_id", "symbol"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    watchlist_id: Mapped[int] = mapped_column(
+        ForeignKey("watchlists.id", ondelete="CASCADE"), index=True
+    )
+    symbol: Mapped[str] = mapped_column(String(16))
+    added_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+    watchlist: Mapped[Watchlist] = relationship(back_populates="items")
+
+
+class PrincipleCheck(Base):
+    """A user's own verdict on one principle for one symbol. Per symbol, not per watchlist: a
+    judgment about the company follows it into every list."""
+
+    __tablename__ = "principle_checks"
+
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    symbol: Mapped[str] = mapped_column(String(16), primary_key=True)
+    key: Mapped[str] = mapped_column(String(40), primary_key=True)
+    verdict: Mapped[str] = mapped_column(String(8))  # pass | fail | unsure
+    note: Mapped[str] = mapped_column(Text, default="")
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class FundamentalsCache(Base):
+    """Trimmed fundamentals per symbol (JSON of `fundamentals.CoreData`). Public data, shared by all
+    users; in the DB rather than in memory because filling a peer group costs ~20 Finnhub calls."""
+
+    __tablename__ = "fundamentals_cache"
+
+    symbol: Mapped[str] = mapped_column(String(16), primary_key=True)
+    payload: Mapped[str] = mapped_column(Text)
+    complete: Mapped[bool] = mapped_column(Boolean)  # False when a source failed (shorter TTL)
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

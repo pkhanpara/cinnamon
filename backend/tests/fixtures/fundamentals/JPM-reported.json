@@ -1,0 +1,1083 @@
+{
+"cik": "19617",
+"data": [
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2025,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2025-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 57048000000.0
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Basic net income applicable to common stockholders",
+"value": 55681000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic earnings per share (in dollars per share)",
+"value": 20.05
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted earnings per share (in dollars per share)",
+"value": 20.02
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 57048000000.0
+},
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 8821000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash (used in)/provided by operating activities",
+"value": -147782000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Net cash used in First Republic Acquisition",
+"value": 0
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Treasury stock repurchased",
+"value": 31591000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) financing activities",
+"value": 269533000000
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2024,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2024-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income/(loss)",
+"value": 58471000000.0
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Basic net income applicable to common stockholders",
+"value": 56868000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic earnings per share (in dollars per share)",
+"value": 19.79
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted earnings per share (in dollars per share)",
+"value": 19.75
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income/(loss)",
+"value": 58471000000.0
+},
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 7938000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash (used in)/provided by operating activities",
+"value": -42012000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Net cash used in First Republic Acquisition",
+"value": 2362000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Treasury stock repurchased",
+"value": 18830000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) financing activities",
+"value": 63447000000
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2023,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2023-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income/(loss)",
+"value": 49552000000.0
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Basic net income applicable to common stockholders",
+"value": 47760000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic earnings per share (in dollars per share)",
+"value": 16.25
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted earnings per share (in dollars per share)",
+"value": 16.23
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income/(loss)",
+"value": 49552000000.0
+},
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 7512000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash provided by operating activities",
+"value": 12974000000
+},
+{
+"concept": "us-gaap_PaymentsToAcquireBusinessesNetOfCashAcquired",
+"unit": "usd",
+"label": "Net cash used in First Republic Acquisition",
+"value": 9920000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Treasury stock repurchased",
+"value": 9824000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) financing activities",
+"value": -25571000000
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2022,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2022-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income/(loss)",
+"value": 37676000000.0
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Basic net income applicable to common stockholders",
+"value": 35892000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic earnings per share (in dollars per share)",
+"value": 12.1
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted earnings per share (in dollars per share)",
+"value": 12.09
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income/(loss)",
+"value": 37676000000.0
+},
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 7051000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) operating activities",
+"value": 107119000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Treasury stock repurchased",
+"value": 3162000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) financing activities",
+"value": -126257000000
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2021,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2021-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income/(loss)",
+"value": 48334000000.0
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Net income applicable to common stockholders",
+"value": 46503000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic earnings per share (in dollars per share)",
+"value": 15.39
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted earnings per share (in dollars per share)",
+"value": 15.36
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income/(loss)",
+"value": 48334000000.0
+},
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 7932000000.0
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) operating activities",
+"value": 78084000000.0
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Treasury stock repurchased",
+"value": 18408000000.0
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by financing activities",
+"value": 275993000000.0
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2020,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2020-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 29131000000.0
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Net income applicable to common stockholders",
+"value": 27410000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic earnings per share (in dollars per share)",
+"value": 8.89
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted earnings per share (in dollars per share)",
+"value": 8.88
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 29131000000.0
+},
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 8614000000.0
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) operating activities",
+"value": -79910000000.0
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Treasury stock repurchased",
+"value": 6517000000.0
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by financing activities",
+"value": 596645000000.0
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2019,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2019-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 36431000000.0
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Net income applicable to common stockholders",
+"value": 34642000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Net income per share (in dollars per share)",
+"value": 10.75
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Net income per share (in dollars per share)",
+"value": 10.72
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 36431000000.0
+},
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 8368000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) operating activities",
+"value": 6046000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Treasury stock repurchased",
+"value": 24001000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by financing activities",
+"value": 32987000000
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2018,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2018-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 32474000000.0
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Net income applicable to common stockholders",
+"value": 30709000000.0
+},
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic earnings per share (in dollars per share)",
+"value": 9.04
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted earnings per share (in dollars per share)",
+"value": 9.0
+}
+],
+"cf": [
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 32474000000.0
+},
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 7791000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) operating activities",
+"value": 14187000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Treasury stock repurchased",
+"value": 19983000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by financing activities",
+"value": 34158000000
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2017,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2017-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic earnings per share (in dollars per share)",
+"value": 6
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted earnings per share (in dollars per share)",
+"value": 6
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 24441000000
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Net income applicable to common stockholders",
+"value": 22567000000
+}
+],
+"cf": [
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 6179000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) financing activities",
+"value": 14642000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) operating activities",
+"value": -2501000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 24441000000
+},
+{
+"concept": "us-gaap_PaymentsForRepurchaseOfCommonStock",
+"unit": "usd",
+"label": "Treasury stock repurchased",
+"value": 15410000000
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2016,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2016-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Net income per share (in dollars per share)",
+"value": 6
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Net income per share (in dollars per share)",
+"value": 6
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 24733000000
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Net income applicable to common stockholders",
+"value": 22583000000
+}
+],
+"cf": [
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 5478000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) financing activities",
+"value": 98271000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash provided by operating activities",
+"value": 20196000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 24733000000
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2015,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2015-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic earnings per share (in dollars per share)",
+"value": 6
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted earnings per share (in dollars per share)",
+"value": 6
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 24442000000
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Net income applicable to common stockholders",
+"value": 22406000000
+}
+],
+"cf": [
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 4940000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by/(used in) financing activities",
+"value": -187511000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash provided by operating activities",
+"value": 73466000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 24442000000
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2014,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2014-12-31 00:00:00",
+"report": {
+"bs": [],
+"ic": [
+{
+"concept": "us-gaap_EarningsPerShareBasic",
+"unit": "usd/share",
+"label": "Basic earnings per share (in dollars per share)",
+"value": 5
+},
+{
+"concept": "us-gaap_EarningsPerShareDiluted",
+"unit": "usd/share",
+"label": "Diluted earnings per share (in dollars per share)",
+"value": 5
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 21762000000
+},
+{
+"concept": "us-gaap_NetIncomeLossAvailableToCommonStockholdersBasic",
+"unit": "usd",
+"label": "Net income applicable to common stockholders",
+"value": 20093000000
+},
+{
+"concept": "us-gaap_Revenues",
+"unit": "usd",
+"label": "Total net revenue",
+"value": 94205000000
+}
+],
+"cf": [
+{
+"concept": "us-gaap_DepreciationAmortizationAndAccretionNet",
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 4759000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInFinancingActivities",
+"unit": "usd",
+"label": "Net cash provided by financing activities",
+"value": 118228000000
+},
+{
+"concept": "us-gaap_NetCashProvidedByUsedInOperatingActivities",
+"unit": "usd",
+"label": "Net cash provided by operating activities",
+"value": 36593000000
+},
+{
+"concept": "us-gaap_NetIncomeLoss",
+"unit": "usd",
+"label": "Net income",
+"value": 21762000000
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2013,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2013-12-31 00:00:00",
+"report": {
+"bs": [],
+"cf": [
+{
+"unit": "usd",
+"label": "Net income",
+"value": 17923000000,
+"concept": "NetIncomeLoss"
+},
+{
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 4669000000,
+"concept": "DepreciationAmortizationAndAccretionNet"
+},
+{
+"unit": "usd",
+"label": "Amortization of intangibles",
+"value": 637000000,
+"concept": "AmortizationOfIntangibleAssets"
+},
+{
+"unit": "usd",
+"label": "Operating activities",
+"value": 107953000000,
+"concept": "NetCashProvidedByUsedInOperatingActivities"
+},
+{
+"unit": "usd",
+"label": "Financing activities",
+"value": 28324000000,
+"concept": "NetCashProvidedByUsedInFinancingActivities"
+}
+],
+"ic": [
+{
+"unit": "usd",
+"label": "Net income",
+"value": 17923000000,
+"concept": "NetIncomeLoss"
+},
+{
+"unit": "usd",
+"label": "Income",
+"value": 96606000000,
+"concept": "Revenues"
+},
+{
+"unit": "usd",
+"label": "Amortization of intangibles",
+"value": 637000000,
+"concept": "AmortizationOfIntangibleAssets"
+},
+{
+"unit": "usd",
+"label": "Net income applicable to common stockholders",
+"value": 16593000000,
+"concept": "NetIncomeLossAvailableToCommonStockholdersBasic"
+},
+{
+"unit": "usd/shares",
+"label": "Earnings Per Share, Basic, Two Class Method [Abstract]",
+"value": 4.39,
+"concept": "EarningsPerShareBasic"
+},
+{
+"unit": "usd/shares",
+"label": "Earnings Per Share, Diluted, Two Class Method [Abstract]",
+"value": 4.35,
+"concept": "EarningsPerShareDiluted"
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2012,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2012-12-31 00:00:00",
+"report": {
+"bs": [],
+"cf": [
+{
+"unit": "usd",
+"label": "Net income",
+"value": 21284000000,
+"concept": "NetIncomeLoss"
+},
+{
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 4190000000,
+"concept": "DepreciationAmortizationAndAccretionNet"
+},
+{
+"unit": "usd",
+"label": "Amortization of intangibles",
+"value": 957000000,
+"concept": "AmortizationOfIntangibleAssets"
+},
+{
+"unit": "usd",
+"label": "Operating activities",
+"value": 25079000000,
+"concept": "NetCashProvidedByUsedInOperatingActivities"
+},
+{
+"unit": "usd",
+"label": "Financing activities",
+"value": 87707000000,
+"concept": "NetCashProvidedByUsedInFinancingActivities"
+}
+],
+"ic": [
+{
+"unit": "usd",
+"label": "Net income",
+"value": 21284000000,
+"concept": "NetIncomeLoss"
+},
+{
+"unit": "usd",
+"label": "Revenue",
+"value": 97031000000,
+"concept": "Revenues"
+},
+{
+"unit": "usd",
+"label": "Amortization of intangibles",
+"value": 957000000,
+"concept": "AmortizationOfIntangibleAssets"
+},
+{
+"unit": "usd",
+"label": "Net income applicable to common stockholders",
+"value": 19877000000,
+"concept": "NetIncomeLossAvailableToCommonStockholdersBasic"
+},
+{
+"unit": "usd/shares",
+"label": "Per common share data - Basic earnings per share",
+"value": 5.22,
+"concept": "EarningsPerShareBasic"
+},
+{
+"unit": "usd/shares",
+"label": "Per common share data - Diluted earnings per share",
+"value": 5.2,
+"concept": "EarningsPerShareDiluted"
+}
+]
+}
+},
+{
+"symbol": "JPM",
+"cik": "19617",
+"year": 2011,
+"quarter": 0,
+"form": "10-K",
+"endDate": "2011-12-31 00:00:00",
+"report": {
+"bs": [],
+"cf": [
+{
+"unit": "usd",
+"label": "Net income",
+"value": 18976000000,
+"concept": "NetIncomeLoss"
+},
+{
+"unit": "usd",
+"label": "Depreciation and amortization",
+"value": 4257000000,
+"concept": "DepreciationAmortizationAndAccretionNet"
+},
+{
+"unit": "usd",
+"label": "Amortization expense",
+"value": 848000000,
+"concept": "AmortizationOfIntangibleAssets"
+},
+{
+"unit": "usd",
+"label": "Operating activities",
+"value": 95932000000,
+"concept": "NetCashProvidedByUsedInOperatingActivities"
+},
+{
+"unit": "usd",
+"label": "Financing activities",
+"value": 107706000000,
+"concept": "NetCashProvidedByUsedInFinancingActivities"
+}
+],
+"ic": [
+{
+"unit": "usd",
+"label": "Income",
+"value": 97234000000,
+"concept": "Revenues"
+},
+{
+"unit": "usd",
+"label": "Amortization expense",
+"value": 848000000,
+"concept": "AmortizationOfIntangibleAssets"
+},
+{
+"unit": "usd",
+"label": "Net income",
+"value": 18976000000,
+"concept": "NetIncomeLoss"
+},
+{
+"unit": "usd",
+"label": "Net income applicable to common stockholders",
+"value": 17568000000,
+"concept": "NetIncomeLossAvailableToCommonStockholdersBasic"
+},
+{
+"unit": "usd/shares",
+"label": "Per common share data - Basic earnings per share",
+"value": 4.5,
+"concept": "EarningsPerShareBasic"
+},
+{
+"unit": "usd/shares",
+"label": "Per common share data - Diluted earnings per share",
+"value": 4.48,
+"concept": "EarningsPerShareDiluted"
+}
+]
+}
+}
+],
+"symbol": "JPM"
+}
