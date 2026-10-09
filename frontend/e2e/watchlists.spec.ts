@@ -89,8 +89,8 @@ test.describe('watchlists', () => {
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByRole('heading', { name: 'Value ideas' })).toBeVisible();
 
-    page.once('dialog', (d) => d.accept());
     await page.getByRole('button', { name: 'Delete' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click(); // in-app confirm
     await expect(page).toHaveURL(/\/watchlists$/);
     await expect(page.getByText('No watchlists yet.')).toBeVisible();
   });

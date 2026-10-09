@@ -51,7 +51,7 @@
 - [ ] Show positions of one account (read-only table) on the accounts page #feat  
 - [ ] Import: undo/restore previous snapshot if replace-and-discard proves too risky #feat  
 - [ ] Users page: allow deleting a user and show created_at / last login #feat  
-- [ ] Replace window.confirm in account delete with an in-app dialog #chore  
+- [x] Replace window.confirm in account delete with an in-app dialog (`ConfirmService`, also on watchlist delete) #chore  
 - [ ] Browser-check the Docker image UI (API/static verified, see 20261007-182000 log) #chore  
 - [x] GitHub Actions CI: ruff, pytest, prettier, tsc, vitest, ng build, Playwright e2e (see 20261007-194816 log) #chore  
 - [ ] CI follow-ups (see 20261007-194816 log) #chore  
@@ -96,7 +96,7 @@
 
 - [ ] UI refresh with Angular Material M3, clean fintech light (ADR 0014, docs/log/20261008-234210-material-ui-refresh.md) #ux  
   - [x] Phase 1: theme, tokens, Inter, toolbar shell with user menu, chart/donut colours  
-  - [ ] Phase 2: Material forms (login, change-password, accounts, users, import), Settings tabs, ConfirmDialog, snackbars  
+  - [x] Phase 2: Material forms (login, change-password, accounts, users, import), Settings tabs, ConfirmDialog (snackbars skipped: inline `role=status` notices kept)  
   - [ ] Phase 3: Home (checkbox filter, cards around chart/donut, range button-toggle, SPY slide-toggle)  
   - [ ] Phase 4: ticker page, Ask AI panel, principles chips, watchlists (10 px overflow at 390 px)  
   - [ ] Follow-ups: dark theme (second `mat.theme` + dark tokens); optional `mat-table` for holdings  

@@ -113,8 +113,8 @@ test.describe('a returning user', () => {
 
   test('deleting the account removes its holdings', async () => {
     await page.goto('/settings/accounts');
-    page.once('dialog', (d) => d.accept());
     await page.getByRole('button', { name: 'Delete' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click(); // in-app confirm
     await expect(page.getByText('Dave Brokerage')).toHaveCount(0);
     await page.getByRole('link', { name: 'Home' }).click();
     await expect(page.getByText('No accounts yet')).toBeVisible();

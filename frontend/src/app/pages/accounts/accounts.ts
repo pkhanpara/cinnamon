@@ -2,14 +2,25 @@ import { Component, inject, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { firstValueFrom } from 'rxjs';
+import { ConfirmService } from '../../components/confirm-dialog/confirm-dialog';
 import { AccountsService } from '../../core/accounts.service';
 import { apiError } from '../../core/errors';
 import { Account } from '../../core/models';
 
 @Component({
   selector: 'app-accounts',
-  imports: [ReactiveFormsModule, DatePipe, RouterLink],
+  imports: [
+    ReactiveFormsModule,
+    DatePipe,
+    RouterLink,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+  ],
   template: `
     <h3>Accounts</h3>
     @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
@@ -23,19 +34,21 @@ import { Account } from '../../core/models';
         @for (a of accounts(); track a.id) {
           <li>
             @if (editingId() === a.id) {
-              <input #nick [value]="a.nickname" aria-label="Nickname"
+              <input #nick class="rename" [value]="a.nickname" aria-label="Nickname"
                      (keyup.enter)="saveRename(a, nick.value)" (keyup.escape)="editingId.set(null)" />
-              <button type="button" (click)="saveRename(a, nick.value)">Save</button>
-              <button type="button" (click)="editingId.set(null)">Cancel</button>
+              <button mat-flat-button type="button" (click)="saveRename(a, nick.value)">Save</button>
+              <button mat-button type="button" (click)="editingId.set(null)">Cancel</button>
             } @else {
               <strong>{{ a.nickname }}</strong> <span class="platform">{{ a.platform }}
                 · @if (a.position_count) {
                   {{ a.position_count }} position(s), imported {{ a.last_import_at | date: 'medium' }}
                 } @else { no holdings yet }
               </span>
-              <a class="button" [routerLink]="['/settings/accounts', a.id, 'import']">Import</a>
-              <button type="button" (click)="editingId.set(a.id)">Rename</button>
-              <button type="button" (click)="remove(a)">Delete</button>
+              <span class="actions">
+                <a mat-flat-button [routerLink]="['/settings/accounts', a.id, 'import']">Import</a>
+                <button mat-stroked-button type="button" (click)="editingId.set(a.id)">Rename</button>
+                <button mat-button type="button" class="del" (click)="remove(a)">Delete</button>
+              </span>
             }
           </li>
         }
@@ -44,17 +57,27 @@ import { Account } from '../../core/models';
 
     <form class="card" [formGroup]="form" (ngSubmit)="add()">
       <h3>Add account</h3>
-      <label>Platform
-        <input formControlName="platform" list="platforms" placeholder="robinhood" />
-        <datalist id="platforms"><option value="robinhood"></option><option value="m1"></option></datalist>
-      </label>
-      <label>Nickname <input formControlName="nickname" placeholder="Main brokerage" /></label>
-      <button type="submit" [disabled]="form.invalid || busy()">Add account</button>
+      <mat-form-field>
+        <mat-label>Platform</mat-label>
+        <input matInput formControlName="platform" list="platforms" placeholder="robinhood" />
+      </mat-form-field>
+      <datalist id="platforms"><option value="robinhood"></option><option value="m1"></option></datalist>
+      <mat-form-field>
+        <mat-label>Nickname</mat-label>
+        <input matInput formControlName="nickname" placeholder="Main brokerage" />
+      </mat-form-field>
+      <button mat-flat-button type="submit" [disabled]="form.invalid || busy()">Add account</button>
     </form>
+  `,
+  styles: `
+    .actions { display: flex; gap: 0.25rem; margin-left: auto; }
+    .del { --mat-button-text-label-text-color: var(--loss); }
+    .rename { flex: 1; }
   `,
 })
 export class Accounts {
   private readonly api = inject(AccountsService);
+  private readonly confirm = inject(ConfirmService);
   protected readonly accounts = signal<Account[]>([]);
   protected readonly loading = signal(true);
   protected readonly busy = signal(false);
@@ -106,7 +129,13 @@ export class Accounts {
   }
 
   protected async remove(a: Account): Promise<void> {
-    if (!confirm(`Delete "${a.nickname}"? Its imported holdings will be deleted too.`)) return;
+    const ok = await this.confirm.ask({
+      title: `Delete "${a.nickname}"?`,
+      message: 'Its imported holdings will be deleted too. This cannot be undone.',
+      confirm: 'Delete',
+      danger: true,
+    });
+    if (!ok) return;
     this.error.set('');
     try {
       await firstValueFrom(this.api.remove(a.id));

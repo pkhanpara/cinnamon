@@ -1,32 +1,33 @@
 import { Component, inject } from '@angular/core';
+import { MatTabsModule } from '@angular/material/tabs';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../core/auth.service';
+import { FORM_FIELD_DEFAULTS } from '../../core/material';
 
 @Component({
   selector: 'app-settings',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  providers: [FORM_FIELD_DEFAULTS],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, MatTabsModule],
   template: `
     <h2>Settings</h2>
-    <div class="settings">
-      <nav aria-label="Settings">
-        @if (!auth.mustChangePassword()) {
-          <a routerLink="/settings/accounts" routerLinkActive="active">Accounts</a>
-          @if (auth.user()?.is_admin) {
-            <a routerLink="/settings/user-setup" routerLinkActive="active">User setup</a>
-          }
+    <nav mat-tab-nav-bar mat-stretch-tabs="false" mat-align-tabs="start" [tabPanel]="panel" aria-label="Settings">
+      @if (!auth.mustChangePassword()) {
+        <a mat-tab-link routerLink="/settings/accounts" routerLinkActive #acc="routerLinkActive"
+           [active]="acc.isActive">Accounts</a>
+        @if (auth.user()?.is_admin) {
+          <a mat-tab-link routerLink="/settings/user-setup" routerLinkActive #usr="routerLinkActive"
+             [active]="usr.isActive">User setup</a>
         }
-        <a routerLink="/settings/change-password" routerLinkActive="active">Change password</a>
-      </nav>
-      <section><router-outlet /></section>
-    </div>
+      }
+      <a mat-tab-link routerLink="/settings/change-password" routerLinkActive #pw="routerLinkActive"
+         [active]="pw.isActive">Change password</a>
+    </nav>
+    <mat-tab-nav-panel #panel><section><router-outlet /></section></mat-tab-nav-panel>
   `,
   styles: `
-    .settings { display: grid; grid-template-columns: 11rem 1fr; gap: 2rem; align-items: start; }
-    nav { display: grid; gap: 0.25rem; }
-    nav a { color: inherit; text-decoration: none; padding: 0.4rem 0.6rem; border-radius: 6px; }
-    nav a.active { background: color-mix(in srgb, CanvasText 8%, Canvas); font-weight: 600; }
+    nav { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
     section :first-child { margin-top: 0; }
-    @media (max-width: 40rem) { .settings { grid-template-columns: 1fr; gap: 1rem; } nav { grid-auto-flow: column; overflow-x: auto; } }
+    @media (max-width: 640px) { .mat-mdc-tab-link { min-width: 0; padding: 0 0.6rem; flex-grow: 0; } }
   `,
 })
 export class Settings {

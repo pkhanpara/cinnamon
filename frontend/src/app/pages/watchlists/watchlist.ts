@@ -3,6 +3,7 @@ import { Component, computed, effect, inject, signal, untracked } from '@angular
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom, map } from 'rxjs';
+import { ConfirmService } from '../../components/confirm-dialog/confirm-dialog';
 import { apiError } from '../../core/errors';
 import { Principle, Scorecard, WatchlistDetail } from '../../core/models';
 import {
@@ -124,6 +125,7 @@ export class WatchlistPage {
   private readonly api = inject(WatchlistsService);
   private readonly principles = inject(PrinciplesService);
   private readonly router = inject(Router);
+  private readonly confirm = inject(ConfirmService);
   protected readonly id = toSignal(
     inject(ActivatedRoute).paramMap.pipe(map((p) => Number(p.get('id')))),
     { initialValue: 0 },
@@ -274,7 +276,15 @@ export class WatchlistPage {
 
   protected async remove(): Promise<void> {
     const wl = this.list();
-    if (!wl || !window.confirm(`Delete the watchlist "${wl.name}"? Your verdicts are kept.`))
+    if (
+      !wl ||
+      !(await this.confirm.ask({
+        title: `Delete "${wl.name}"?`,
+        message: 'The watchlist is removed. Your verdicts on its symbols are kept.',
+        confirm: 'Delete',
+        danger: true,
+      }))
+    )
       return;
     try {
       await firstValueFrom(this.api.remove(wl.id));

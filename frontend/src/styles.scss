@@ -17,6 +17,37 @@ html {
       density: -1,
     )
   );
+  // Rounded-rectangle controls (fintech look) instead of M3's pill buttons.
+  @include mat.button-overrides(
+    (
+      filled-container-shape: 8px,
+      outlined-container-shape: 8px,
+      text-container-shape: 8px,
+      protected-container-shape: 8px,
+      tonal-container-shape: 8px,
+      filled-container-height: 2.5rem,
+      outlined-container-height: 2.5rem,
+      outlined-outline-color: #d0d5dd,
+      tonal-container-height: 2.5rem,
+    )
+  );
+  @include mat.form-field-overrides(
+    (
+      outlined-container-shape: 8px,
+      outlined-outline-color: #d0d5dd,
+    )
+  );
+  @include mat.dialog-overrides(
+    (
+      container-shape: 16px,
+      container-color: #fff,
+    )
+  );
+  @include mat.tabs-overrides(
+    (
+      divider-color: transparent,
+    )
+  );
 }
 
 :root {
@@ -166,7 +197,7 @@ input[type='file'] {
 section > h3 {
   margin: 0.5rem 0 0.75rem;
 }
-label {
+label:not([class*='mdc-'], [class*='mat-']) {
   display: grid;
   gap: 0.3rem;
   font-size: 0.875rem;
@@ -177,6 +208,20 @@ label {
   gap: 0.5rem;
   align-items: center;
   font-weight: 450;
+}
+
+/* Material form fields fill their card; the card's grid gap does the spacing. */
+.card .mat-mdc-form-field {
+  width: 100%;
+}
+.mat-mdc-form-field-hint {
+  color: var(--muted);
+}
+.card > :is(h2, h3):first-child {
+  margin-top: 0;
+}
+.card > p {
+  margin: 0;
 }
 
 /* ---- Messages ---- */

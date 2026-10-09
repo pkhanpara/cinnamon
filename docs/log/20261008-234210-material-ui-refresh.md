@@ -1,6 +1,6 @@
 # Material UI refresh (ADR 0014)
 
-Status: *in progress*. Phase 1 (theme and shell) is done on branch `feat/material-ui`. Phases 2–4 are pending.
+Status: *in progress*. Phases 1 (theme and shell) and 2 (forms, Settings tabs, confirm dialog) are done on branch `feat/material-ui`. Phases 3–4 are pending.
 
 ## Why
 
@@ -92,14 +92,50 @@ Real-browser check: a throwaway stack (backend :8340, empty SQLite in the scratc
 | watchlists | 1280/1280 | **400/390** (page content, not the header; phase 4) |
 | accounts / users | 1280/1280 | 390/390 |
 
+### Phase 2 (2026-10-08 23:55)
+
+Files changed:
+
+- `components/confirm-dialog/confirm-dialog.ts` (new): `ConfirmService.ask({ title, message, confirm, danger })` resolves `true` only on confirm. It is a `MatDialog` with Cancel and a red confirm button for destructive actions. The new spec opens it and clicks each button (2 tests).
+  - It replaces `confirm()` in `pages/accounts/accounts.ts` (delete account) and `pages/watchlists/watchlist.ts` (delete list).
+  - Specs now spy on `ConfirmService.ask` instead of `window.confirm`.
+  - E2E clicks `getByRole('dialog').getByRole('button', { name: 'Delete' })` instead of `page.once('dialog')`.
+- `pages/login`: a centred card with a logo, `mat-form-field`s and a full-width `mat-flat-button`.
+- `pages/change-password`: `mat-form-field`s and a `mat-flat-button`.
+- `pages/settings`: the sidebar becomes a `mat-tab-nav-bar` (not stretched, start-aligned, with tighter tab padding at 640 px or less so all three tabs fit at 390 px).
+- `pages/accounts`, `pages/users`:
+  - Material fields.
+  - Import as a filled button, Rename / Reset password / Make admin as stroked buttons, Delete / Deactivate as red text buttons.
+  - Administrator is a `mat-checkbox`.
+- `pages/import`:
+  - Format becomes a `mat-form-field` with `select matNativeControl` (spec `querySelector('select')` still works). The connector description is shown as `mat-hint`.
+  - The file input becomes a dashed drop zone, with the native input stretched transparently over it so `input[type=file]` stays in place for e2e.
+  - Average-cost inputs get a `$` prefix.
+- `core/material.ts` (new): `FORM_FIELD_DEFAULTS` (outline, dynamic subscript, no required asterisk), provided by `Login` and the `Settings` shell. Routed children inherit it through the outlet.
+- `styles.scss`:
+  - Button/form-field/dialog/tabs overrides: 8 px corners, 2.5 rem buttons, `#d0d5dd` outlines, white dialog surface, no tab divider.
+  - The global `label` rule skips Material labels.
+  - Card spacing tweaks; muted `mat-hint`.
+
+Bundle: providing `MAT_FORM_FIELD_DEFAULT_OPTIONS` in `app.config.ts` pushed the initial bundle to **528.39 kB**, which triggered the 500 kB budget warning. The import drags Material's form-field code into the initial chunks. Removing it measured **468.54 kB**. The token now lives in `core/material.ts`, and only lazy pages provide it. Final initial total: **468.54 kB raw / 124.69 kB transfer**.
+
+Results:
+
+```
+npm run format:check   # All matched files use Prettier code style!
+npm run typecheck      # ok
+npm run test:ci        # 235 passed (233 + 2 ConfirmService)
+npm run e2e            # 20 passed (2 failed first: both waited for a native dialog event; fixed as above)
+npm run build          # 468.54 kB initial, no budget warning
+```
+
+Screenshots (same throwaway stack, port 4340) of login, accounts, users, change-password, import, the import preview and the delete dialog, at 1280 and 390 px: no horizontal scroll on any of them.
+
 ## Still to do
 
-- Phase 2:
-  - Login, change-password, accounts, users and import move to `mat-form-field` and Material buttons.
-  - Settings becomes a tab nav bar.
-  - A `ConfirmDialog` replaces `confirm()` in `pages/accounts/accounts.ts` and `pages/watchlists/watchlist.ts`.
-  - Snackbars for transient notices.
-  - Centre the login card.
+- Phase 2 leftovers:
+  - Snackbars were **not** adopted. The transient notices (`Password changed.`, `Created bob…`, `Imported N position(s)`) are inline `role=status` text that 5 unit specs and the e2e suite assert on, and they read fine inline. Revisit if a toast is wanted.
+  - The rename and reset-password inline inputs are still native inputs (styled).
 - Phase 3 (Home):
   - Account filter with `mat-checkbox`.
   - Chart and donut in cards.
@@ -119,4 +155,6 @@ Real-browser check: a throwaway stack (backend :8340, empty SQLite in the scratc
 - The global `input:not(...)` selector has the same specificity as component-scoped `input[_ngcontent]`, so `symbol-search` uses `!important` for its padding and icon background.
 - A brand link whose accessible name contains "Home" breaks `getByRole('link', { name: 'Home' })` (substring match). Keep the brand's name "Cinnamon".
 - ADR number clash: written as 0013, but #22 (Robinhood import) landed ADR 0013 on main first; renumbered to 0014 when rebasing.
+- Anything imported from `@angular/material/*` in `app.config.ts` (even just an InjectionToken) moves that entry point into the initial bundle. Provide Material config from lazy components instead (`core/material.ts`).
+- `mat-tab-nav-bar` stretches tabs by default (`mat-stretch-tabs="false"` turns it off) and paginates with arrows at 390 px unless the tab padding is reduced.
 - Without `FINNHUB_API_KEY`, `/symbol/<ticker>` only renders for symbols you hold. Use a held symbol (ORCL in the sample seed) for screenshots.

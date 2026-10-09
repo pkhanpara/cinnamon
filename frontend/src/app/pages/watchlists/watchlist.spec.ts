@@ -3,6 +3,7 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap, provideRouter } from '@angular/router';
 import { BehaviorSubject } from 'rxjs';
+import { ConfirmService } from '../../components/confirm-dialog/confirm-dialog';
 import { Principle, Scorecard } from '../../core/models';
 import { WatchlistPage } from './watchlist';
 
@@ -179,8 +180,9 @@ describe('WatchlistPage', () => {
 
     const router = TestBed.inject(Router);
     const nav = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
-    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    vi.spyOn(TestBed.inject(ConfirmService), 'ask').mockResolvedValue(true);
     [...el.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Delete')!.click();
+    await settle();
     http.expectOne((r) => r.method === 'DELETE' && r.url === '/api/watchlists/7').flush(null);
     await settle();
     expect(nav).toHaveBeenCalledWith('/watchlists');
