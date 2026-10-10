@@ -6,6 +6,7 @@ import {
   fmtPct,
   fmtQty,
   fmtSigned,
+  fmtSignedMillions,
   tone,
 } from './format';
 
@@ -18,6 +19,15 @@ describe('format', () => {
     expect(fmtSigned('5')).toBe('+$5.00');
     expect(fmtSigned('-5')).toBe('-$5.00');
     expect(fmtSigned('0')).toBe('$0.00');
+  });
+  it('signed millions: one decimal, sign kept even when it rounds to zero', () => {
+    expect(fmtSignedMillions('-12345678')).toBe('-$12.3M');
+    expect(fmtSignedMillions('450000')).toBe('+$0.5M');
+    expect(fmtSignedMillions('-1234500000')).toBe('-$1,234.5M');
+    expect(fmtSignedMillions('0')).toBe('$0.0M');
+    expect(fmtSignedMillions('-27631.00')).toBe('-<$0.1M');
+    expect(fmtSignedMillions('49999')).toBe('+<$0.1M');
+    expect(fmtSignedMillions('50000')).toBe('+$0.1M');
   });
   it('percent: optional plus sign, two decimals', () => {
     expect(fmtPct('0.9172')).toBe('+0.92%');

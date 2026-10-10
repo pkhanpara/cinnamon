@@ -1,7 +1,7 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Principle, Scorecard } from '../../core/models';
+import { CashYear, Principle, Scorecard } from '../../core/models';
 import { PrinciplesPanel } from './principles-panel';
 
 const principle = (over: Partial<Principle> = {}): Principle => ({
@@ -17,6 +17,18 @@ const principle = (over: Partial<Principle> = {}): Principle => ({
   note: '',
   years: null,
   check: null,
+  ...over,
+});
+const year = (y: number, over: Partial<CashYear> = {}): CashYear => ({
+  year: y,
+  net_income: '1000000000',
+  owner_earnings: '900000000',
+  cfo: '1200000000',
+  cff: '-400000000',
+  acquisitions: null,
+  buybacks: '300000000',
+  rnd: '200000000',
+  revenue: '5000000000',
   ...over,
 });
 const scorecard = (over: Partial<Scorecard> = {}): Scorecard => ({
@@ -103,6 +115,8 @@ const rowOf = (el: HTMLElement, label: string) =>
   [...el.querySelectorAll('tbody tr')].find((tr) => tr.textContent?.includes(label)) as HTMLElement;
 
 describe('PrinciplesPanel', () => {
+  afterEach(() => localStorage.clear());
+
   it('shows values, results and the peer comparison', async () => {
     const { http, el, settle } = await mount();
     http.expectOne('/api/principles/JNJ?evidence=true').flush(scorecard());
@@ -131,7 +145,117 @@ describe('PrinciplesPanel', () => {
     expect(rowOf(el, 'Long-term debt').textContent).toContain('30.46%');
     expect(rowOf(el, 'Wide moat').textContent).toContain('Not checked');
     expect(el.textContent).toContain('Woods');
-    expect(el.textContent).toContain('-$27,631.00');
+  });
+
+  it('shows the insider net in millions, the full amount on hover', async () => {
+    const { http, el, settle } = await mount();
+    http.expectOne('/api/principles/JNJ?evidence=true').flush(scorecard());
+    await settle();
+    const net = el.querySelector('.net-line span') as HTMLElement;
+    expect(net.textContent).toBe('-<$0.1M');
+    expect(net.title).toBe('-$27,631.00');
+    expect(net.className).toBe('loss');
+  });
+
+  it('all trades are collapsed by default and the choice is remembered', async () => {
+    const first = await mount();
+    first.http.expectOne('/api/principles/JNJ?evidence=true').flush(scorecard());
+    await first.settle();
+    const btn = first.el.querySelector('button.all-trades') as HTMLButtonElement;
+    expect(btn.textContent).toContain('All trades (1)');
+    expect(btn.getAttribute('aria-expanded')).toBe('false');
+    expect(btn.getAttribute('aria-controls')).toBe('pr-all-trades');
+    expect(first.el.querySelector('table.all-trades-table')).toBeNull();
+
+    btn.click();
+    await first.settle();
+    expect(btn.getAttribute('aria-expanded')).toBe('true');
+    const table = first.el.querySelector('#pr-all-trades table.all-trades-table') as HTMLElement;
+    expect(table.textContent).toContain('Woods');
+    expect(table.textContent).toContain('Sale');
+    expect(localStorage.getItem('cinnamon.principles.allTrades')).toBe('1');
+
+    TestBed.resetTestingModule();
+    const again = await mount();
+    again.http.expectOne('/api/principles/JNJ?evidence=true').flush(scorecard());
+    await again.settle();
+    expect(again.el.querySelector('table.all-trades-table')).not.toBeNull();
+    (again.el.querySelector('button.all-trades') as HTMLButtonElement).click();
+    await again.settle();
+    expect(again.el.querySelector('table.all-trades-table')).toBeNull();
+    expect(localStorage.getItem('cinnamon.principles.allTrades')).toBe('0');
+  });
+
+  it('the toggle still works when storage is blocked', async () => {
+    const get = vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+    const set = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+    try {
+      const { http, el, settle } = await mount();
+      http.expectOne('/api/principles/JNJ?evidence=true').flush(scorecard());
+      await settle();
+      expect(el.querySelector('table.all-trades-table')).toBeNull();
+      (el.querySelector('button.all-trades') as HTMLButtonElement).click();
+      await settle();
+      expect(el.querySelector('table.all-trades-table')).not.toBeNull();
+    } finally {
+      get.mockRestore();
+      set.mockRestore();
+    }
+  });
+
+  it('charts each cash-flow series oldest year first', async () => {
+    const { http, el, settle } = await mount();
+    const sc = scorecard();
+    sc.evidence!.years = [
+      year(2025, { cff: '-1500000000' }),
+      year(2024, { rnd: null }),
+      year(2023),
+    ];
+    http.expectOne('/api/principles/JNJ?evidence=true').flush(sc);
+    await settle();
+    const figs = [...el.querySelectorAll('.year-charts figure')];
+    expect(figs.map((f) => f.querySelector('.t')?.textContent)).toEqual([
+      'Net income',
+      'Owner earnings',
+      'Operating cash',
+      'Financing cash',
+      'Acquisitions',
+      'Buybacks',
+      'R&D',
+    ]);
+    const svg = (title: string) =>
+      figs.find((f) => f.querySelector('.t')?.textContent === title)!.querySelector('svg');
+    expect(svg('Financing cash')!.getAttribute('aria-label')).toBe(
+      'Financing cash by fiscal year, oldest first: 2023 -$400M, 2024 -$400M, 2025 -$1.5B',
+    );
+    expect(svg('Financing cash')!.querySelectorAll('rect.neg')).toHaveLength(3);
+    const rect = svg('Financing cash')!.querySelector('rect')!;
+    expect(rect.namespaceURI).toBe('http://www.w3.org/2000/svg');
+    expect(rect.querySelector('title')?.textContent).toBe('2023: -$400M');
+    expect(svg('R&D')!.getAttribute('aria-label')).toContain('2024 no data');
+    expect(svg('R&D')!.querySelectorAll('rect')).toHaveLength(2);
+    expect(svg('R&D')!.textContent).toContain('n/a');
+    expect([...svg('Net income')!.querySelectorAll('text.yr')].map((t) => t.textContent)).toEqual([
+      '2023',
+      '2024',
+      '2025',
+    ]);
+    // Acquisitions is null every year.
+    expect(svg('Acquisitions')).toBeNull();
+    expect(figs[4].textContent).toContain('No data');
+    // The table keeps every year, newest first.
+    expect(el.textContent).toContain('Fiscal year');
+  });
+
+  it('no years: no charts', async () => {
+    const { http, el, settle } = await mount();
+    http.expectOne('/api/principles/JNJ?evidence=true').flush(scorecard());
+    await settle();
+    expect(el.querySelector('.year-charts')).toBeNull();
   });
 
   it('summarises the top insider sellers and buyers', async () => {
