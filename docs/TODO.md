@@ -31,12 +31,20 @@
 - [ ] Ticker page and watchlists #feat  
   - [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges  
   - [ ] Playwright coverage for the ticker page and symbol search (E2E suite lives in frontend/e2e) #test  
-  - [ ] Watchlists phase 2 screener (ADR 0012): S&P 500 universe, nightly fill of `fundamentals_cache` at <= 55 Finnhub calls/min, saved filter sets with per-list threshold overrides  
-  - [ ] Owner earnings: subtract non-recurring items, pension income and unusual charges when reliably tagged (today NI + D&A - capex)  
-  - [ ] Split-adjust the 10-K EPS fallback (used when Finnhub has no EPS series, e.g. JPM) with the yfinance split history  
+  - [ ] Watchlists phase 2 screener (ADR 0012): S&P 500 universe, nightly fill of `fundamentals_cache` at <= 55 Finnhub calls/min, saved filter sets with per-list threshold overrides (see EDGAR items below)  
+  - [ ] Owner earnings: subtract non-recurring items, pension income and unusual charges when reliably tagged (today NI + D&A - capex) (see EDGAR items below)  
+  - [ ] Split-adjust the 10-K EPS fallback (used when Finnhub has no EPS series, e.g. JPM) with the yfinance split history (see EDGAR items below)  
   - [ ] Remember the watchlist filter selection  
   - [ ] Cash flows / acquisitions charts in the principles panel: no labelled x-axis (years), so year-over-year values such as net income can't be read; also the charts aren't neatly arranged, so put each chart in its own card (title, year labels, value labels) #ux  
   - [ ] Optional: cash-flow charts for Revenue (already in `CashYear`) and the buyback-vs-price table; a Playwright case needs a mocked principles API  
+- [ ] Research data: SEC EDGAR + Financial Modeling Prep providers #feat  
+  - [ ] ADR 0017: EDGAR as a fundamentals provider (precedence vs Finnhub as-reported 10-Ks, User-Agent config, throttle) #docs  
+  - [ ] `providers/edgar.py` `EdgarProvider`: ticker->CIK map (`sec.gov/files/company_tickers.json`, cached daily), process-wide throttle <= 8 req/s, `SEC_USER_AGENT` setting; tests on fixture JSON, no network  
+  - [ ] EDGAR `companyfacts` into `fundamentals.py`: more years of history, split-adjusted EPS (with yfinance splits), owner-earnings adjustments from individual XBRL tags  
+  - [ ] EDGAR `frames` for the watchlists phase 2 screener (one call per concept for all filers, about 20 calls instead of about 500 Finnhub calls)  
+  - [ ] Ticker page Filings list from EDGAR `submissions` (latest 10-K/10-Q/8-K with links)  
+  - [ ] Later: EDGAR 13F "funds holding this symbol"  
+  - [ ] `FMP_API_KEY` + FMP provider (free ~250 calls/day; check the current tier first): ratios, key metrics and DCF as a second opinion on the scorecard, per symbol only, cached 24 h like `fundamentals_cache`  
 - [ ] Broker import follow-ups #feat  
   - [ ] Import page: "Download template" link for the selected connector (e.g. seed/sample/robinhood_app_positions.csv) #ux  
   - [ ] Robinhood replay (ADR 0013): import the real activity report with your GOOG/MSFT/NVDA average costs and compare cost basis per symbol with the app  
