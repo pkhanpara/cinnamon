@@ -1,3 +1,6 @@
+# Pinned for reproducible builds (tag + digest). Dependabot bumps both; CI reads the uv version from this line.
+FROM ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 AS uv
+
 FROM node:22-slim AS ui
 WORKDIR /ui
 COPY frontend/package.json frontend/package-lock.json ./
@@ -6,8 +9,7 @@ COPY frontend/ ./
 RUN npx ng build --configuration production
 
 FROM python:3.12-slim AS deps
-# Pinned for reproducible builds; bump tag and digest together.
-COPY --from=ghcr.io/astral-sh/uv:0.12.23@sha256:61d393e44e249f2e4b526b6c7ddcecce245946826e608e11c93ad4f5bba55b21 /uv /usr/local/bin/uv
+COPY --from=uv /uv /usr/local/bin/uv
 WORKDIR /app
 COPY backend/pyproject.toml backend/uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
