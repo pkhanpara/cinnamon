@@ -1,4 +1,4 @@
-# Dependency updates (ADR 0017). Version updates are grouped to keep PR noise low; security
+# Dependency updates (ADR 0018). Version updates are grouped to keep PR noise low; security
 # updates are not grouped and arrive as soon as an advisory is published.
 # cooldown: wait a few days after a release before proposing it (a hijacked release is usually
 # yanked within that window).

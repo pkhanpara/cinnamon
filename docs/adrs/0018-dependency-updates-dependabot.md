@@ -1,4 +1,4 @@
-# 0017. Dependency updates via Dependabot
+# 0018. Dependency updates via Dependabot
 
 Status: Accepted (2026-10-10)
 

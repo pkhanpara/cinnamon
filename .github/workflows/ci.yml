@@ -15,7 +15,7 @@ permissions:
   contents: read
 
 # Actions are pinned to commit SHAs (public repo: a moved tag must not change what runs);
-# Dependabot keeps them current (.github/dependabot.yml, ADR 0017). The uv version is read
+# Dependabot keeps them current (.github/dependabot.yml, ADR 0018). The uv version is read
 # from the Dockerfile's pinned uv stage, so it has one source. Node matches the Dockerfile's
 # node:22 and is bumped by hand (npm 10 lockfile). The runner image is pinned too
 # (ubuntu-latest moves to 26 on 2026-10-19; Playwright's --with-deps is distro-specific).

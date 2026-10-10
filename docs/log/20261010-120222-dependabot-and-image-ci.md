@@ -3,7 +3,7 @@
 ## Why
 TODO item: "Dependabot/Renovate: github-actions ecosystem (SHA-pinned actions in ci.yml and publish.yml) and the pinned uv tag+digest; CI image build to catch lockfile/npm drift". Nothing kept the SHA pins or the uv pin current, and the uv version had to be bumped by hand in both ci.yml and the Dockerfile.
 
-## Design (ADR 0017)
+## Design (ADR 0018)
 - Dependabot rather than Renovate: it's native, with no app or PAT on a public repo, and it covers all four ecosystems.
 - The uv pin moved to a named stage, `FROM ghcr.io/astral-sh/uv:<tag>@sha256:<digest> AS uv`. Dependabot's docker updater handles `FROM` lines; I couldn't confirm it handles `COPY --from=image`. ci.yml now reads `UV_VERSION` from that line, so the Dockerfile is the only place the version lives.
 - Grouping: actions weekly in one PR, docker weekly, npm monthly (an angular group plus everything else, majors individual, at most 3 open), uv monthly (minor+patch grouped). 7-day cooldown everywhere.
@@ -11,7 +11,7 @@ TODO item: "Dependabot/Renovate: github-actions ecosystem (SHA-pinned actions in
 - No new image job in ci.yml: publish.yml already builds and smoke-tests the image on every PR without pushing. The user chose this.
 
 ## What was done
-- `.github/dependabot.yml` (new), `.github/workflows/ci.yml` (uv version step in the backend and e2e jobs, header comment), `Dockerfile` (uv stage), ADR 0017, TODO.
+- `.github/dependabot.yml` (new), `.github/workflows/ci.yml` (uv version step in the backend and e2e jobs, header comment), `Dockerfile` (uv stage), ADR 0018, TODO.
 - Verified:
   - `uvx check-jsonschema --builtin-schema vendor.dependabot` passes. The schema is strict: a bogus `cooldown` key is rejected, so `cooldown` is a known option.
   - `vendor.github-workflows` passes on both workflows.
