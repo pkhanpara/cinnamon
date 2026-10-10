@@ -61,7 +61,8 @@
   - [ ] Runners are pinned to `ubuntu-24.04` (ubuntu-latest becomes 26 on 2026-10-19); bump once Playwright `--with-deps` supports 26  
   - [ ] ESLint via angular-eslint (`ng add @angular-eslint/schematics`) and fix what it reports  
   - [ ] Format Angular templates safely: Prettier's HTML reflow changes rendered whitespace (`.prettierignore` skips `*.html`, `embeddedLanguageFormatting: off` skips inline templates)  
-  - [ ] Dependabot/Renovate: `github-actions` ecosystem (SHA-pinned actions in ci.yml and publish.yml) and the pinned uv tag+digest; CI image build to catch lockfile/npm drift  
+  - [ ] After the Dependabot PR is merged, check Insights -> Dependency graph -> Dependabot that all 4 ecosystems parse (especially that docker picks up the uv `FROM ... AS uv` stage); if a Dependabot npm PR fails `npm ci`, regenerate the lockfile with `npx -y npm@10 install --package-lock-only --ignore-scripts` (ADR 0017)  
+  - [ ] Optional: make publish.yml's `image` job a required check in branch protection so a broken image build blocks merges  
   - [ ] After the nightly-publish change is merged, run `publish.yml` once via `workflow_dispatch` and confirm the tags (`nightly`, `nightly-YYYYMMDD`, `latest`, `main`, `sha-*`); the cron only fires from the default branch (docs/log/20261010-103721-nightly-image-publish.md)  
   - [ ] Make the `ghcr.io/pkhanpara/cinnamon` package public after the first push on main (manual: Package settings -> Change visibility); anonymous pulls fail until then (ADR 0016, docs/log/20261010-023037-ghcr-image-publishing.md)  
   - [ ] arm64 image only if someone needs it: native `ubuntu-24.04-arm` job + manifest merge, not QEMU  
@@ -85,6 +86,7 @@ _(nothing active)_
 ### Done ✓
 
 - [x] SEC EDGAR provider: ADR 0017 (opt-in `SEC_USER_AGENT`, precedence over Finnhub as-reported, 8 req/s throttle) and `providers/edgar.py` `EdgarProvider` (daily ticker->CIK map, annual us-gaap companyfacts), fixture tests only (docs/log/20261010-120258-edgar-provider.md) #feat  
+- [x] Dependabot for github-actions, docker (uv pin), npm and uv, grouped; ci.yml reads the uv version from the Dockerfile; the PR image build is publish.yml's (ADR 0017, docs/log/20261010-120222-dependabot-and-image-ci.md) #chore  
 - [x] UI refresh with Angular Material M3, clean fintech light, phases 1-4 (ADR 0014, docs/log/20261008-234210-material-ui-refresh.md); also fixed the blank chart when switching range with SPY on and the 390 px header overflow #ux  
 - [x] Phase 1 scaffold: app features through holdings, Docker image rebuilt and verified, browser E2E suite landed  
 - [x] Merged-row UI polish (docs/log/20261007-174319-merged-row-ui-polish.md): single scroll container, per-line gain, platform only when it differs from nickname, ticker position labelled and lines unticked on Home tagged, cost/value/gain on position lines #ux  

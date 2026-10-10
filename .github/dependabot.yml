@@ -1,0 +1,85 @@
+# Dependency updates (ADR 0017). Version updates are grouped to keep PR noise low; security
+# updates are not grouped and arrive as soon as an advisory is published.
+# cooldown: wait a few days after a release before proposing it (a hijacked release is usually
+# yanked within that window).
+version: 2
+updates:
+  # SHA-pinned actions in ci.yml and publish.yml; Dependabot updates the SHA and the `# vX` comment.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns: ['*']
+
+  # The pinned uv stage (tag + digest) in the Dockerfile; ci.yml reads the uv version from it.
+  # node and python majors/minors are deliberate changes (Node's npm version writes the lockfile
+  # CI checks; a Python minor changes the runtime), so only patch tags are proposed for them.
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: chore
+      include: scope
+    ignore:
+      - dependency-name: node
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+      - dependency-name: python
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+    groups:
+      docker:
+        patterns: ['*']
+
+  # CI and the image run `npm ci` with npm 10 (Node 22): a lockfile written by another npm
+  # version fails there, so a red PR means "regenerate the lockfile with npx npm@10".
+  # Angular majors (and TypeScript, whose supported range Angular pins) go through `ng update`.
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: chore
+      include: scope
+    ignore:
+      - dependency-name: '@angular/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@angular-devkit/*'
+        update-types: ['version-update:semver-major']
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major', 'version-update:semver-minor']
+    groups:
+      angular:
+        patterns: ['@angular/*', '@angular-devkit/*', '@schematics/angular']
+        update-types: [minor, patch]
+      npm-minor-patch:
+        patterns: ['*']
+        update-types: [minor, patch]
+
+  - package-ecosystem: uv
+    directory: /backend
+    schedule:
+      interval: monthly
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      python-minor-patch:
+        patterns: ['*']
+        update-types: [minor, patch]
