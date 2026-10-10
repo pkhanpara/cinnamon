@@ -11,7 +11,7 @@ export interface LlmStatus {
   enabled: boolean;
   model: string | null;
 }
-export type Preset = 'summarize' | 'why_move';
+export type Preset = 'summarize' | 'why_move' | 'earnings' | 'risks' | 'compare_sector';
 export interface ChatTurn {
   role: 'user' | 'assistant';
   content: string;

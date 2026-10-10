@@ -15,9 +15,12 @@
 - [ ] LLM news chat follow-ups (ADR 0008) #feat  
   - [ ] Browser check of the panel (Stop mid-answer, position box, endpoint down) and SSE through `ng serve`/Docker; the API itself was checked live against `dt-default` (backend only, no browser yet)  
   - [ ] Per-user rate limit and/or daily token budget for LLM calls (none yet: any signed-in user can trigger unlimited model calls; `LLM_MAX_TOKENS` defaults to 96000)  
-  - [ ] Render answers as sanitized markdown (plain text today)  
-  - [ ] More presets (earnings, risks, compare with sector); Playwright happy path with a fake OpenAI server in `e2e/support.ts` (current e2e only proves the app is unaffected with no LLM)  
-  - [ ] Persist or export chats if wanted (today they live in the tab); move `LlmProvider` from `providers/llm.py` into `providers/base.py`  
+  - [x] Render answers as sanitized markdown: marked + DOMPurify, http(s)-only links, no images (ADR 0015)  
+  - [x] More presets (earnings, risks, compare with sector); Playwright happy path with a fake OpenAI server (`e2e/fake-llm.mjs`, `seedQuote` in `e2e/support.ts`)  
+  - [x] Export chats: Copy button puts the conversation on the clipboard as markdown (ADR 0015)  
+  - [ ] Persist chats server-side, only if wanted (today they live in the tab; Copy covers export); move `LlmProvider` from `providers/llm.py` into `providers/base.py`  
+  - [ ] Eyeball markdown answers from the real model (`dt-default`) in a browser: list/bold spacing in the bubble, a long table or code block, all 5 presets with a Finnhub key (compare_sector with a real industry) #ux  
+  - [ ] Copy needs the Clipboard API (secure context): over plain-HTTP LAN access it says "Copy failed"; consider a textarea/execCommand fallback or a "Download .md" button  
 - [x] AI chat panel fixes (found while testing the first build) #bug  
   - [x] Scrolling does not work in the Ask AI panel: the message log cannot be scrolled, so long answers are cut off; make the log the scroll area (panel is a flex column with `overflow-y: auto` on the whole `aside`, `.log` has `flex: 1` but no `min-height: 0`/own overflow), and keep the newest text in view while streaming unless the user scrolled up; add a frontend test  
   - [x] Add a way to clear the conversation (a "Clear" / "New chat" button in the panel header, disabled while empty): abort any in-flight stream, empty messages, warnings, error and draft, keep the position checkbox off; test that the next question is sent with empty history  

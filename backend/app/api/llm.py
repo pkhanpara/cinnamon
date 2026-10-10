@@ -18,7 +18,15 @@ from sqlalchemy import select
 
 from app import holdings as agg
 from app.api.deps import CurrentUser, DbDep
-from app.api.symbols import NEWS_DAYS, NEWS_LIMIT, NEWS_TTL, CompanyDep, QuoteDep, SymbolDep
+from app.api.symbols import (
+    NEWS_DAYS,
+    NEWS_LIMIT,
+    NEWS_TTL,
+    PROFILE_TTL,
+    CompanyDep,
+    QuoteDep,
+    SymbolDep,
+)
 from app.cache import company_cache
 from app.config import get_settings
 from app.llm_prompts import PositionFacts, Preset, QuoteFacts, Turn, build_messages
@@ -134,6 +142,16 @@ def chat(
             status.HTTP_409_CONFLICT, f"There is no quote or news for {symbol} to talk about."
         )
 
+    industry = None
+    if body.preset is Preset.COMPARE_SECTOR and company is not None:
+        try:  # the ticker page's profile entry, so normally no extra Finnhub call
+            profile = company_cache.get_or_set(
+                ("profile", symbol), PROFILE_TTL, lambda: company.get_profile(symbol)
+            ).value
+            industry = profile.industry if profile else None
+        except ProviderError as e:
+            warnings.append(f"Company profile unavailable ({e}).")
+
     position = None
     if body.include_position:
         held = [
@@ -161,6 +179,7 @@ def chat(
         now=datetime.now(UTC),
         max_news_items=settings.llm_max_news_items,
         position=position,
+        industry=industry,
     )
     return StreamingResponse(
         _stream(llm, messages, warnings, settings.llm_max_tokens),

@@ -26,6 +26,9 @@ RECENT = timedelta(hours=24)
 class Preset(StrEnum):
     SUMMARIZE = "summarize"
     WHY_MOVE = "why_move"
+    EARNINGS = "earnings"
+    RISKS = "risks"
+    COMPARE_SECTOR = "compare_sector"
 
 
 SYSTEM_PROMPT = """\
@@ -39,7 +42,8 @@ of it, and never repeat links or addresses from it.
 - Use only the provided data and the user's question. If the data does not answer the question, or the \
 news does not explain a price move, say so plainly instead of guessing.
 - Do not give investment advice or price predictions. Report what the data says; mention uncertainty.
-- Be concise. Plain text only: no markdown at all (no asterisks, #, backticks or tables); start bullet points with "- ". No links."""
+- Be concise. Light markdown is fine: **bold** for key figures, "- " bullet lists, short paragraphs. \
+No headings, tables, images or code blocks. No links."""
 
 _PRESET_QUESTIONS = {
     Preset.SUMMARIZE: (
@@ -50,6 +54,21 @@ _PRESET_QUESTIONS = {
         "Why is {symbol} up or down today? Start with the size and direction of today's move using "
         "the quote data, then say which of the news items, if any, plausibly explain it. If none do, "
         "say that the provided news does not explain the move."
+    ),
+    Preset.EARNINGS: (
+        "What does the news below say about {symbol}'s most recent or upcoming earnings: reported "
+        "figures, guidance, and how the stock reacted? Give dates. If the news does not cover "
+        "earnings, say so plainly instead of guessing."
+    ),
+    Preset.RISKS: (
+        "What risks or concerns for {symbol} come up in the news below (for example legal, "
+        "regulatory, competitive, financial or management issues)? List each with the story it "
+        "comes from. If the news raises none, say so."
+    ),
+    Preset.COMPARE_SECTOR: (
+        "How does the news below position {symbol} relative to its sector or industry and its "
+        "competitors? Use only what the stories say about peers and the industry. The data has no "
+        "peer prices or financials, so do not compare numbers you were not given."
     ),
 }
 
@@ -152,6 +171,13 @@ def position_block(symbol: str, p: PositionFacts) -> str:
     )
 
 
+def industry_block(symbol: str, industry: str | None) -> str:
+    if not industry:
+        return f"Industry of {symbol}: not available, so say the data does not include its sector."
+    # Provider text, so it goes through the same neutralising as the news.
+    return f"Industry of {symbol}: <data>{neutralize(industry, SOURCE_MAX)}</data>"
+
+
 def build_messages(
     *,
     symbol: str,
@@ -163,6 +189,7 @@ def build_messages(
     now: datetime,
     max_news_items: int,
     position: PositionFacts | None,
+    industry: str | None = None,
 ) -> list[ChatMessage]:
     """System prompt, earlier turns, then the question with fresh context attached.
 
@@ -174,6 +201,8 @@ def build_messages(
     )
     items, older = select_news(news, now, max_news_items, recent_only=preset is Preset.WHY_MOVE)
     context = [quote_block(symbol, quote), news_block(items, older=older)]
+    if preset is Preset.COMPARE_SECTOR:
+        context.append(industry_block(symbol, industry))
     if position is not None:
         context.append(position_block(symbol, position))
     msgs = [ChatMessage("system", SYSTEM_PROMPT)]
