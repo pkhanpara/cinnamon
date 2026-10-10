@@ -38,8 +38,7 @@
   - [ ] Cash flows / acquisitions charts in the principles panel: no labelled x-axis (years), so year-over-year values such as net income can't be read; also the charts aren't neatly arranged, so put each chart in its own card (title, year labels, value labels) #ux  
   - [ ] Optional: cash-flow charts for Revenue (already in `CashYear`) and the buyback-vs-price table; a Playwright case needs a mocked principles API  
 - [ ] Research data: SEC EDGAR + Financial Modeling Prep providers #feat  
-  - [ ] ADR 0017: EDGAR as a fundamentals provider (precedence vs Finnhub as-reported 10-Ks, User-Agent config, throttle) #docs  
-  - [ ] `providers/edgar.py` `EdgarProvider`: ticker->CIK map (`sec.gov/files/company_tickers.json`, cached daily), process-wide throttle <= 8 req/s, `SEC_USER_AGENT` setting; tests on fixture JSON, no network  
+  - [ ] Smoke-test `EdgarProvider` against live SEC with a real `SEC_USER_AGENT` (cik_for AAPL, companyfacts size/time) before the `fundamentals.py` wiring  
   - [ ] EDGAR `companyfacts` into `fundamentals.py`: more years of history, split-adjusted EPS (with yfinance splits), owner-earnings adjustments from individual XBRL tags  
   - [ ] EDGAR `frames` for the watchlists phase 2 screener (one call per concept for all filers, about 20 calls instead of about 500 Finnhub calls)  
   - [ ] Ticker page Filings list from EDGAR `submissions` (latest 10-K/10-Q/8-K with links)  
@@ -86,6 +85,7 @@ _(nothing active)_
 
 ### Done ✓
 
+- [x] SEC EDGAR provider: ADR 0017 (opt-in `SEC_USER_AGENT`, precedence over Finnhub as-reported, 8 req/s throttle) and `providers/edgar.py` `EdgarProvider` (daily ticker->CIK map, annual us-gaap companyfacts), fixture tests only (docs/log/20261010-120258-edgar-provider.md) #feat  
 - [x] UI refresh with Angular Material M3, clean fintech light, phases 1-4 (ADR 0014, docs/log/20261008-234210-material-ui-refresh.md); also fixed the blank chart when switching range with SPY on and the 390 px header overflow #ux  
 - [x] Phase 1 scaffold: app features through holdings, Docker image rebuilt and verified, browser E2E suite landed  
 - [x] Merged-row UI polish (docs/log/20261007-174319-merged-row-ui-polish.md): single scroll container, per-line gain, platform only when it differs from nickname, ticker position labelled and lines unticked on Home tagged, cost/value/gain on position lines #ux  

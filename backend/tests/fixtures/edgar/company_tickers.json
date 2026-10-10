@@ -1,0 +1,14 @@
+{
+  "0": {"cik_str": 1234567, "ticker": "EXMP", "title": "Example Corp"},
+  "1": {"cik_str": 1067983, "ticker": "BRK-B", "title": "Example Holdings Inc"},
+  "2": {"cik_str": 1067983, "ticker": "BRK-A", "title": "Example Holdings Inc"},
+  "3": {"cik_str": 111, "ticker": "DUP", "title": "First Dup Co"},
+  "4": {"cik_str": 222, "ticker": "DUP", "title": "Second Dup Co"},
+  "5": {"cik_str": "333", "ticker": "STRCIK", "title": "CIK as a string"},
+  "6": {"cik_str": true, "ticker": "BOOL", "title": "CIK as a bool"},
+  "7": {"cik_str": 0, "ticker": "ZERO", "title": "CIK zero"},
+  "8": {"cik_str": 444, "ticker": null, "title": "No ticker"},
+  "9": {"cik_str": 555, "ticker": "bad/ticker", "title": "Bad ticker"},
+  "10": "not a row",
+  "11": {"cik_str": 7, "ticker": "low", "title": "Lower-case ticker"}
+}

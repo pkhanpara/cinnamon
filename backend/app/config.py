@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     finnhub_api_key: str = ""
     finnhub_base_url: str = "https://finnhub.io/api/v1"
     quote_ttl_seconds: int = 60
+    # SEC EDGAR (ADR 0017): SEC requires "Name contact@email"; EDGAR stays off while this is unset.
+    sec_user_agent: str = ""
     # Optional OpenAI-compatible chat endpoint for the ticker page's news summary and chat (ADR 0008).
     # Feature is off unless both the base URL and the model are set.
     llm_base_url: str = ""

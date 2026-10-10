@@ -171,3 +171,39 @@ class OwnershipProvider(Protocol):
     def get_splits(self, symbol: str) -> list[Split]:
         """Oldest first."""
         ...
+
+
+# --- SEC EDGAR XBRL company facts (ADR 0017) ---
+
+
+@dataclass(frozen=True)
+class Fact:
+    """One reported value of a us-gaap concept, as EDGAR's companyfacts lists it."""
+
+    end: date  # period end
+    start: date | None  # period start; None for instant values (balance sheet, shares)
+    value: Decimal
+    fy: int  # fiscal year of the filing that reported it (not necessarily of the period)
+    fp: str  # fiscal period of that filing: FY, Q1, ...
+    form: str  # 10-K, 10-K/A, ...
+    filed: date
+    frame: str | None  # e.g. CY2024; set on the fact SEC picked for that calendar frame
+
+
+@dataclass(frozen=True)
+class CompanyFacts:
+    cik: int
+    name: str | None
+    # concept (us-gaap name without prefix) -> unit (USD, USD/shares, shares) -> facts,
+    # newest period end first, then newest filing first
+    facts: dict[str, dict[str, list[Fact]]]
+
+
+class SecFilingsProvider(Protocol):
+    def cik_for(self, symbol: str) -> int | None:
+        """SEC Central Index Key for a ticker; None for unknown or invalid symbols."""
+        ...
+
+    def get_company_facts(self, symbol: str) -> CompanyFacts | None:
+        """Annual (10-K, fiscal-year) us-gaap facts. None when SEC has no filer for the symbol."""
+        ...
