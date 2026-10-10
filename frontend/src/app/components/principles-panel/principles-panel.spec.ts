@@ -217,8 +217,8 @@ describe('PrinciplesPanel', () => {
     ];
     http.expectOne('/api/principles/JNJ?evidence=true').flush(sc);
     await settle();
-    const figs = [...el.querySelectorAll('.year-charts figure')];
-    expect(figs.map((f) => f.querySelector('.t')?.textContent)).toEqual([
+    const cards = [...el.querySelectorAll('.year-charts figure.chart-card')];
+    expect(cards.map((f) => f.querySelector('.t')?.textContent)).toEqual([
       'Net income',
       'Owner earnings',
       'Operating cash',
@@ -227,26 +227,30 @@ describe('PrinciplesPanel', () => {
       'Buybacks',
       'R&D',
     ]);
-    const svg = (title: string) =>
-      figs.find((f) => f.querySelector('.t')?.textContent === title)!.querySelector('svg');
-    expect(svg('Financing cash')!.getAttribute('aria-label')).toBe(
+    const card = (title: string) =>
+      cards.find((f) => f.querySelector('.t')?.textContent === title)!;
+    const texts = (root: Element, sel: string) =>
+      [...root.querySelectorAll(sel)].map((t) => t.textContent?.trim());
+    const fin = card('Financing cash');
+    expect(fin.querySelector('.plot')!.getAttribute('role')).toBe('img');
+    expect(fin.querySelector('.plot')!.getAttribute('aria-label')).toBe(
       'Financing cash by fiscal year, oldest first: 2023 -$400M, 2024 -$400M, 2025 -$1.5B',
     );
-    expect(svg('Financing cash')!.querySelectorAll('rect.neg')).toHaveLength(3);
-    const rect = svg('Financing cash')!.querySelector('rect')!;
-    expect(rect.namespaceURI).toBe('http://www.w3.org/2000/svg');
-    expect(rect.querySelector('title')?.textContent).toBe('2023: -$400M');
-    expect(svg('R&D')!.getAttribute('aria-label')).toContain('2024 no data');
-    expect(svg('R&D')!.querySelectorAll('rect')).toHaveLength(2);
-    expect(svg('R&D')!.textContent).toContain('n/a');
-    expect([...svg('Net income')!.querySelectorAll('text.yr')].map((t) => t.textContent)).toEqual([
-      '2023',
-      '2024',
-      '2025',
-    ]);
-    // Acquisitions is null every year.
-    expect(svg('Acquisitions')).toBeNull();
-    expect(figs[4].textContent).toContain('No data');
+    expect(fin.querySelector('.latest')?.textContent).toBe('2025: -$1.5B');
+    expect(fin.querySelector('.unit')?.textContent).toBe('USD billions');
+    expect(fin.querySelectorAll('.bar.neg')).toHaveLength(3);
+    expect(texts(fin, '.val.below')).toEqual(['-0.4', '-0.4', '-1.5']);
+    expect((fin.querySelector('.col') as HTMLElement).title).toBe('2023: -$400M');
+    expect(texts(card('Net income'), '.val.above')).toEqual(['1.0', '1.0', '1.0']);
+    expect(texts(card('Net income'), '.years .yr')).toEqual(['2023', '2024', '2025']);
+    const rnd = card('R&D');
+    expect(rnd.querySelector('.plot')!.getAttribute('aria-label')).toContain('2024 no data');
+    expect(rnd.querySelectorAll('.bar')).toHaveLength(2);
+    expect(texts(rnd, '.na')).toEqual(['n/a']);
+    expect(texts(rnd, '.years .yr')).toEqual(['2023', '2024', '2025']);
+    // Acquisitions is null every year: still a card, no plot.
+    expect(card('Acquisitions').querySelector('.plot')).toBeNull();
+    expect(card('Acquisitions').textContent).toContain('No data');
     // The table keeps every year, newest first.
     expect(el.textContent).toContain('Fiscal year');
   });
