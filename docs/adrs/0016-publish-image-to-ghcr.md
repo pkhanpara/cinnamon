@@ -18,7 +18,8 @@ Architectures: the build only runs on linux/amd64 today. arm64 through QEMU emul
 
 - A new workflow `.github/workflows/publish.yml` builds the image for **linux/amd64 only** and pushes it to **`ghcr.io/pkhanpara/cinnamon`**, logging in with `GITHUB_TOKEN` (`packages: write` on that job only).
 - **Pull requests** build the image and smoke-test it (start the container, `/api/health`, index page served, no `.env`/seed/database files in `/app`), but never log in or push. This also covers fork PRs, which get no write token.
-- **Pushes to `main`** publish `latest`, `main` and `sha-<short>`. **Tags `v*.*.*`** publish `X.Y.Z`, `X.Y` and `X`. `latest` follows `main` because there are no releases yet. If a release cadence starts, `latest` can move to tags only.
+- **Nightly, not per merge** (amended 2026-10-10): a `schedule` run (07:00 UTC) builds the default branch and publishes `nightly`, `nightly-YYYYMMDD`, `latest`, `main` and `sha-<short>`. It is skipped when the head commit of `main` is older than 25 h. Merges to `main` no longer publish; `workflow_dispatch` forces a build.
+- **Tags `v*.*.*`** publish `X.Y.Z`, `X.Y` and `X`. `latest` follows the nightly build of `main` because there are no releases yet. If a release cadence starts, `latest` can move to tags only.
 - The image that is pushed is the image that was smoke-tested: the push step rebuilds from the GHA layer cache with the same inputs and adds provenance and SBOM attestations.
 - Actions are pinned by commit SHA with a `# vX` comment, matching `ci.yml`.
 - `docker-compose.yml` defaults to `image: ghcr.io/pkhanpara/cinnamon:latest` and keeps `build: .`. `docker compose pull && up` uses the published image, and `up --build` still builds from source.
@@ -30,7 +31,7 @@ Architectures: the build only runs on linux/amd64 today. arm64 through QEMU emul
 - A broken Dockerfile now fails a PR check instead of being found by a user.
 - GHCR creates a new package as **private**. Someone has to make it public once, by hand (Package settings -> Change visibility). Until then, anonymous pulls fail.
 - Pushing a `v*` tag publishes semver tags even when the tag points at a commit that is not on `main`. That is normal Git tag behaviour; don't tag unreviewed commits.
-- `latest` moves on every merge, so it can carry a migration the user did not expect. A `sha-` or version tag pins an install.
+- `latest` moves once a night (a fix can wait up to ~24 h unless someone dispatches the workflow), so it can carry a migration the user did not expect. A `sha-` or version tag pins an install.
 - A local `docker compose up --build` tags its result as the GHCR name. The README says to set `CINNAMON_IMAGE` to keep them apart.
 - Action SHAs need bumping by hand until Dependabot is set up for actions.
 - No arm64 image. If one is needed, add a native `ubuntu-24.04-arm` job and merge the manifests (no QEMU cost) instead of emulating.

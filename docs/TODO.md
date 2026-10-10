@@ -1,141 +1,116 @@
 ### Todo
 
-- [x] Merged-row UI polish found with the overlapping seed (see docs/log/20261007-174319-merged-row-ui-polish.md) #ux  
-  - [x] Home holdings table has one scroll container (the page)  
-  - [x] Expanded per-account lines show per-line gain  
-  - [x] Platform shown only when it differs from the nickname  
-  - [x] Ticker "Your position" is intentionally all accounts; labelled, lines unticked on Home are tagged  
-  - [x] Ticker position lines show cost basis, value and gain  
-  - [ ] Real-browser check of Home (single scrollbar, narrow screen) and /symbol/MSFT with an account unticked  
-  - [ ] Optional: ticker position following the Home selection (needs a backend `accounts` param); per-line day change and weight (needs API data)  
-- [ ] News refresh follow-ups #chore  
-  - [ ] Look at the news header row (Updated label + Refresh button) in a real browser, incl. narrow screens  
-  - [ ] Reuse `app/ratelimit.py` for the per-user search/lookup limit; limiter and caches are per process  
-  - [ ] Decide whether a refresh returning an empty list should keep the old items  
-- [ ] LLM news chat follow-ups (ADR 0008) #feat  
-  - [ ] Browser check of the panel (Stop mid-answer, position box, endpoint down) and SSE through `ng serve`/Docker; the API itself was checked live against `dt-default` (backend only, no browser yet)  
-  - [ ] Per-user rate limit and/or daily token budget for LLM calls (none yet: any signed-in user can trigger unlimited model calls; `LLM_MAX_TOKENS` defaults to 96000)  
-  - [x] Render answers as sanitized markdown: marked + DOMPurify, http(s)-only links, no images (ADR 0015)  
-  - [x] More presets (earnings, risks, compare with sector); Playwright happy path with a fake OpenAI server (`e2e/fake-llm.mjs`, `seedQuote` in `e2e/support.ts`)  
-  - [x] Export chats: Copy button puts the conversation on the clipboard as markdown (ADR 0015)  
-  - [ ] Persist chats server-side, only if wanted (today they live in the tab; Copy covers export); move `LlmProvider` from `providers/llm.py` into `providers/base.py`  
-  - [ ] Eyeball markdown answers from the real model (`dt-default`) in a browser: list/bold spacing in the bubble, a long table or code block, all 5 presets with a Finnhub key (compare_sector with a real industry) #ux  
-  - [ ] Copy needs the Clipboard API (secure context): over plain-HTTP LAN access it says "Copy failed"; consider a textarea/execCommand fallback or a "Download .md" button  
-- [x] AI chat panel fixes (found while testing the first build) #bug  
-  - [x] Scrolling does not work in the Ask AI panel: the message log cannot be scrolled, so long answers are cut off; make the log the scroll area (panel is a flex column with `overflow-y: auto` on the whole `aside`, `.log` has `flex: 1` but no `min-height: 0`/own overflow), and keep the newest text in view while streaming unless the user scrolled up; add a frontend test  
-  - [x] Add a way to clear the conversation (a "Clear" / "New chat" button in the panel header, disabled while empty): abort any in-flight stream, empty messages, warnings, error and draft, keep the position checkbox off; test that the next question is sent with empty history  
-  - [ ] Eyeball the Ask AI panel in a real browser with a long answer (scroll, follow, New chat); on very short windows the log can shrink to nothing, so consider `.log` min-height with the panel scrolling as fallback #bug  
-- [ ] Portfolio value chart on Home, with SPY comparison and ranges #feat  
-  - [x] Chart of total portfolio value over time (reuse the lightweight-charts wrapper `components/price-chart` behind `CHART_FACTORY`), respecting the Home account selection  
-  - [x] Compare against SPY: toggle to overlay SPY rebased to the portfolio's starting value (or show both as % change from the start of the range); show the difference at the end of the range  
-  - [x] Ranges 1D, 5D, 1M, 6M, YTD, 1Y, ALL (same set and labels as the ticker page, `RANGES` in `core/chart-data.ts`)  
-  - [x] Open question for a design/ADR: we only store the current snapshot per account (no transactions yet), so history would be a back-cast of today's quantities x historical prices (yfinance, per symbol, cached) and ignores past buys/sells/cash; either label it clearly as "current holdings, past prices" or build it on the daily snapshots / transactions item below. 1D needs intraday bars; many symbols means many yfinance calls, so cache per symbol and cap the number  
-  - [x] Bug: the chart does not show on the Home page in the user's dev app (http://localhost:4200), while the ticker chart at /symbol/VOO does. Reproduce first (empty/hidden section? `/api/portfolio/...` request failing or empty? stale `ng serve` or backend without the merged endpoint? only some account selections?) and fix #bug  
-  - [ ] Without live prices, Home "Total value" (imported prices) and the chart's last point (Yahoo closes) disagree; reconcile or explain it next to the chart #ux  
-  - [ ] Eyeball the Home portfolio chart in a real browser (SPY overlay colours in dark mode, 1D on a weekend, narrow window) and add a Playwright case #test  
-  - [ ] Portfolio chart: 1D colour/baseline vs previous close, `%` view option, and charts for holdings beyond the 25-symbol cap or without a Yahoo ticker (cash, funds) #feat  
-  - [ ] Swap the back-cast for real history once daily snapshots/transactions exist (same endpoint, `basis` field) #feat  
-- [ ] Per-user rate limit on symbol search/lookups (Finnhub allows 60 calls/min for everyone) #sec  
-- [x] Rebuild Docker image and check size/build with yfinance (pandas) #chore  
-- [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges #feat  
-- [ ] Playwright coverage for the ticker page and symbol search (E2E suite lives in frontend/e2e) #test  
-- [x] Ticker page: allow adding a symbol to a watchlist (when watchlists exist) #feat  
-- [x] Force a password change for users an admin creates or resets #sec  
-- [x] Verify `docker compose exec cinnamon python -m app.cli reset-password` against a built image #sec  
-- [x] Make the e2e ports in playwright.config.ts configurable #chore  
-- [ ] e2e: optionally auto-pick free ports/work dir (e.g. `CINNAMON_E2E_PORTS=auto`) so parallel worktree runs need no manual choice #chore  
-- [ ] Optional TOTP 2FA #feat  
-- [x] Friendlier username-pattern 422 message on the Users form #ux  
-- [ ] Guard the startup migration/seed against two processes starting at once #chore  
-- [ ] Cash balances (the PDF had $14,177.37 cash; totals currently exclude cash) #feat  
-- [ ] Quote fetching beyond 60 distinct symbols/min: batch or queue #chore  
-- [ ] Persist holdings account selection per user on the server (currently per browser) #feat  
-- [ ] Holdings: CSV export of the current view #feat  
-- [ ] Show positions of one account (read-only table) on the accounts page #feat  
-- [ ] Import: undo/restore previous snapshot if replace-and-discard proves too risky #feat  
-- [ ] Users page: allow deleting a user and show created_at / last login #feat  
-- [x] Replace window.confirm in account delete with an in-app dialog (`ConfirmService`, also on watchlist delete) #chore  
-- [ ] Browser-check the Docker image UI (API/static verified, see 20261007-182000 log) #chore  
-- [x] GitHub Actions CI: ruff, pytest, prettier, tsc, vitest, ng build, Playwright e2e (see 20261007-194816 log) #chore  
-- [ ] CI follow-ups (see 20261007-194816 log) #chore  
-  - [x] Branch protection on `main` requiring the three CI checks  
-  - [x] After the CI PR is squash-merged: add `.git-blame-ignore-revs` with the merge SHA (the prettier reformat lands in it)  
-  - [ ] Runners are pinned to `ubuntu-24.04` (ubuntu-latest becomes 26 on 2026-10-19); bump once Playwright `--with-deps` supports 26  
-  - [ ] ESLint via angular-eslint (`ng add @angular-eslint/schematics`) and fix what it reports  
-  - [ ] Format Angular templates safely: Prettier's HTML reflow changes rendered whitespace (`.prettierignore` skips `*.html`, `embeddedLanguageFormatting: off` skips inline templates)  
-- [ ] E2E: more workflows (CSV error paths, account rename, M1 connector, live-quote holdings) #test  
-- [ ] Login rate limiting / lockout #sec  
-- [ ] Serialize timestamps as UTC (SQLite drops tzinfo; API shows naive created_at) #bug  
-- [x] Pin the uv image tag in Dockerfile (currently :latest) #chore  
-- [ ] Renovate/Dependabot for the pinned uv tag+digest; CI image build to catch lockfile/npm drift #chore
-- [ ] Upgrade Angular 21 -> 22 (needs Node >= 24.15; machine has 24.4.1) #chore  
-- [x] Real Robinhood / M1 CSV parsers: M1 open tax lots connector done (ADR 0011, docs/log/20261007-192120-broker-csv-connectors.md); Robinhood deferred, see below #feat  
-- [x] Robinhood import: hand-made `robinhood-positions` template (Symbol, Shares, Average cost from the app); the 1099 CSV is recognized and refused with a hint (ADR 0013, docs/log/20261008-225955-robinhood-positions-connector.md) #feat  
-- [x] Robinhood activity-report replay into positions: average cost, the app's average cost typed in for ACATS transfers, options skipped (ADR 0013, docs/log/20261008-233730-robinhood-activity-replay.md) #feat  
-- [ ] Robinhood replay follow-ups (ADR 0013) #feat  
-  - [ ] Real import of the user's activity report with their GOOG/MSFT/NVDA average costs; compare cost basis per symbol with the app  
-  - [ ] Warn when the report doesn't start with the account's first activity (a symbol bought earlier and never traded since is silently missing)  
-  - [ ] Report open option contracts that were skipped (needs a warnings channel on `ParseResult`)  
-  - [ ] Verify SPL / ACATO / reverse-split codes against a real Robinhood report  
-- [ ] Import page: "Download template" link for the selected connector (e.g. seed/sample/robinhood_app_positions.csv) #ux  
-- [ ] Real-browser check of a Robinhood import with the template, totals vs the app #test  
-  - [x] Sample template + real 1099 refusal in a real browser (see the 20261008-225955 log)  
-  - [ ] With the user's own positions, totals vs the Robinhood app  
-- [ ] Real-browser check of an M1 import: Holdings CSV (now the default for m1 accounts, docs/log/20261007-222525-m1-holdings-connector.md) and tax lots, preview totals vs M1's Holdings page #test  
-- [ ] Transactions, cost basis (avg-cost; ADR 0005) #feat  
-- [x] Watchlists + investing-principles scorecard with Finnhub-peer comparison, phase 1 (ADR 0012, docs/log/20261008-213725-watchlists-principles.md) #feat  
-- [ ] Watchlists follow-ups (ADR 0012) #feat  
-  - [ ] Phase 2 screener: S&P 500 universe, nightly fill of `fundamentals_cache` at <= 55 Finnhub calls/min, saved filter sets with per-list threshold overrides  
+- [ ] Real-browser verification backlog (everything below was checked headless or via API only) #test  
+  - [ ] Home: single scrollbar, narrow screen, and /symbol/MSFT with an account unticked (docs/log/20261007-174319-merged-row-ui-polish.md)  
+  - [ ] Home portfolio chart: SPY overlay colours in dark mode, 1D on a weekend, narrow window; add a Playwright case  
+  - [ ] News header row (Updated label + Refresh button), incl. narrow screens  
+  - [ ] Ask AI panel: long answer (scroll, follow, New chat), very short windows (`.log` min-height, panel scrolling as fallback), Stop mid-answer, position box, endpoint down, SSE through `ng serve`/Docker  
+  - [ ] Markdown answers from the real model (`dt-default`): list/bold spacing, long table or code block, all 5 presets with a Finnhub key (compare_sector with a real industry)  
+  - [ ] With a Finnhub key and the LLM: principle pills and table, watchlist scores, news list, chat bubbles with real answers  
+  - [ ] Watchlists in the dev app (verified headless only)  
+  - [ ] Cash-flow charts with real Finnhub data (mocked API data only so far)  
+  - [ ] Docker image UI (API/static verified, see 20261007-182000 log)  
+  - [ ] Robinhood import with your own positions: totals vs the Robinhood app  
+  - [ ] M1 import: Holdings CSV (default for m1 accounts, docs/log/20261007-222525-m1-holdings-connector.md) and tax lots, preview totals vs M1's Holdings page  
+- [ ] Portfolio data model: transactions, cash, snapshots #feat  
+  - [ ] Transactions, cost basis (avg-cost; ADR 0005)  
+  - [ ] ADR 0007 cost-basis method (when transactions are built) #docs  
+  - [ ] Daily snapshots, performance + allocation charts (the Home value chart is the first, back-cast version)  
+  - [ ] Swap the chart back-cast for real history once snapshots/transactions exist (same endpoint, `basis` field)  
+  - [ ] Cash balances (the PDF had $14,177.37 cash; totals currently exclude cash)  
+  - [ ] Without live prices, Home "Total value" (imported prices) and the chart's last point (Yahoo closes) disagree; reconcile or explain next to the chart #ux  
+  - [ ] Portfolio chart: 1D colour/baseline vs previous close, `%` view option, charts for holdings beyond the 25-symbol cap or without a Yahoo ticker (cash, funds)  
+  - [ ] Import: undo/restore previous snapshot if replace-and-discard proves too risky  
+- [ ] Holdings and account pages #feat  
+  - [ ] CSV export of the current Holdings view  
+  - [ ] Read-only positions table for one account on the accounts page  
+  - [ ] Persist holdings account selection per user on the server (currently per browser)  
+  - [ ] Ticker "Your position" following the Home selection (needs a backend `accounts` param); per-line day change and weight (needs API data)  
+  - [ ] Users page: allow deleting a user, show created_at / last login  
+  - [ ] Dark theme (second `mat.theme` + dark tokens); optional `mat-table` for holdings #ux  
+- [ ] Ticker page and watchlists #feat  
+  - [ ] Ticker page: previous-close line, candlestick toggle, extended hours, non-US exchanges  
+  - [ ] Playwright coverage for the ticker page and symbol search (E2E suite lives in frontend/e2e) #test  
+  - [ ] Watchlists phase 2 screener (ADR 0012): S&P 500 universe, nightly fill of `fundamentals_cache` at <= 55 Finnhub calls/min, saved filter sets with per-list threshold overrides  
   - [ ] Owner earnings: subtract non-recurring items, pension income and unusual charges when reliably tagged (today NI + D&A - capex)  
   - [ ] Split-adjust the 10-K EPS fallback (used when Finnhub has no EPS series, e.g. JPM) with the yfinance split history  
   - [ ] Remember the watchlist filter selection  
-  - [ ] Real-browser check in the dev app (verified headless only)  
-- [x] Principles panel: "All trades" behind a remembered toggle, insider Net in $M, year-over-year SVG bar charts for the 7 cash-flow series (docs/log/20261010-023028-insider-cashflow-charts.md) #feat  
-  - [ ] Look at the cash-flow charts with real Finnhub data in the dev app (checked only with mocked API data in headless Chromium)  
-  - [ ] Optional: charts for Revenue (already in `CashYear`) and the buyback-vs-price table; a Playwright case needs a mocked principles API (e2e has no Finnhub key)  
-- [x] Header overflows at phone width: fixed by the wrapping Material toolbar (390/390 at 390 px, ADR 0014 log) #ux  
-- [ ] Daily snapshots, performance + allocation charts (the portfolio value chart above is the first, back-cast version) #feat  
-- [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  
-- [ ] ADR 0007 cost-basis method (when transactions are built) #docs  
-- [ ] GHCR image follow-ups (ADR 0016, docs/log/20261010-023037-ghcr-image-publishing.md) #chore  
-  - [ ] Make the `ghcr.io/pkhanpara/cinnamon` package public after the first push on main (manual: Package settings -> Change visibility); anonymous pulls fail until then  
-  - [ ] Dependabot (`github-actions` ecosystem) to bump the SHA-pinned actions in ci.yml and publish.yml  
+  - [ ] Cash flows / acquisitions charts in the principles panel: no labelled x-axis (years), so year-over-year values such as net income can't be read; also the charts aren't neatly arranged, so put each chart in its own card (title, year labels, value labels) #ux  
+  - [ ] Optional: cash-flow charts for Revenue (already in `CashYear`) and the buyback-vs-price table; a Playwright case needs a mocked principles API  
+- [ ] Broker import follow-ups #feat  
+  - [ ] Import page: "Download template" link for the selected connector (e.g. seed/sample/robinhood_app_positions.csv) #ux  
+  - [ ] Robinhood replay (ADR 0013): import the real activity report with your GOOG/MSFT/NVDA average costs and compare cost basis per symbol with the app  
+  - [ ] Robinhood replay: warn when the report doesn't start with the account's first activity (a symbol bought earlier and never traded since is silently missing)  
+  - [ ] Robinhood replay: report skipped open option contracts (needs a warnings channel on `ParseResult`)  
+  - [ ] Robinhood replay: verify SPL / ACATO / reverse-split codes against a real report  
+- [ ] News and LLM chat follow-ups (ADR 0008) #feat  
+  - [ ] Decide whether a news refresh returning an empty list should keep the old items  
+  - [ ] Persist chats server-side, only if wanted (today they live in the tab; Copy covers export); move `LlmProvider` from `providers/llm.py` into `providers/base.py`  
+  - [ ] Copy needs the Clipboard API (secure context): over plain-HTTP LAN it says "Copy failed"; add a textarea/execCommand fallback or a "Download .md" button  
+- [ ] Backend robustness #chore  
+  - [ ] Serialize timestamps as UTC (SQLite drops tzinfo; API shows naive created_at) #bug  
+  - [ ] Guard the startup migration/seed against two processes starting at once  
+  - [ ] Quote fetching beyond 60 distinct symbols/min: batch or queue  
+- [ ] CI, tests and image publishing #chore  
+  - [ ] Runners are pinned to `ubuntu-24.04` (ubuntu-latest becomes 26 on 2026-10-19); bump once Playwright `--with-deps` supports 26  
+  - [ ] ESLint via angular-eslint (`ng add @angular-eslint/schematics`) and fix what it reports  
+  - [ ] Format Angular templates safely: Prettier's HTML reflow changes rendered whitespace (`.prettierignore` skips `*.html`, `embeddedLanguageFormatting: off` skips inline templates)  
+  - [ ] Dependabot/Renovate: `github-actions` ecosystem (SHA-pinned actions in ci.yml and publish.yml) and the pinned uv tag+digest; CI image build to catch lockfile/npm drift  
+  - [ ] After the nightly-publish change is merged, run `publish.yml` once via `workflow_dispatch` and confirm the tags (`nightly`, `nightly-YYYYMMDD`, `latest`, `main`, `sha-*`); the cron only fires from the default branch (docs/log/20261010-103721-nightly-image-publish.md)  
+  - [ ] Make the `ghcr.io/pkhanpara/cinnamon` package public after the first push on main (manual: Package settings -> Change visibility); anonymous pulls fail until then (ADR 0016, docs/log/20261010-023037-ghcr-image-publishing.md)  
   - [ ] arm64 image only if someone needs it: native `ubuntu-24.04-arm` job + manifest merge, not QEMU  
+  - [ ] E2E: more workflows (CSV error paths, account rename, M1 connector, live-quote holdings) #test  
+  - [ ] e2e: optionally auto-pick free ports/work dir (e.g. `CINNAMON_E2E_PORTS=auto`) so parallel worktree runs need no manual choice  
+  - [ ] Upgrade Angular 21 -> 22 (needs Node >= 24.15; machine has 24.4.1)  
+
+### Backlog
+
+- [ ] Rate limiting and auth hardening #sec  
+  - [ ] Per-user limit on symbol search/lookups (Finnhub allows 60 calls/min for everyone); reuse `app/ratelimit.py`; limiter and caches are per process  
+  - [ ] Per-user rate limit and/or daily token budget for LLM calls (none yet; `LLM_MAX_TOKENS` defaults to 96000)  
+  - [ ] Login rate limiting / lockout  
+  - [ ] Optional TOTP 2FA #feat  
+  - [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  
 
 ### In Progress
 
-- [x] UI refresh with Angular Material M3, clean fintech light (ADR 0014, docs/log/20261008-234210-material-ui-refresh.md) #ux  
-  - [x] Phase 1: theme, tokens, Inter, toolbar shell with user menu, chart/donut colours  
-  - [x] Phase 2: Material forms (login, change-password, accounts, users, import), Settings tabs, ConfirmDialog (snackbars skipped: inline `role=status` notices kept)  
-  - [x] Phase 3: Home (checkbox filter, chart + allocation cards, range button-toggle, SPY slide-toggle); fixed the blank chart when switching range with SPY on (also broken on main)  
-  - [x] Phase 4: ticker page, Ask AI panel, principle status pills, watchlist cards and filter chips (390 px overflow fixed)  
-  - [ ] Follow-ups: dark theme (second `mat.theme` + dark tokens); optional `mat-table` for holdings  
-  - [ ] Look in the dev app with a Finnhub key and the LLM: principle pills and table, watchlist scores, news list, chat bubbles with real answers #ux  
-- [ ] Phase 1 scaffold (app features done through holdings; Docker image still needs rebuild + verify; browser E2E suite in progress in a parallel session)  
+_(nothing active)_
 
 ### Done ✓
 
+- [x] UI refresh with Angular Material M3, clean fintech light, phases 1-4 (ADR 0014, docs/log/20261008-234210-material-ui-refresh.md); also fixed the blank chart when switching range with SPY on and the 390 px header overflow #ux  
+- [x] Phase 1 scaffold: app features through holdings, Docker image rebuilt and verified, browser E2E suite landed  
+- [x] Merged-row UI polish (docs/log/20261007-174319-merged-row-ui-polish.md): single scroll container, per-line gain, platform only when it differs from nickname, ticker position labelled and lines unticked on Home tagged, cost/value/gain on position lines #ux  
+- [x] Portfolio value chart on Home: back-cast of current holdings x historical prices, SPY overlay, ranges 1D-ALL, respects account selection; fixed the chart not showing on Home #feat  
+- [x] AI chat panel fixes: scrollable log that follows streaming, New chat button, frontend tests #bug  
+- [x] LLM chat: sanitized markdown answers (marked + DOMPurify), 3 more presets, Copy-as-markdown export, Playwright happy path with a fake OpenAI server (ADR 0015)  
+- [x] Principles panel: "All trades" remembered toggle, insider Net in $M, year-over-year bar charts for 7 cash-flow series (docs/log/20261010-023028-insider-cashflow-charts.md) #feat  
+- [x] GHCR image publishing workflow (ADR 0016) and Pin the uv image tag in Dockerfile #chore  
+- [x] GitHub Actions CI (ruff, pytest, prettier, tsc, vitest, ng build, Playwright e2e), branch protection on `main`, `.git-blame-ignore-revs` (see 20261007-194816 log) #chore  
+- [x] Rebuild Docker image and check size/build with yfinance (pandas) #chore  
+- [x] Robinhood import: `robinhood-positions` template with 1099 refusal hint, and activity-report replay with average cost (ADR 0013, docs/log/20261008-225955-robinhood-positions-connector.md, docs/log/20261008-233730-robinhood-activity-replay.md) #feat  
+- [x] M1 open tax lots connector (ADR 0011, docs/log/20261007-192120-broker-csv-connectors.md) and M1 holdings connector #feat  
+- [x] Watchlists + investing-principles scorecard with Finnhub-peer comparison, phase 1 (ADR 0012, docs/log/20261008-213725-watchlists-principles.md); ticker page "add to watchlist" #feat  
+- [x] Force a password change for users an admin creates or resets; verify `reset-password` against a built image #sec  
+- [x] Configurable e2e ports in playwright.config.ts #chore  
+- [x] Friendlier username-pattern 422 message on the Users form #ux  
+- [x] Replace window.confirm with `ConfirmService` dialog (account and watchlist delete) #chore  
 - [x] ~~Make the password-reset API refuse deactivated users like the CLI does (ADR 0009)~~ won't do: dropped by the user 2026-10-07, do not pick up  
-- [x] LLM news summary + chat side panel: OpenAI-compatible `LlmProvider`, SSE streaming, `Ask AI` panel with two presets, position sent only on opt-in, env-only config (ADR 0008); thinking disabled by default; API verified live against llama-swap dt-default (see docs/log/20261007-163432-llm-news-chat.md)  
-- [x] Seed data: NVDA, MSFT, VOO, AAPL split across robinhood/m1/schwab by `SPLITS` in `scripts/make_seed.py`; totals still 685,600.54; 16 tests, 7 mutation checks  
-- [x] News: 30-minute cache, Refresh button (POST /news/refresh, rate-limited) and "Updated N min ago" label; 222 backend + 139 frontend tests (see docs/log/20261007-163500-news-cache-and-refresh.md)  
+- [x] LLM news summary + chat side panel: OpenAI-compatible `LlmProvider`, SSE streaming, `Ask AI` panel, position sent only on opt-in, env-only config (ADR 0008); API verified live against llama-swap dt-default (see docs/log/20261007-163432-llm-news-chat.md)  
+- [x] Seed data: NVDA, MSFT, VOO, AAPL split across robinhood/m1/schwab by `SPLITS` in `scripts/make_seed.py`; totals still 685,600.54  
+- [x] News: 30-minute cache, Refresh button (POST /news/refresh, rate-limited) and "Updated N min ago" label (see docs/log/20261007-163500-news-cache-and-refresh.md)  
 - [x] Playwright e2e workflow tests: first-time login + returning user (15 tests)  
-- [x] Create public repo pkhanpara/cinnamon and set origin  
-- [x] .gitignore, .env (git-ignored), .env.example  
+- [x] Create public repo pkhanpara/cinnamon and set origin; .gitignore, .env (git-ignored), .env.example; push to origin/main  
 - [x] Seed generator + private/sample seed CSVs  
-- [x] FastAPI skeleton (config, db, Alembic, /api/health, pytest)  
-- [x] Angular 21 skeleton with dev proxy and health call  
+- [x] FastAPI skeleton (config, db, Alembic, /api/health, pytest); Angular 21 skeleton with dev proxy and health call  
 - [x] Dockerfile (multi-stage) + docker-compose.yml, verified running  
-- [x] Push to origin/main  
-- [x] Auth backend: users, sessions, accounts CRUD, first migration, 19 tests (ADR 0004)  
-- [x] Angular setup/login/accounts screens, guards, 401 interceptor, 19 tests, verified in a real browser  
-- [x] Admin Users page (create, make/remove admin, deactivate, reset password) + adminGuard + nav, 28 frontend tests, verified with two browser sessions  
-- [x] CSV import: connector interface + snapshot connector, preview/confirm API, positions + imports tables, import page, 61 backend + 38 frontend tests, verified in browser with real-derived seed (totals match the PDF)  
+- [x] Auth backend: users, sessions, accounts CRUD, first migration (ADR 0004); Angular setup/login/accounts screens, guards, 401 interceptor  
+- [x] Admin Users page (create, make/remove admin, deactivate, reset password) + adminGuard + nav  
+- [x] CSV import: connector interface + snapshot connector, preview/confirm API, positions + imports tables, import page (ADR 0002)  
 - [x] Fix first-admin setup 500: run Alembic on startup + readable 5xx errors  
-- [x] ADR 0002 (connector plugins and CSV-first import)  
-- [x] Holdings view: Finnhub provider + quote cache, aggregation API, account checkboxes, tiles, donut, sortable/expandable table, 111 backend + 67 frontend tests, verified live in browser (ADR 0003)  
+- [x] Holdings view: Finnhub provider + quote cache, aggregation API, account checkboxes, tiles, donut, sortable/expandable table (ADR 0003)  
 - [x] Default admin seeded on an empty DB with forced password change; change-password page and API; first-run setup removed (ADR 0005)  
 - [x] /home landing page and Settings (Accounts, User setup, Change password) with redirects from old URLs  
 - [x] README with run instructions, first sign-in, CSV format, configuration (ADR 0005)  
-- [x] Ticker detail page: quote header, lightweight-charts price chart (1D-All), key stats, your position, news, header symbol search; yfinance + Finnhub providers with TTL cache (ADR 0006); 212 backend + 129 frontend tests; verified live in a browser  
+- [x] Ticker detail page: quote header, lightweight-charts price chart, key stats, your position, news, header symbol search; yfinance + Finnhub providers with TTL cache (ADR 0006)  
 - [x] Admin password reset command (`python -m app.cli reset-password`) #sec  
