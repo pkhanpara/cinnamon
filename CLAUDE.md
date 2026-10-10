@@ -20,7 +20,8 @@ uv run alembic revision --autogenerate -m "msg"        # new migration (then rev
 Frontend (`cd frontend`, Node, npm):
 ```
 npm ci
-npm start            # ng serve; proxies /api -> http://localhost:8000 (proxy.conf.json)
+npm start            # ng serve; proxies /api -> http://localhost:${CINNAMON_BACKEND_PORT:-8000} (proxy.conf.mjs)
+CINNAMON_BACKEND_PORT=8010 npm start -- --host 0.0.0.0   # LAN dev (deepthought: :8000 is taken); host must be in angular.json allowedHosts
 npm test             # ng test (Vitest + jsdom); one file: npx ng test --include='src/app/core/auth.spec.ts'
 npm run test:ci      # same, single run (what CI uses)
 npm run format:check # prettier (TS/SCSS/e2e only; templates are excluded, see .prettierignore); npm run format fixes

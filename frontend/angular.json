@@ -70,7 +70,8 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "proxyConfig": "proxy.conf.json"
+            "proxyConfig": "proxy.conf.mjs",
+            "allowedHosts": ["deepthought"]
           }
         },
         "test": {
