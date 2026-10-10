@@ -13,3 +13,11 @@ backend/tests
 backend/static
 **/.pytest_cache
 **/.ruff_cache
+**/*.db
+**/*.sqlite3
+.claude/
+.github/
+scripts/
+frontend/e2e
+frontend/test-results
+frontend/playwright-report

@@ -1,7 +1,7 @@
 services:
   cinnamon:
     build: .
-    image: ${CINNAMON_IMAGE:-cinnamon:dev}
+    image: ${CINNAMON_IMAGE:-ghcr.io/pkhanpara/cinnamon:latest}
     ports:
       - "${CINNAMON_PORT:-8000}:8000"
     env_file:

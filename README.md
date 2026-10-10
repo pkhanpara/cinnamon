@@ -23,15 +23,27 @@ use the generic "positions snapshot" CSV below.
 
 ### Docker
 
+A prebuilt image (linux/amd64) is published to `ghcr.io/pkhanpara/cinnamon`.
+
 ```sh
 cp .env.example .env        # then put your Finnhub key in FINNHUB_API_KEY (free key at finnhub.io)
-docker compose up --build
+docker compose pull && docker compose up -d
+```
+
+or without compose:
+
+```sh
+docker run -d --name cinnamon -p 8000:8000 --env-file .env \
+  -v cinnamon-data:/app/data ghcr.io/pkhanpara/cinnamon:latest
 ```
 
 Open http://localhost:8000. The database lives in the `cinnamon-data` volume.
 
-> The Docker image was last verified before the auth, import and holdings work was added. If the build or
-> start fails, please open an issue.
+Image tags: `latest` and `main` follow the main branch, `sha-<commit>` pins one build, and `1.2.3` / `1.2` / `1`
+appear once releases are tagged (`v1.2.3`). Pin a `sha-` or version tag for a stable install.
+
+To build from source instead, run `docker compose up --build`. That tags the local build as
+`ghcr.io/pkhanpara/cinnamon:latest` too; set `CINNAMON_IMAGE=cinnamon:dev` in `.env` to keep the two apart.
 
 ### Development
 

@@ -91,6 +91,10 @@
 - [ ] Daily snapshots, performance + allocation charts (the portfolio value chart above is the first, back-cast version) #feat  
 - [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  
 - [ ] ADR 0007 cost-basis method (when transactions are built) #docs  
+- [ ] GHCR image follow-ups (ADR 0016, docs/log/20261010-023037-ghcr-image-publishing.md) #chore  
+  - [ ] Make the `ghcr.io/pkhanpara/cinnamon` package public after the first push on main (manual: Package settings -> Change visibility); anonymous pulls fail until then  
+  - [ ] Dependabot (`github-actions` ecosystem) to bump the SHA-pinned actions in ci.yml and publish.yml  
+  - [ ] arm64 image only if someone needs it: native `ubuntu-24.04-arm` job + manifest merge, not QEMU  
 
 ### In Progress
 

@@ -13,6 +13,7 @@ COPY backend/pyproject.toml backend/uv.lock ./
 RUN uv sync --frozen --no-dev --no-install-project
 
 FROM python:3.12-slim AS app
+LABEL org.opencontainers.image.source=https://github.com/pkhanpara/cinnamon
 WORKDIR /app
 COPY --from=deps /app/.venv ./.venv
 COPY backend/ ./
