@@ -57,6 +57,19 @@ cd frontend && npm install && npx ng serve
 
 Open http://localhost:4200.
 
+If port 8000 is taken, run the backend elsewhere and point the dev proxy at it with
+`CINNAMON_BACKEND_PORT` (read by `frontend/proxy.conf.mjs`):
+
+```sh
+cd backend && uv run uvicorn app.main:app --reload --port 8010
+cd frontend && CINNAMON_BACKEND_PORT=8010 npx ng serve --host 0.0.0.0
+```
+
+`--host 0.0.0.0` exposes the dev server on the LAN. The dev server only answers host names
+listed in `allowedHosts` in `frontend/angular.json` (plus localhost and IPs); add yours there.
+The CLI flag `--allowed-hosts=<name>` is ignored by `ng serve` 21, and bare `--allowed-hosts`
+turns the check off entirely.
+
 ## First sign-in
 
 On a brand-new database Cinnamon creates one administrator:
