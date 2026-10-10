@@ -6,6 +6,7 @@ import {
   fmtPct,
   fmtQty,
   fmtSigned,
+  fmtSignedMillions,
   tone,
 } from './format';
 
@@ -18,6 +19,15 @@ describe('format', () => {
     expect(fmtSigned('5')).toBe('+$5.00');
     expect(fmtSigned('-5')).toBe('-$5.00');
     expect(fmtSigned('0')).toBe('$0.00');
+  });
+  it('signed millions: one decimal, sign kept even when it rounds to zero', () => {
+    expect(fmtSignedMillions('-12345678')).toBe('-$12.3M');
+    expect(fmtSignedMillions('450000')).toBe('+$0.5M');
+    expect(fmtSignedMillions('-1234500000')).toBe('-$1,234.5M');
+    expect(fmtSignedMillions('0')).toBe('$0.0M');
+    expect(fmtSignedMillions('-27631.00')).toBe('-<$0.1M');
+    expect(fmtSignedMillions('49999')).toBe('+<$0.1M');
+    expect(fmtSignedMillions('50000')).toBe('+$0.1M');
   });
   it('percent: optional plus sign, two decimals', () => {
     expect(fmtPct('0.9172')).toBe('+0.92%');
@@ -33,6 +43,13 @@ describe('format', () => {
   it('compact notation for market cap and volume', () => {
     expect(fmtCompactMoney('5765683852696')).toBe('$5.77T');
     expect(fmtCompactNumber('107921380')).toBe('107.92M');
+  });
+  it('compact notation drops trailing zeros on every ICU build', () => {
+    expect(fmtCompactMoney('-400000000')).toBe('-$400M');
+    expect(fmtCompactMoney('-1500000000')).toBe('-$1.5B');
+    expect(fmtCompactMoney('2000000000')).toBe('$2B');
+    expect(fmtCompactMoney('0')).toBe('$0');
+    expect(fmtCompactNumber('2000000')).toBe('2M');
   });
   it('tone classes', () => {
     expect([tone('1'), tone('-1'), tone('0'), tone(null)]).toEqual(['gain', 'loss', '', 'muted']);

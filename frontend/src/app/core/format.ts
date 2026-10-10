@@ -6,15 +6,26 @@ const signedMoney = new Intl.NumberFormat('en-US', {
   currency: 'USD',
   signDisplay: 'exceptZero',
 });
+// Compact formatters pin minimumFractionDigits: some ICU builds (Node 22 in CI) apply the currency
+// default of 2 to compact notation ("$400.00M"), others don't ("$400M").
 const compactMoney = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
   notation: 'compact',
+  minimumFractionDigits: 0,
   maximumFractionDigits: 2,
 });
 const compactNumber = new Intl.NumberFormat('en-US', {
   notation: 'compact',
+  minimumFractionDigits: 0,
   maximumFractionDigits: 2,
+});
+const signedMillions = new Intl.NumberFormat('en-US', {
+  style: 'currency',
+  currency: 'USD',
+  signDisplay: 'exceptZero',
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
 });
 const quantity = new Intl.NumberFormat('en-US', { maximumFractionDigits: 6 });
 
@@ -23,6 +34,13 @@ export const fmtSigned = (v: string): string => signedMoney.format(Number(v));
 export const fmtCompactMoney = (v: string): string => compactMoney.format(Number(v));
 export const fmtCompactNumber = (v: string): string => compactNumber.format(Number(v));
 export const fmtQty = (v: string): string => quantity.format(Number(v));
+
+/** "-$12.3M", "+$0.5M", "$0.0M". A non-zero amount that would round to $0.0M keeps its sign: "-<$0.1M". */
+export function fmtSignedMillions(v: string): string {
+  const n = Number(v);
+  if (n !== 0 && Math.abs(n) < 50_000) return `${n < 0 ? '-' : '+'}<$0.1M`;
+  return `${signedMillions.format(n / 1e6)}M`;
+}
 
 export function fmtPct(v: string | null, signed = true): string {
   if (v === null) return '';

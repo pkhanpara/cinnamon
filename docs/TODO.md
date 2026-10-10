@@ -90,6 +90,9 @@
   - [ ] Split-adjust the 10-K EPS fallback (used when Finnhub has no EPS series, e.g. JPM) with the yfinance split history  
   - [ ] Remember the watchlist filter selection  
   - [ ] Real-browser check in the dev app (verified headless only)  
+- [x] Principles panel: "All trades" behind a remembered toggle, insider Net in $M, year-over-year SVG bar charts for the 7 cash-flow series (docs/log/20261010-023028-insider-cashflow-charts.md) #feat  
+  - [ ] Look at the cash-flow charts with real Finnhub data in the dev app (checked only with mocked API data in headless Chromium)  
+  - [ ] Optional: charts for Revenue (already in `CashYear`) and the buyback-vs-price table; a Playwright case needs a mocked principles API (e2e has no Finnhub key)  
 - [x] Header overflows at phone width: fixed by the wrapping Material toolbar (390/390 at 390 px, ADR 0014 log) #ux  
 - [ ] Daily snapshots, performance + allocation charts (the portfolio value chart above is the first, back-cast version) #feat  
 - [ ] Decide whether to rotate the Finnhub key (it was pasted into a chat transcript) #chore  

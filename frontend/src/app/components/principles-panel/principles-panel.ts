@@ -3,8 +3,24 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { apiError } from '../../core/errors';
-import { fmtCompactMoney, fmtMoney, fmtQty, fmtSigned, tone } from '../../core/format';
-import { Evidence, Peers, PeerStat, Principle, Scorecard, Verdict } from '../../core/models';
+import { BarPoint } from '../../core/bar-chart';
+import {
+  fmtCompactMoney,
+  fmtMoney,
+  fmtQty,
+  fmtSigned,
+  fmtSignedMillions,
+  tone,
+} from '../../core/format';
+import {
+  CashYear,
+  Evidence,
+  Peers,
+  PeerStat,
+  Principle,
+  Scorecard,
+  Verdict,
+} from '../../core/models';
 import {
   effectiveStatus,
   fmtPrincipleValue,
@@ -13,11 +29,34 @@ import {
   summarize,
 } from '../../core/principles';
 import { PrinciplesService } from '../../core/principles.service';
+import { YearBars } from './year-bars';
+
+/** Charted cash-flow series, in the table's column order. */
+const CASH_SERIES: { key: keyof Omit<CashYear, 'year' | 'revenue'>; title: string }[] = [
+  { key: 'net_income', title: 'Net income' },
+  { key: 'owner_earnings', title: 'Owner earnings' },
+  { key: 'cfo', title: 'Operating cash' },
+  { key: 'cff', title: 'Financing cash' },
+  { key: 'acquisitions', title: 'Acquisitions' },
+  { key: 'buybacks', title: 'Buybacks' },
+  { key: 'rnd', title: 'R&D' },
+];
+
+/** Whether "All trades" is expanded; one setting per browser, not per symbol. */
+const ALL_TRADES_KEY = 'cinnamon.principles.allTrades';
+
+function readAllTrades(): boolean {
+  try {
+    return localStorage.getItem(ALL_TRADES_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
 
 /** Investing-principles scorecard of one symbol, compared with its Finnhub peer group (ADR 0012). */
 @Component({
   selector: 'app-principles-panel',
-  imports: [DatePipe],
+  imports: [DatePipe, YearBars],
   template: `
     <section aria-labelledby="pr-h" class="principles">
       <div class="news-head">
@@ -146,24 +185,34 @@ import { PrinciplesService } from '../../core/principles.service';
                   }
                 }
                 @if (hasUnpriced(ev)) { <p class="sub">* Some trades had no price; amounts and averages leave them out.</p> }
-                <h4>All trades</h4>
-                <p class="hint">Net: <span [class]="tone(ev.insider_net_value)">{{ ev.insider_net_value !== null ? signed(ev.insider_net_value) : '—' }}</span>.
+                <p class="hint net-line">Net of all trades:
+                  <span [class]="tone(ev.insider_net_value)" [title]="ev.insider_net_value !== null ? signed(ev.insider_net_value) : ''">{{ ev.insider_net_value !== null ? millions(ev.insider_net_value) : '—' }}</span>.
                   Finnhub does not say which insiders are officers; check the names against the 10-K.</p>
-                <div class="table-x">
-                  <table class="lines">
-                    <thead><tr><th>Insider</th><th>Date</th><th>Type</th><th class="num">Shares</th><th class="num">Price</th></tr></thead>
-                    <tbody>
-                      @for (t of ev.insider_trades; track $index) {
-                        <tr>
-                          <td>{{ t.name }}</td>
-                          <td>{{ t.transaction_date | date: 'mediumDate' }}</td>
-                          <td>{{ t.code === 'P' ? 'Buy' : 'Sale' }}</td>
-                          <td class="num">{{ qty(t.shares_change.toString()) }}</td>
-                          <td class="num">{{ t.price ? money(t.price) : '—' }}</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
+                <h4>
+                  <button type="button" class="link all-trades" (click)="toggleAllTrades()"
+                          [attr.aria-expanded]="allTrades()" aria-controls="pr-all-trades">
+                    <span aria-hidden="true">{{ allTrades() ? '▾' : '▸' }}</span> All trades ({{ ev.insider_trades.length }})
+                  </button>
+                </h4>
+                <div id="pr-all-trades">
+                  @if (allTrades()) {
+                    <div class="table-x">
+                      <table class="lines all-trades-table">
+                        <thead><tr><th>Insider</th><th>Date</th><th>Type</th><th class="num">Shares</th><th class="num">Price</th></tr></thead>
+                        <tbody>
+                          @for (t of ev.insider_trades; track $index) {
+                            <tr>
+                              <td>{{ t.name }}</td>
+                              <td>{{ t.transaction_date | date: 'mediumDate' }}</td>
+                              <td>{{ t.code === 'P' ? 'Buy' : 'Sale' }}</td>
+                              <td class="num">{{ qty(t.shares_change.toString()) }}</td>
+                              <td class="num">{{ t.price ? money(t.price) : '—' }}</td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  }
                 </div>
               }
             </details>
@@ -191,6 +240,11 @@ import { PrinciplesService } from '../../core/principles.service';
             </details>
             <details>
               <summary>Cash flows, acquisitions and R&amp;D by year (10-K)</summary>
+              @if (ev.years.length) {
+                <div class="year-charts">
+                  @for (s of cashCharts(); track s.title) { <app-year-bars [title]="s.title" [points]="s.points" /> }
+                </div>
+              }
               <div class="table-x">
                 <table class="lines">
                   <thead>
@@ -244,6 +298,9 @@ import { PrinciplesService } from '../../core/principles.service';
     h4 { margin: 0.75rem 0 0.25rem; }
     h5 { margin: 0.5rem 0 0.25rem; }
     .insider-summary .span { white-space: nowrap; }
+    h4 .all-trades { font: inherit; padding: 0; }
+    .year-charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
+                   gap: 1rem 1.5rem; margin: 0.75rem 0 1rem; }
   `,
 })
 export class PrinciplesPanel {
@@ -265,6 +322,15 @@ export class PrinciplesPanel {
   private readonly stats = computed(
     () => new Map((this.peers()?.stats ?? []).map((s) => [s.key, s] as const)),
   );
+  /** Oldest first: the API sends years newest first. */
+  protected readonly cashCharts = computed(() => {
+    const years = [...(this.scorecard()?.evidence?.years ?? [])].reverse();
+    return CASH_SERIES.map(({ key, title }) => ({
+      title,
+      points: years.map((y): BarPoint => ({ label: String(y.year), value: y[key] })),
+    }));
+  });
+  protected readonly allTrades = signal(readAllTrades());
   private seq = 0;
 
   protected readonly status = effectiveStatus;
@@ -272,6 +338,7 @@ export class PrinciplesPanel {
   protected readonly fmtValue = fmtPrincipleValue;
   protected readonly money = fmtMoney;
   protected readonly signed = fmtSigned;
+  protected readonly millions = fmtSignedMillions;
   protected readonly compact = fmtCompactMoney;
   protected readonly qty = fmtQty;
   protected readonly tone = tone;
@@ -286,6 +353,16 @@ export class PrinciplesPanel {
       const symbol = this.symbol();
       untracked(() => void this.load(symbol));
     });
+  }
+
+  protected toggleAllTrades(): void {
+    const open = !this.allTrades();
+    this.allTrades.set(open);
+    try {
+      localStorage.setItem(ALL_TRADES_KEY, open ? '1' : '0');
+    } catch {
+      // Storage blocked (private window, quota): the toggle still works for this page.
+    }
   }
 
   protected value(p: Principle): string {
