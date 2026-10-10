@@ -1,6 +1,6 @@
 # Move development to deepthought (`/rpool/server-data/repos/cinnamon`)
 
-Status: in progress
+Status: done (deepthought dev stack running; first sign-in there still to do by hand)
 
 ## Why
 
@@ -68,10 +68,29 @@ already shared (bank `qwen-code` on deepthought), so nothing to do there.
    `CINNAMON_BACKEND_PORT=8011`): `GET :4211/api/auth/me` -> **401** from the backend (proxy follows
    the env var); with the backend down -> 500 + `connect ECONNREFUSED 127.0.0.1:8011` in the ng log.
 2. Host check results: table above.
+3. DB snapshot on threadripper (dev server left running):
+   `uv run python -c "import sqlite3; s=sqlite3.connect('data/cinnamon.db'); d=sqlite3.connect('<scratch>/cinnamon.db'); s.backup(d)"`
+   -> 606208 B, `integrity_check` ok, alembic `b4eb7a38ed02`, users `[('admin', 1, 0)]`,
+   accounts 2, positions 24, watchlists 1.
+4. deepthought: `git pull --ff-only` (-> `9ff957c`), uv installed via
+   `curl -LsSf https://astral.sh/uv/install.sh | sh` -> `uv 0.13.0` in `~/.local/bin`.
+5. Copied with `scp -p`: DB snapshot -> `backend/data/cinnamon.db` (sha256 `3fabacba…f825f` on both
+   ends), `.env` (chmod 600), `seed/private/*` (dir 700), `.claude/settings.local.json`, Claude
+   memory -> `~/.claude/projects/-rpool-server-data-repos-cinnamon/memory/`.
+6. `uv sync` (backend import ok); `npm ci` under nvm node v22.17.0 / npm 10.9.2 -> 483 packages.
+7. Checked out this branch there and started a detached tmux session `cinnamon`:
+   window `backend` = `uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8010`
+   (log `/tmp/cinnamon-dev-backend.log`), window `frontend` =
+   `CINNAMON_BACKEND_PORT=8010 npm start -- --host 0.0.0.0` (log `/tmp/cinnamon-dev-frontend.log`).
+   From threadripper: `http://deepthought:4200/` -> 200, `/api/auth/me` -> 401 (proxied to 8010).
+   ddns-updater on :8000 still `Up (healthy)`.
+8. Tests on deepthought: `uv run pytest` 514 passed; `npm run test:ci` 30 files / 273 tests passed;
+   `npx playwright install chromium` then `npm run e2e` 23 passed (24.0s).
 
 ## Still to do
 
-- deepthought setup: pull, install uv, copy DB/.env/seed/memory, `uv sync`, `npm ci`, run, verify.
+- First sign-in at `http://deepthought:4200` with the existing `admin` password (by hand).
+- After merge, switch the deepthought checkout back to `main` and pull.
 
 ## Gotchas
 
