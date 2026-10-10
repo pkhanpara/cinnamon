@@ -1,10 +1,11 @@
 name: Publish image
 
 # Builds the Docker image (linux/amd64) and publishes it to ghcr.io/pkhanpara/cinnamon (ADR 0016).
-# Pull requests build and smoke-test the image without pushing.
+# Pull requests build and smoke-test the image without pushing. main is published nightly, not per merge.
 on:
+  schedule:
+    - cron: "0 7 * * *" # 07:00 UTC, on the default branch
   push:
-    branches: [main]
     tags: ["v*.*.*"]
   pull_request:
   workflow_dispatch:
@@ -20,7 +21,27 @@ env:
   IMAGE: ghcr.io/pkhanpara/cinnamon
 
 jobs:
+  # Nightly runs are skipped when main has no commit from the last 25 hours; every other trigger builds.
+  changes:
+    runs-on: ubuntu-24.04
+    outputs:
+      build: ${{ steps.gate.outputs.build }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: gate
+        run: |
+          set -eu
+          if [ "${{ github.event_name }}" = "schedule" ] && \
+             [ $(( $(date +%s) - $(git log -1 --format=%ct) )) -gt 90000 ]; then
+            echo "build=false" >> "$GITHUB_OUTPUT"
+            echo "No commit on main in the last 25h; skipping nightly."
+          else
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
   image:
+    needs: changes
+    if: needs.changes.outputs.build == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
@@ -36,6 +57,8 @@ jobs:
           images: ${{ env.IMAGE }}
           flavor: latest=false
           tags: |
+            type=schedule,pattern=nightly
+            type=schedule,pattern=nightly-{{date 'YYYYMMDD'}}
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
             type=sha
