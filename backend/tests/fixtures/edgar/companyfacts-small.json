@@ -1,0 +1,45 @@
+{
+  "cik": 1234567,
+  "entityName": "  Example\n Corp  ",
+  "facts": {
+    "dei": {
+      "EntityCommonStockSharesOutstanding": {
+        "units": {"shares": [{"end": "2025-01-31", "val": 1000, "fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-20"}]}
+      }
+    },
+    "us-gaap": {
+      "NetIncomeLoss": {
+        "label": "Net Income (Loss)",
+        "units": {
+          "USD": [
+            {"start": "2022-01-01", "end": "2022-12-31", "val": 90000000000, "accn": "a1", "fy": 2022, "fp": "FY", "form": "10-K", "filed": "2023-02-15", "frame": "CY2022"},
+            {"start": "2023-01-01", "end": "2023-12-31", "val": 95000000000, "accn": "a2", "fy": 2023, "fp": "FY", "form": "10-K", "filed": "2024-02-15"},
+            {"start": "2023-01-01", "end": "2023-12-31", "val": 96000000000, "accn": "a3", "fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-14", "frame": "CY2023"},
+            {"start": "2024-01-01", "end": "2024-12-31", "val": 123456789012345678, "accn": "a4", "fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-14", "frame": "CY2024"},
+            {"start": "2024-01-01", "end": "2024-12-31", "val": 100, "accn": "a5", "fy": 2024, "fp": "FY", "form": "10-K/A", "filed": "2025-04-01"},
+            {"start": "2025-01-01", "end": "2025-03-31", "val": 25000000000, "accn": "a6", "fy": 2025, "fp": "Q1", "form": "10-Q", "filed": "2025-05-01", "frame": "CY2025Q1"},
+            {"start": "2024-01-01", "end": "2024-12-31", "val": 1, "accn": "a7", "fy": 2024, "fp": "FY", "form": "8-K", "filed": "2025-01-30"}
+          ]
+        }
+      },
+      "EarningsPerShareDiluted": {
+        "units": {"USD/shares": [{"start": "2024-01-01", "end": "2024-12-31", "val": 6.08, "fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-14"}]}
+      },
+      "CommonStockSharesOutstanding": {
+        "units": {"shares": [{"end": "2024-12-31", "val": 15000000000, "fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-14"}]}
+      },
+      "EffectiveIncomeTaxRateContinuingOperations": {
+        "units": {"pure": [{"start": "2024-01-01", "end": "2024-12-31", "val": 0.15, "fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-14"}]}
+      },
+      "RevenueQuarterlyOnly": {
+        "units": {"USD": [{"start": "2025-01-01", "end": "2025-03-31", "val": 5, "fy": 2025, "fp": "Q1", "form": "10-Q", "filed": "2025-05-01"}]}
+      },
+      "Revenues": {
+        "units": {
+          "USD": [{"start": "2024-01-01", "end": "2024-12-31", "val": 400000000000, "fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-14"}],
+          "EUR": [{"start": "2024-01-01", "end": "2024-12-31", "val": 1, "fy": 2024, "fp": "FY", "form": "10-K", "filed": "2025-02-14"}]
+        }
+      }
+    }
+  }
+}
