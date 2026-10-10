@@ -299,8 +299,8 @@ function readAllTrades(): boolean {
     h5 { margin: 0.5rem 0 0.25rem; }
     .insider-summary .span { white-space: nowrap; }
     h4 .all-trades { font: inherit; padding: 0; }
-    .year-charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(16rem, 100%), 1fr));
-                   gap: 1rem 1.5rem; margin: 0.75rem 0 1rem; }
+    .year-charts { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(19rem, 100%), 1fr));
+                   gap: 1rem; margin: 0.75rem 0 1rem; }
   `,
 })
 export class PrinciplesPanel {
