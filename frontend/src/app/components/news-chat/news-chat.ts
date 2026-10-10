@@ -15,6 +15,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatButtonModule } from '@angular/material/button';
 import { catchError, of } from 'rxjs';
 import { ChatRequest, ChatTurn, LlmService, Preset } from '../../core/llm.service';
+import { conversationMarkdown, renderMarkdown } from '../../core/markdown';
 
 interface Msg {
   role: 'user' | 'assistant';
@@ -24,13 +25,16 @@ interface Msg {
 const PRESETS: { value: Preset; label: string }[] = [
   { value: 'summarize', label: 'Summarize the news' },
   { value: 'why_move', label: 'Why is the stock up/down today?' },
+  { value: 'earnings', label: 'What about earnings?' },
+  { value: 'risks', label: 'What are the risks?' },
+  { value: 'compare_sector', label: 'Compare with its sector' },
 ];
 const MESSAGE_MAX = 500;
 const HISTORY_MAX = 10;
 const TURN_MAX = 4000; // the server rejects longer turns
 const BOTTOM_SLACK = 24; // px from the bottom of the log that still counts as "following"
 
-/** Ask-AI side panel for the ticker page (ADR 0008). Renders nothing unless the server has a model configured. */
+/** Ask-AI side panel for the ticker page (ADR 0008; markdown answers and Copy: ADR 0015). Renders nothing unless the server has a model configured. */
 @Component({
   selector: 'app-news-chat',
   imports: [MatButtonModule],
@@ -43,11 +47,14 @@ const BOTTOM_SLACK = 24; // px from the bottom of the log that still counts as "
           <header>
             <h3>Ask AI about {{ symbol() }}</h3>
             <span class="actions">
+              <button type="button" class="link" [disabled]="!canCopy()" (click)="copy()"
+                      title="Copy the conversation as markdown">Copy</button>
               <button type="button" class="link" [disabled]="!hasContent()" (click)="clear()">New chat</button>
               <button type="button" class="link" (click)="close()" aria-label="Close panel">Close</button>
             </span>
           </header>
           <p class="hint">Model: {{ status()?.model }}. Answers can be wrong; check the sources.</p>
+          @if (copyNote()) { <p class="hint copied" role="status">{{ copyNote() }}</p> }
 
           <div class="presets" role="group" aria-label="Preset questions">
             @for (p of presets; track p.value) {
@@ -63,7 +70,11 @@ const BOTTOM_SLACK = 24; // px from the bottom of the log that still counts as "
 
           <div class="log" #log aria-live="polite" (scroll)="onLogScroll()">
             @for (m of messages(); track $index) {
-              <p class="msg" [class.user]="m.role === 'user'">{{ m.text }}@if (busy() && $last && m.role === 'assistant') {<span class="cursor">▍</span>}</p>
+              @if (m.role === 'user') {
+                <p class="msg user">{{ m.text }}</p>
+              } @else {
+                <div class="msg"><div class="md" [innerHTML]="rendered()[$index]"></div>@if (busy() && $last) {<span class="cursor">▍</span>}</div>
+              }
             }
           </div>
           @for (w of warnings(); track w) { <p class="warn" role="note">{{ w }}</p> }
@@ -110,6 +121,20 @@ const BOTTOM_SLACK = 24; // px from the bottom of the log that still counts as "
       padding: 0.75rem; background: var(--bg); border-radius: var(--radius-sm); }
     .msg { margin: 0; padding: 0.6rem 0.8rem; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 0.9rem;
       background: var(--surface); border: 1px solid var(--border); border-radius: 12px 12px 12px 4px; }
+    .msg:not(.user) { white-space: normal; }
+    .md { display: contents; }
+    .md ::ng-deep :is(p, ul, ol, pre, blockquote, table) { margin: 0 0 0.5rem; }
+    .md ::ng-deep :is(p, ul, ol, pre, blockquote, table):last-child { margin-bottom: 0; }
+    .md ::ng-deep :is(ul, ol) { padding-left: 1.25rem; }
+    .md ::ng-deep :is(h1, h2, h3, h4, h5, h6) { margin: 0 0 0.4rem; font-size: 0.95rem; }
+    .md ::ng-deep code { font-size: 0.85em; padding: 0 0.2em; background: var(--bg); border-radius: 4px; }
+    .md ::ng-deep pre { overflow-x: auto; padding: 0.5rem; background: var(--bg); border-radius: var(--radius-sm); }
+    .md ::ng-deep blockquote { padding-left: 0.6rem; border-left: 3px solid var(--border); color: var(--muted); }
+    .md ::ng-deep table { border-collapse: collapse; font-size: 0.85rem; }
+    .md ::ng-deep :is(th, td) { padding: 0.2rem 0.4rem; border: 1px solid var(--border); }
+    .md ::ng-deep a { color: var(--accent); }
+    .md ::ng-deep a:not([href]) { color: inherit; }
+    .copied { color: var(--muted); }
     .msg.user { align-self: flex-end; max-width: 85%; font-weight: 500; color: var(--mat-sys-on-primary);
       background: var(--accent); border-color: var(--accent); border-radius: 12px 12px 4px 12px; }
     .cursor { opacity: 0.5; }
@@ -138,6 +163,15 @@ export class NewsChat {
     () =>
       this.messages().length > 0 || this.warnings().length > 0 || !!this.error() || !!this.draft(),
   );
+  protected readonly canCopy = computed(
+    () => !this.busy() && this.messages().some((m) => m.text.trim()),
+  );
+  protected readonly copyNote = signal('');
+  /** Assistant bubbles as sanitized HTML; only the message still streaming is re-rendered. */
+  protected readonly rendered = computed(() =>
+    this.messages().map((m, i) => (m.role === 'assistant' ? this.html(i, m.text) : '')),
+  );
+  private renderCache: { text: string; html: string }[] = [];
   protected readonly sentNote = computed(
     () =>
       `Sent to ${this.status()?.model ?? 'the model'}: the symbol, today's price change and public headlines` +
@@ -181,6 +215,24 @@ export class NewsChat {
     if (el) this.following = el.scrollHeight - el.scrollTop - el.clientHeight <= BOTTOM_SLACK;
   }
 
+  protected async copy(): Promise<void> {
+    const md = conversationMarkdown(this.symbol(), this.status()?.model, this.messages());
+    try {
+      await navigator.clipboard.writeText(md); // only the browser clipboard; nothing goes to the server
+      this.copyNote.set('Copied the conversation as markdown.');
+    } catch {
+      this.copyNote.set('Copy failed: the browser did not allow clipboard access.');
+    }
+  }
+
+  private html(i: number, text: string): string {
+    const hit = this.renderCache[i];
+    if (hit?.text === text) return hit.html;
+    const html = renderMarkdown(text);
+    this.renderCache[i] = { text, html };
+    return html;
+  }
+
   /** "New chat": drop the conversation, including any stream still running. */
   protected clear(): void {
     this.reset();
@@ -193,6 +245,8 @@ export class NewsChat {
     this.abort?.abort();
     this.abort = null;
     this.messages.set([]);
+    this.renderCache = [];
+    this.copyNote.set('');
     this.warnings.set([]);
     this.error.set('');
     this.draft.set('');
@@ -245,6 +299,7 @@ export class NewsChat {
     this.lastRequest = { req, label };
     this.error.set('');
     this.warnings.set([]);
+    this.copyNote.set('');
     this.messages.update((m) => [
       ...m,
       { role: 'user', text: label },

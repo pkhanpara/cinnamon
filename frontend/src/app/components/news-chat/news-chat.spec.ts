@@ -65,7 +65,7 @@ async function mount(status: object | 'fail' = { enabled: true, model: 'qwen-tes
     Array.from(el.querySelectorAll('button')).find((b) => re.test(b.textContent ?? '')) as
       HTMLButtonElement | undefined;
   const text = () =>
-    Array.from(el.querySelectorAll('.msg')).map((m) => m.textContent?.replace('▍', ''));
+    Array.from(el.querySelectorAll('.msg')).map((m) => m.textContent?.replace('▍', '').trim());
   const open = async () => {
     btn(/Ask AI/)!.click();
     await settle();
@@ -114,7 +114,7 @@ describe('NewsChat', () => {
     expect(m.btn(/Stop/)).toBeDefined();
     m.chat.push('delta', { text: 'It rose ' });
     await m.settle();
-    expect(m.text()).toEqual(['Why is the stock up/down today?', 'It rose ']);
+    expect(m.text()).toEqual(['Why is the stock up/down today?', 'It rose']);
     m.chat.push('delta', { text: '3%.' });
     m.chat.push('done', {});
     await m.settle();
@@ -141,6 +141,86 @@ describe('NewsChat', () => {
     await m.settle();
     expect(m.el.querySelector('.msg img, .msg script')).toBeNull();
     expect(m.text()[1]).toContain('<script>alert(2)</script>');
+  });
+
+  it('offers all five presets and sends the new ones by value', async () => {
+    const m = await mount();
+    await m.open();
+    const labels = Array.from(m.el.querySelectorAll('.presets button')).map((b) => b.textContent);
+    expect(labels).toEqual([
+      'Summarize the news',
+      'Why is the stock up/down today?',
+      'What about earnings?',
+      'What are the risks?',
+      'Compare with its sector',
+    ]);
+    m.btn(/risks/)!.click();
+    await m.settle();
+    expect(m.chat.calls[0].body.preset).toBe('risks');
+  });
+
+  it('renders the answer as sanitized markdown while it streams', async () => {
+    const m = await mount();
+    await m.open();
+    m.btn(/risks/)!.click();
+    await m.settle();
+    m.chat.push('delta', { text: '- **Legal**: a law' });
+    await m.settle();
+    expect(m.el.querySelector('.msg li strong')?.textContent).toBe('Legal');
+    expect(m.el.querySelector('.msg .cursor')).not.toBeNull(); // still streaming
+    m.chat.push('delta', { text: 'suit [src](https://x.example/a) [bad](javascript:alert(1))' });
+    m.chat.push('done', {});
+    await m.settle();
+    const links = Array.from(m.el.querySelectorAll('.msg a'));
+    expect(links.map((a) => a.getAttribute('href'))).toEqual(['https://x.example/a', null]);
+    expect(links[0].getAttribute('rel')).toContain('noopener');
+    expect(m.el.querySelector('.msg .cursor')).toBeNull();
+    expect(m.el.querySelector('.msg.user strong')).toBeNull(); // the question stays plain text
+  });
+
+  describe('Copy', () => {
+    let writeText: ReturnType<typeof vi.fn>;
+    beforeEach(() => {
+      writeText = vi.fn().mockResolvedValue(undefined);
+      Object.defineProperty(navigator, 'clipboard', {
+        value: { writeText },
+        configurable: true,
+      });
+    });
+
+    it('is disabled until there is an answer and while streaming, then copies markdown source', async () => {
+      const m = await mount();
+      await m.open();
+      expect(m.btn(/^Copy$/)!.disabled).toBe(true);
+      m.btn(/risks/)!.click();
+      await m.settle();
+      m.chat.push('delta', { text: '**Big** risk' });
+      await m.settle();
+      expect(m.btn(/^Copy$/)!.disabled).toBe(true); // busy
+      m.chat.push('done', {});
+      await m.settle();
+      m.btn(/^Copy$/)!.click();
+      await m.settle();
+      expect(writeText).toHaveBeenCalledWith(
+        '# Ask AI: NVDA\n\n**You:** What are the risks?\n\n**AI (qwen-test):** **Big** risk\n',
+      );
+      expect(m.el.querySelector('[role=status]')?.textContent).toContain('Copied');
+      expect(m.chat.calls.length).toBe(1); // nothing extra went to the server
+    });
+
+    it('says so when the browser refuses clipboard access', async () => {
+      writeText.mockRejectedValue(new DOMException('denied', 'NotAllowedError'));
+      const m = await mount();
+      await m.open();
+      m.btn(/Summarize/)!.click();
+      await m.settle();
+      m.chat.push('delta', { text: 'hi' });
+      m.chat.push('done', {});
+      await m.settle();
+      m.btn(/^Copy$/)!.click();
+      await m.settle();
+      expect(m.el.querySelector('[role=status]')?.textContent).toContain('Copy failed');
+    });
   });
 
   it('a typed question is sent with the earlier turns as history', async () => {

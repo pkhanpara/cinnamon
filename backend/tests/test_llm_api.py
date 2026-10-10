@@ -6,7 +6,7 @@ from pathlib import Path
 from app.api.llm import _stream
 from app.main import app
 from app.providers import ProviderError, Quote, get_company_provider, get_quote_provider
-from app.providers.base import NewsItem
+from app.providers.base import NewsItem, Profile
 from app.providers.llm import get_llm_provider
 
 SAMPLE = Path(__file__).resolve().parents[2] / "seed" / "sample"
@@ -45,8 +45,15 @@ class FakeQuotes:
 
 
 class FakeCompany:
-    def __init__(self, news=None, error=None):
+    def __init__(self, news=None, error=None, industry="Software", profile_error=None):
         self.news, self.error, self.calls = news or [], error, 0
+        self.industry, self.profile_error, self.profile_calls = industry, profile_error, 0
+
+    def get_profile(self, symbol):
+        self.profile_calls += 1
+        if self.profile_error:
+            raise self.profile_error
+        return Profile(None, None, self.industry, None, None, None, None)
 
     def get_news(self, symbol, days, limit):
         self.calls += 1
@@ -233,3 +240,33 @@ def test_user_message_and_history_reach_the_model_in_order(admin):
     events(post(admin, message="and then?", history=hist))
     roles = [(m.role, m.content[:7]) for m in llm.calls[0][0]]
     assert roles[1:] == [("user", "first"), ("assistant", "answer"), ("user", "and the")]
+
+
+def test_new_presets_are_accepted(admin):
+    for preset in ("earnings", "risks", "compare_sector"):
+        llm = FakeLlm()
+        use(llm, FakeQuotes(), FakeCompany([headline()]))
+        assert events(post(admin, preset=preset))[-1] == ("done", {}), preset
+
+
+def test_compare_sector_sends_the_cached_industry_and_only_that_preset_reads_it(admin):
+    company = FakeCompany([headline()], industry="Cloud <software>")
+    llm = FakeLlm()
+    use(llm, FakeQuotes(), company)
+    events(post(admin, preset="risks"))
+    assert company.profile_calls == 0 and "Industry of" not in llm.prompt
+    events(post(admin, preset="compare_sector"))
+    events(post(admin, preset="compare_sector"))
+    assert company.profile_calls == 1  # second answer reuses the ticker page's cache entry
+    assert "Industry of ORCL: <data>Cloud ‹software›</data>" in llm.prompt
+
+
+def test_compare_sector_without_a_profile_says_so(admin):
+    llm = FakeLlm()
+    use(llm, FakeQuotes(), FakeCompany([headline()], profile_error=ProviderError("429")))
+    ev = events(post(admin, preset="compare_sector"))
+    assert any(n == "warning" and "profile unavailable" in d["message"] for n, d in ev)
+    assert "does not include its sector" in llm.prompt
+    use(llm, FakeQuotes(), None)  # no Finnhub key at all
+    events(post(admin, preset="compare_sector"))
+    assert "does not include its sector" in llm.prompt

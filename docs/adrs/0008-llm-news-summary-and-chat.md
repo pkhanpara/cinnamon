@@ -1,6 +1,6 @@
 # 0008 - LLM news summary and chat on the ticker page
 
-Status: Accepted (2026-10-07); exercised against llama-swap `dt-default` on 2026-10-07
+Status: Accepted (2026-10-07); exercised against llama-swap `dt-default` on 2026-10-07. Rendering and the "no markdown" prompt rule superseded by ADR 0015 (2026-10-10)
 
 ## Context
 The ticker page (ADR 0006) lists up to 20 headlines. The user wants a one-click summary of them and a chat panel with

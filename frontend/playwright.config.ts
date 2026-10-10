@@ -4,15 +4,16 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * End-to-end tests run against a throwaway stack on their own ports (so a running dev server is
  * left alone): a backend started like a real first run (plain uvicorn, empty database, no manual
- * migration) and the Angular dev server. No Finnhub key is configured, so runs are offline and
- * deterministic (holdings fall back to imported values).
+ * migration), the Angular dev server and a fake OpenAI-compatible model (e2e/fake-llm.mjs) that the
+ * backend's Ask AI chat talks to. No Finnhub key is configured, so runs are offline and deterministic
+ * (holdings fall back to imported values).
  *
  *   cd frontend && npm run e2e
  *
  * Ports and the work directory can be overridden so several runs (e.g. one per worktree) can go
  * side by side; the dev server's /api proxy (e2e/proxy.e2e.mjs) follows the backend port:
  *
- *   CINNAMON_E2E_BACKEND_PORT=8337 CINNAMON_E2E_FRONTEND_PORT=4337 \
+ *   CINNAMON_E2E_BACKEND_PORT=8337 CINNAMON_E2E_FRONTEND_PORT=4337 CINNAMON_E2E_LLM_PORT=8338 \
  *     CINNAMON_E2E_DIR=/tmp/cinnamon-e2e-8337 npm run e2e
  */
 function envPort(name: string, fallback: number): number {
@@ -45,9 +46,11 @@ function envDir(name: string, fallback: string): string {
 export const E2E_DIR = envDir('CINNAMON_E2E_DIR', '/tmp/cinnamon-e2e');
 const BACKEND_PORT = envPort('CINNAMON_E2E_BACKEND_PORT', 8310);
 const FRONTEND_PORT = envPort('CINNAMON_E2E_FRONTEND_PORT', 4310);
-if (BACKEND_PORT === FRONTEND_PORT) {
+export const LLM_PORT = envPort('CINNAMON_E2E_LLM_PORT', 8311);
+if (new Set([BACKEND_PORT, FRONTEND_PORT, LLM_PORT]).size !== 3) {
   throw new Error(
-    `CINNAMON_E2E_BACKEND_PORT and CINNAMON_E2E_FRONTEND_PORT are both ${BACKEND_PORT}`,
+    'CINNAMON_E2E_BACKEND_PORT, CINNAMON_E2E_FRONTEND_PORT and CINNAMON_E2E_LLM_PORT must differ, ' +
+      `got ${BACKEND_PORT}, ${FRONTEND_PORT} and ${LLM_PORT}`,
   );
 }
 
@@ -71,10 +74,24 @@ export default defineConfig({
         `rm -rf ${E2E_DIR} && mkdir -p ${E2E_DIR} && ` +
         `exec uv run uvicorn app.main:app --port ${BACKEND_PORT} > ${E2E_DIR}/backend.log 2>&1`,
       cwd: '../backend',
-      env: { DATABASE_URL: `sqlite:///${E2E_DIR}/e2e.db`, FINNHUB_API_KEY: '' },
+      env: {
+        DATABASE_URL: `sqlite:///${E2E_DIR}/e2e.db`,
+        FINNHUB_API_KEY: '',
+        LLM_BASE_URL: `http://localhost:${LLM_PORT}/v1`,
+        LLM_MODEL: 'fake-llm',
+        LLM_API_KEY: '',
+      },
       url: `http://localhost:${BACKEND_PORT}/api/health`,
       reuseExistingServer: false,
       timeout: 60_000,
+    },
+    {
+      // After the backend, whose command recreates the work dir this log lives in.
+      command: `exec node e2e/fake-llm.mjs > ${E2E_DIR}/fake-llm.log 2>&1`,
+      env: { CINNAMON_E2E_LLM_PORT: String(LLM_PORT) },
+      url: `http://localhost:${LLM_PORT}/health`,
+      reuseExistingServer: false,
+      timeout: 10_000,
     },
     {
       command:
