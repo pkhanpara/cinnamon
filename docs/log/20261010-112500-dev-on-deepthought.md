@@ -79,3 +79,10 @@ already shared (bank `qwen-code` on deepthought), so nothing to do there.
   dropped); use angular.json.
 - Signing in at `deepthought:4200` needs a fresh login: the session cookie is per host.
 - After the copy, the two dev DBs diverge; deepthought's is the one to keep.
+- **Two agents in one working tree collide.** While this change was in progress, another session
+  in the same `~/repo/cinnamon` checkout switched branches and committed #28 (`9ff957c`), which
+  swept in this task's staged `git rm frontend/proxy.conf.json`. `origin/main` was briefly left with
+  `angular.json` pointing at a missing `proxy.conf.json` (`npm start` broken) until this PR landed.
+  This task's commit had also landed on local `main`; it was moved with
+  `git branch -f chore/dev-proxy-port 19c8068 && git checkout chore/dev-proxy-port && git branch -f main origin/main`.
+  Use a worktree per agent (`.claude/worktrees/`) when two sessions work at once.
