@@ -35,7 +35,6 @@
   - [ ] Owner earnings: subtract non-recurring items, pension income and unusual charges when reliably tagged (today NI + D&A - capex) (see EDGAR items below)  
   - [ ] Split-adjust the 10-K EPS fallback (used when Finnhub has no EPS series, e.g. JPM) with the yfinance split history (see EDGAR items below)  
   - [ ] Remember the watchlist filter selection  
-  - [ ] Cash flows / acquisitions charts in the principles panel: no labelled x-axis (years), so year-over-year values such as net income can't be read; also the charts aren't neatly arranged, so put each chart in its own card (title, year labels, value labels) #ux  
   - [ ] Optional: cash-flow charts for Revenue (already in `CashYear`) and the buyback-vs-price table; a Playwright case needs a mocked principles API  
 - [ ] Research data: SEC EDGAR + Financial Modeling Prep providers #feat  
   - [ ] ADR 0017: EDGAR as a fundamentals provider (precedence vs Finnhub as-reported 10-Ks, User-Agent config, throttle) #docs  
@@ -92,6 +91,7 @@ _(nothing active)_
 - [x] Portfolio value chart on Home: back-cast of current holdings x historical prices, SPY overlay, ranges 1D-ALL, respects account selection; fixed the chart not showing on Home #feat  
 - [x] AI chat panel fixes: scrollable log that follows streaming, New chat button, frontend tests #bug  
 - [x] LLM chat: sanitized markdown answers (marked + DOMPurify), 3 more presets, Copy-as-markdown export, Playwright happy path with a fake OpenAI server (ADR 0015)  
+- [x] Cash-flow charts in the principles panel: one card per series with title, latest value, unit, a value label on every bar and 4-digit year axis; HTML labels at real text size (docs/log/20261010-120644-cashflow-chart-cards.md) #ux  
 - [x] Principles panel: "All trades" remembered toggle, insider Net in $M, year-over-year bar charts for 7 cash-flow series (docs/log/20261010-023028-insider-cashflow-charts.md) #feat  
 - [x] GHCR image publishing workflow (ADR 0016) and Pin the uv image tag in Dockerfile #chore  
 - [x] GitHub Actions CI (ruff, pytest, prettier, tsc, vitest, ng build, Playwright e2e), branch protection on `main`, `.git-blame-ignore-revs` (see 20261007-194816 log) #chore  
