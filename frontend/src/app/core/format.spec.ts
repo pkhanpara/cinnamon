@@ -44,6 +44,13 @@ describe('format', () => {
     expect(fmtCompactMoney('5765683852696')).toBe('$5.77T');
     expect(fmtCompactNumber('107921380')).toBe('107.92M');
   });
+  it('compact notation drops trailing zeros on every ICU build', () => {
+    expect(fmtCompactMoney('-400000000')).toBe('-$400M');
+    expect(fmtCompactMoney('-1500000000')).toBe('-$1.5B');
+    expect(fmtCompactMoney('2000000000')).toBe('$2B');
+    expect(fmtCompactMoney('0')).toBe('$0');
+    expect(fmtCompactNumber('2000000')).toBe('2M');
+  });
   it('tone classes', () => {
     expect([tone('1'), tone('-1'), tone('0'), tone(null)]).toEqual(['gain', 'loss', '', 'muted']);
   });

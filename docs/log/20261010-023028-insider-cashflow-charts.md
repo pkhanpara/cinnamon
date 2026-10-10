@@ -65,6 +65,18 @@ Files touched: `frontend/src/app/core/format.ts` (+spec), `frontend/src/app/core
    ```
    Screenshots showed oldest year on the left, the negative bar below the zero line, red financing bars, "n/a" gaps, Net `-$12.3M`, a single chart column at 390px.
 
+7. CI fix (PR #25 run 38042056502, Frontend test:ci, 1 failed / 248 passed):
+   ```
+   Expected: "Financing cash by fiscal year, oldest first: 2023 -$400M, 2024 -$400M, 2025 -$1.5B"
+   Received: "... 2023 -$400.00M, 2024 -$400.00M, 2025 -$1.50B"
+   ```
+   CI uses Node 22 (`NODE_VERSION: '22'` in ci.yml), local is Node 24.4.1 / ICU 77.1. Reproduced locally:
+   ```
+   $ npx -y node@22 -e '...notation:"compact",maximumFractionDigits:2...'
+   v22.23.3 78.3 -$400.00M -$1.50B | fixed: -$400M -$1.5B $2B $5.77T
+   ```
+   Fix: `minimumFractionDigits: 0` on `compactMoney` and `compactNumber` in `core/format.ts` (`signedMillions` already pins 1/1). New format spec with exact strings (`-$400M`, `-$1.5B`, `$2B`, `$0`, `2M`) that fail on the old options under Node 22. Full suite under Node 22 (`npx -y node@22 node_modules/@angular/cli/bin/ng.js test --watch=false`): 250 passed; under Node 24 `test:ci` 250 passed, format:check, typecheck, build clean.
+
 ## Still to do
 
 - Look at the charts with real Finnhub data in the dev app (only mocked data so far). In TODO.md.
@@ -77,4 +89,5 @@ Files touched: `frontend/src/app/core/format.ts` (+spec), `frontend/src/app/core
 - `preserveAspectRatio="none"` with a fixed CSS height stretched the year labels; uniform scaling (`height: auto`) instead.
 - The symbol page renders the panel only after `/api/symbols/<sym>` loads, so a mocked check must mock that too.
 - The app has no dark theme (no `prefers-color-scheme` in `styles.scss`), so `colorScheme: 'dark'` screenshots are the same as light.
+- `Intl.NumberFormat` with `style: 'currency', notation: 'compact'` and only `maximumFractionDigits` is not deterministic across Node/ICU builds: Node 22 (ICU 78.3) pads to the currency's 2 digits (`$400.00M`), Node 24 (ICU 77.1) does not. Always pin `minimumFractionDigits` too. This also changed what real users see in the existing cash-flow table and market-cap cells on such engines.
 - Running two Bash calls in parallel that each `cd` raced on the shared shell: the e2e run started in `backend/` and failed with ENOENT on package.json. Run it alone.

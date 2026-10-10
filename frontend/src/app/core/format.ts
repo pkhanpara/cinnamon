@@ -6,14 +6,18 @@ const signedMoney = new Intl.NumberFormat('en-US', {
   currency: 'USD',
   signDisplay: 'exceptZero',
 });
+// Compact formatters pin minimumFractionDigits: some ICU builds (Node 22 in CI) apply the currency
+// default of 2 to compact notation ("$400.00M"), others don't ("$400M").
 const compactMoney = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
   notation: 'compact',
+  minimumFractionDigits: 0,
   maximumFractionDigits: 2,
 });
 const compactNumber = new Intl.NumberFormat('en-US', {
   notation: 'compact',
+  minimumFractionDigits: 0,
   maximumFractionDigits: 2,
 });
 const signedMillions = new Intl.NumberFormat('en-US', {
